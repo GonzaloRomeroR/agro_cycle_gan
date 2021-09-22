@@ -1,5 +1,7 @@
+import torch
 import torch.nn as nn
 import torch.nn.functional as F
+
 from .base_model import BaseModel
 
 
@@ -7,6 +9,10 @@ norm_layer = nn.InstanceNorm2d
 
 
 class ResBlock(nn.Module):
+    """
+    Resblock class
+    """
+
     def __init__(self, nf):
         self.nf = nf
         super(ResBlock, self).__init__()
@@ -66,6 +72,9 @@ class Generator(BaseModel):
             ]
         )
         self.conv = nn.Sequential(*layers)
+
+    def get_loss(fake):
+        return torch.mean((fake - 1) ** 2)
 
     def forward(self, x):
         return self.conv(x)

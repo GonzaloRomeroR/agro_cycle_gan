@@ -1,5 +1,7 @@
+import torch
 import numpy as no
 import torch.nn as nn
+
 from .base_model import BaseModel
 
 
@@ -35,6 +37,9 @@ class Discriminator(BaseModel):
             nn.Conv2d(self.ndf * 8, 1, 4, 1, 1)
             # state size. 1 x 14 x 14
         )
+
+    def get_loss(real, fake):
+        return torch.mean((real - 1) ** 2) + torch.mean(fake ** 2)
 
     def forward(self, input):
         return self.main(input)

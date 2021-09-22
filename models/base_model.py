@@ -21,6 +21,10 @@ class BaseModel(ABC, nn.Module):
         return
 
     @abstractmethod
+    def get_loss(self):
+        return
+
+    @abstractmethod
     def forward():
         return
 

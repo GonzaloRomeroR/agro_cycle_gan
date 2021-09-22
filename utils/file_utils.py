@@ -5,8 +5,10 @@ import os
 import shutil
 import zipfile
 
+from pathlib import Path
 
-def save_models(G_A2B, G_B2A, D_A, D_B, path, name):
+
+def save_models(path, name, G_A2B, G_B2A, D_A, D_B):
     """Save trained models
 
     :param G_A2B: Generator to transform from A to B 
@@ -22,13 +24,15 @@ def save_models(G_A2B, G_B2A, D_A, D_B, path, name):
     :param name: name of the file to save
     :type name: [type]
     """
+    Path(path).mkdir(parents=True, exist_ok=True)
+
     torch.save(G_A2B, path + "/" + name + "_G_A2B.pt")
     torch.save(G_B2A, path + "/" + name + "_G_B2A.pt")
     torch.save(D_A, path + "/" + name + "_D_A.pt")
     torch.save(D_B, path + "/" + name + "_D_B.pt")
 
 
-def load_models(name, path):
+def load_models(path, name):
     """Load trained models
 
     :return: tuple with the loaded models
