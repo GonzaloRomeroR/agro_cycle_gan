@@ -5,7 +5,7 @@ import random
 
 from utils.file_utils import download_images, load_models, save_models
 from utils.image_utils import get_datasets
-from utils.plot_utils import show_batch
+from utils.plot_utils import show_batch, plot_generator_images
 
 from models.model_factory import ModelCreator
 
@@ -23,14 +23,20 @@ def setup(cmd_args):
     train_images_A, train_images_B = get_datasets(
         dataset_name=dataset_name, dataset="train"
     )
+    test_images_A, test_images_B = get_datasets(
+        dataset_name=dataset_name, dataset="test"
+    )
     model_creator = ModelCreator()
 
-    D_A = model_creator.create(model_type="disc", model_name="").to(device)
-    D_B = model_creator.create(model_type="disc", model_name="").to(device)
-    G_A2B = model_creator.create(model_type="gen", model_name="").to(device)
-    G_B2A = model_creator.create(model_type="gen", model_name="").to(device)
+    if cmd_args.load_models:
+        G_A2B, G_B2A, D_A, D_B = load_models(f"./results/{dataset_name}", dataset_name)
+    else:
+        D_A = model_creator.create(model_type="disc", model_name="").to(device)
+        D_B = model_creator.create(model_type="disc", model_name="").to(device)
+        G_A2B = model_creator.create(model_type="gen", model_name="").to(device)
+        G_B2A = model_creator.create(model_type="gen", model_name="").to(device)
 
-    train(
+    losses = train(
         G_A2B,
         G_B2A,
         D_A,
@@ -41,14 +47,24 @@ def setup(cmd_args):
         dataset_name,
         num_epochs=1,
         device=device,
+        test_images_A=test_images_A,
+        test_images_B=test_images_B,
     )
-
-    # save_models(f"./results/{dataset_name}", dataset_name, G_A2B, G_B2A, D_A, D_B)
-    # load_models(f"./results/{dataset_name}", dataset_name)
 
 
 def train(
-    G_A2B, G_B2A, D_A, D_B, path, images_A, images_B, name, device, num_epochs=20
+    G_A2B,
+    G_B2A,
+    D_A,
+    D_B,
+    path,
+    images_A,
+    images_B,
+    name,
+    device,
+    test_images_A,
+    test_images_B,
+    num_epochs=20,
 ):
     """Train the generator and the discriminator
 
@@ -78,14 +94,34 @@ def train(
     D_A_losses = []
     D_B_losses = []
     G_losses = []
+
+    losses_names = [
+        "FDL_A2B",
+        "FDL_B2A",
+        "CL_A",
+        "CL_B",
+        "ID_B2A",
+        "ID_A2B",
+        "disc_A",
+        "disc_B",
+    ]
+
+    losses_epoch = {key: [] for key in losses_names}
+    losses_total = {key: [] for key in losses_names}
+
+    # Batch size
+    bs = 5
+
     for epoch in range(0, num_epochs):
         print("\n" + "=" * 20)
         print(f"Epoch: {epoch}")
         for i, (data_A, data_B) in enumerate(zip(images_A, images_B), 1):
             print(i)
+
             # Set model input
             a_real = data_A[0].to(device)
             b_real = data_B[0].to(device)
+
             # Generate images
             b_fake = G_A2B(a_real)
             a_recon = G_B2A(b_fake)
@@ -100,28 +136,28 @@ def train(
             D_A.optimizer.zero_grad()
             if (iters > 0 or epoch > 0) and iters % 3 == 0:
                 rand_int = random.randint(5, old_a_fake.shape[0] - 1)
-                Disc_loss_A = D_A.get_loss(
+                D_loss_A = D_A.get_loss(
                     D_A(a_real), D_A(old_a_fake[rand_int - 5 : rand_int].detach())
                 )
             else:
-                Disc_loss_A = D_A.get_loss(D_A(a_real), D_A(a_fake.detach()))
+                D_loss_A = D_A.get_loss(D_A(a_real), D_A(a_fake.detach()))
 
-            D_A_losses.append(Disc_loss_A.item())
-            Disc_loss_A.backward()
+            D_A_losses.append(D_loss_A.item())
+            D_loss_A.backward()
             D_A.optimizer.step()
 
             # Discriminator B
             D_B.optimizer.zero_grad()
             if (iters > 0 or epoch > 0) and iters % 3 == 0:
                 rand_int = random.randint(5, old_b_fake.shape[0] - 1)
-                Disc_loss_B = D_B.get_loss(
+                D_loss_B = D_B.get_loss(
                     D_B(b_real), D_B(old_b_fake[rand_int - 5 : rand_int].detach())
                 )
             else:
-                Disc_loss_B = D_B.get_loss(D_B(b_real), D_B(b_fake.detach()))
+                D_loss_B = D_B.get_loss(D_B(b_real), D_B(b_fake.detach()))
 
-            D_B_losses.append(Disc_loss_B.item())
-            Disc_loss_B.backward()
+            D_B_losses.append(D_loss_B.item())
+            D_loss_B.backward()
             D_B.optimizer.step()
 
             # Generator
@@ -154,6 +190,51 @@ def train(
             # Backward propagation
             loss_G.backward()
 
+            # Optimisation step
+            G_A2B.optimizer.step()
+            G_B2A.optimizer.step()
+
+            # Store results
+            losses_epoch["FDL_A2B"].append(fool_disc_loss_A2B)
+            losses_epoch["FDL_B2A"].append(fool_disc_loss_B2A)
+            losses_epoch["CL_A"].append(cycle_loss_A)
+            losses_epoch["CL_B"].append(cycle_loss_B)
+            losses_epoch["ID_B2A"].append(id_loss_B2A)
+            losses_epoch["ID_A2B"].append(id_loss_A2B)
+            losses_epoch["disc_A"].append(D_loss_A)
+            losses_epoch["disc_B"].append(D_loss_B)
+
+            if iters == 0 and epoch == 0:
+                old_b_fake = b_fake.clone()
+                old_a_fake = a_fake.clone()
+            elif old_b_fake.shape[0] == bs * 5 and b_fake.shape[0] == bs:
+                rand_int = random.randint(5, 24)
+                old_b_fake[rand_int - 5 : rand_int] = b_fake.clone()
+                old_a_fake[rand_int - 5 : rand_int] = a_fake.clone()
+            elif old_b_fake.shape[0] < 25:
+                old_b_fake = torch.cat((b_fake.clone(), old_b_fake))
+                old_a_fake = torch.cat((a_fake.clone(), old_a_fake))
+
+            iters += 1
+            if iters % 3 == 0:
+                info = f"[{epoch}/{num_epochs}] FDL_A2B {fool_disc_loss_A2B:.3f} "
+                info += f"FDL_B2A {fool_disc_loss_B2A:.3f} CL_A {cycle_loss_A:.3f} "
+                info += f"CL_B {cycle_loss_B:.3f} ID_B2A {id_loss_B2A:.3f} "
+                info += f"ID_A2B {id_loss_A2B:.3f} Loss_D_A {D_loss_A:.3f} "
+                info += f"Loss_D_B {D_loss_B:.3f} "
+                print(info)
+
+        for key in losses_epoch.keys():
+            losses_total[key].append(sum(losses_epoch[key]) / len(losses_epoch[key]))
+
+        losses_epoch = {key: [] for key in losses_names}
+
+        iters = 0
+        save_models(path, name, G_A2B, G_B2A, D_A, D_B)
+        if epoch % 5 == 0:
+            plot_generator_images(G_A2B, G_B2A, test_images_A, test_images_B, device)
+    return losses_total
+
 
 def get_device():
     if torch.cuda.is_available():
@@ -170,6 +251,9 @@ def parse_arguments():
         type=str,
         help="name of the dataset to download",
         default=None,
+    )
+    parser.add_argument(
+        "--load_models", action="store_true",
     )
     return parser.parse_args()
 
