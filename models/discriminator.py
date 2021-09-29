@@ -15,6 +15,10 @@ class Discriminator(BaseModel):
         self.nc = 3
         # Size of feature maps in discriminator
         self.ndf = 64
+        # Learning rate
+        self.lr = 0.0002
+        # Beta 1 for Adam optimizer
+        self.beta_1 = 0.5
 
     def _create_model(self):
         self.main = nn.Sequential(
@@ -38,7 +42,15 @@ class Discriminator(BaseModel):
             # state size. 1 x 14 x 14
         )
 
-    def get_loss(real, fake):
+    def _set_optimizer(self):
+        self.optimizer = self.get_optimizer()
+
+    def get_optimizer(self):
+        return torch.optim.Adam(
+            self.parameters(), lr=self.lr, betas=(self.beta_1, 0.999)
+        )
+
+    def get_loss(self, real, fake):
         return torch.mean((real - 1) ** 2) + torch.mean(fake ** 2)
 
     def forward(self, input):

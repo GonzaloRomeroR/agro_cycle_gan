@@ -40,6 +40,12 @@ class Generator(BaseModel):
         self.ngf = 64
         # number of ResBlocks
         self.blocks = 9
+        # Learning rate
+        self.lr = 0.0002
+        # Beta 1 for Adam optimizer
+        self.beta_1 = 0.5
+        # Set cycle consistency criterion
+        self.cycle_criterion = self.get_cycle_criterion()
 
     def _create_model(self):
         layers = [
@@ -73,7 +79,18 @@ class Generator(BaseModel):
         )
         self.conv = nn.Sequential(*layers)
 
-    def get_loss(fake):
+    def _set_optimizer(self):
+        self.optimizer = self.get_optimizer()
+
+    def get_optimizer(self):
+        return torch.optim.Adam(
+            self.parameters(), lr=self.lr, betas=(self.beta_1, 0.999)
+        )
+
+    def get_cycle_criterion(self):
+        return torch.nn.L1Loss()
+
+    def get_loss(self, fake):
         return torch.mean((fake - 1) ** 2)
 
     def forward(self, x):

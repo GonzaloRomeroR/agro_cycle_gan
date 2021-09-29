@@ -1,6 +1,7 @@
 import torch
 import argparse
 import os
+import random
 
 from utils.file_utils import download_images, load_models, save_models
 from utils.image_utils import get_datasets
@@ -23,16 +24,32 @@ def setup(cmd_args):
         dataset_name=dataset_name, dataset="train"
     )
     model_creator = ModelCreator()
+
     D_A = model_creator.create(model_type="disc", model_name="").to(device)
     D_B = model_creator.create(model_type="disc", model_name="").to(device)
     G_A2B = model_creator.create(model_type="gen", model_name="").to(device)
     G_B2A = model_creator.create(model_type="gen", model_name="").to(device)
 
+    train(
+        G_A2B,
+        G_B2A,
+        D_A,
+        D_B,
+        f"./results/{dataset_name}",
+        train_images_A,
+        train_images_B,
+        dataset_name,
+        num_epochs=1,
+        device=device,
+    )
+
     # save_models(f"./results/{dataset_name}", dataset_name, G_A2B, G_B2A, D_A, D_B)
     # load_models(f"./results/{dataset_name}", dataset_name)
 
 
-def train(G_A2B, G_B2A, D_A, D_B, path, images_A, images_B, name, num_epochs=20):
+def train(
+    G_A2B, G_B2A, D_A, D_B, path, images_A, images_B, name, device, num_epochs=20
+):
     """Train the generator and the discriminator
 
     :param G_A2B: generator to transform images from A to B
@@ -51,10 +68,91 @@ def train(G_A2B, G_B2A, D_A, D_B, path, images_A, images_B, name, num_epochs=20)
     :type path: str
     :param name: name of the models
     :type name: str
+    :param device: pytorch device
+    :type device: ´Device´
     :param num_epochs: number of epochs, defaults to 20
     :type num_epochs: int, optional
     """
-    pass
+    print("Starting Training Loop...")
+    iters = 0
+    D_A_losses = []
+    D_B_losses = []
+    G_losses = []
+    for epoch in range(0, num_epochs):
+        print("\n" + "=" * 20)
+        print(f"Epoch: {epoch}")
+        for i, (data_A, data_B) in enumerate(zip(images_A, images_B), 1):
+            print(i)
+            # Set model input
+            a_real = data_A[0].to(device)
+            b_real = data_B[0].to(device)
+            # Generate images
+            b_fake = G_A2B(a_real)
+            a_recon = G_B2A(b_fake)
+            a_fake = G_B2A(b_real)
+            b_recon = G_A2B(a_fake)
+
+            if iters == 0 and epoch == 0:
+                old_b_fake = b_fake.clone()
+                old_a_fake = a_fake.clone()
+
+            # Discriminator A
+            D_A.optimizer.zero_grad()
+            if (iters > 0 or epoch > 0) and iters % 3 == 0:
+                rand_int = random.randint(5, old_a_fake.shape[0] - 1)
+                Disc_loss_A = D_A.get_loss(
+                    D_A(a_real), D_A(old_a_fake[rand_int - 5 : rand_int].detach())
+                )
+            else:
+                Disc_loss_A = D_A.get_loss(D_A(a_real), D_A(a_fake.detach()))
+
+            D_A_losses.append(Disc_loss_A.item())
+            Disc_loss_A.backward()
+            D_A.optimizer.step()
+
+            # Discriminator B
+            D_B.optimizer.zero_grad()
+            if (iters > 0 or epoch > 0) and iters % 3 == 0:
+                rand_int = random.randint(5, old_b_fake.shape[0] - 1)
+                Disc_loss_B = D_B.get_loss(
+                    D_B(b_real), D_B(old_b_fake[rand_int - 5 : rand_int].detach())
+                )
+            else:
+                Disc_loss_B = D_B.get_loss(D_B(b_real), D_B(b_fake.detach()))
+
+            D_B_losses.append(Disc_loss_B.item())
+            Disc_loss_B.backward()
+            D_B.optimizer.step()
+
+            # Generator
+            G_A2B.optimizer.zero_grad()
+            G_B2A.optimizer.zero_grad()
+
+            # Fool discriminator
+            fool_disc_loss_A2B = G_A2B.get_loss(D_B(b_fake))
+            fool_disc_loss_B2A = G_B2A.get_loss(D_A(a_fake))
+
+            # Cycle consistency loss
+            cycle_loss_A = G_B2A.cycle_criterion(a_recon, a_real) * 5
+            cycle_loss_B = G_A2B.cycle_criterion(b_recon, b_real) * 5
+
+            # Identity loss
+            id_loss_B2A = G_B2A.cycle_criterion(G_B2A(a_real), a_real) * 10
+            id_loss_A2B = G_A2B.cycle_criterion(G_A2B(b_real), b_real) * 10
+
+            # Generator losses
+            loss_G = (
+                fool_disc_loss_A2B
+                + fool_disc_loss_B2A
+                + cycle_loss_A
+                + cycle_loss_B
+                + id_loss_B2A
+                + id_loss_A2B
+            )
+            G_losses.append(loss_G)
+
+            # Backward propagation
+            loss_G.backward()
 
 
 def get_device():

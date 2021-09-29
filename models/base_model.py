@@ -11,9 +11,14 @@ class BaseModel(ABC, nn.Module):
         super().__init__()
         self._set_params()
         self._create_model()
+        self._set_optimizer()
 
     @abstractmethod
     def _set_params(self):
+        return
+
+    @abstractmethod
+    def _set_optimizer(self):
         return
 
     @abstractmethod
