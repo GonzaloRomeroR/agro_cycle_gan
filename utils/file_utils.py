@@ -45,6 +45,17 @@ def load_models(path, name):
     return G_A2B, G_B2A, D_A, D_B
 
 
+def load_generators(path, name):
+    """Load generator models
+
+    :return: tuple with the loaded models
+    :rtype: tuple
+    """
+    G_A2B = torch.load(path + "/" + name + "_G_A2B.pt")
+    G_B2A = torch.load(path + "/" + name + "_G_B2A.pt")
+    return G_A2B, G_B2A
+
+
 def download_images(image_type, path="images/"):
     """Download images from and url
 
