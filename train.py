@@ -64,7 +64,10 @@ def train(
     device,
     test_images_A,
     test_images_B,
+    bs=5,
     num_epochs=20,
+    plot_epochs=5,
+    print_info=3,
 ):
     """Train the generator and the discriminator
 
@@ -86,8 +89,14 @@ def train(
     :type name: str
     :param device: pytorch device
     :type device: ´Device´
+    :param bs: batch size, defaults to 5
+    :type bs: int, optional
     :param num_epochs: number of epochs, defaults to 20
     :type num_epochs: int, optional
+    :param plot_epochs: epochs before printing images, defaults to 5
+    :type plot_epochs: int, optional
+    :param print_info: batchs processed before printing losses, defaults to 3
+    :type print_info: int, optional
     """
     print("Starting Training Loop...")
     iters = 0
@@ -109,15 +118,10 @@ def train(
     losses_epoch = {key: [] for key in losses_names}
     losses_total = {key: [] for key in losses_names}
 
-    # Batch size
-    bs = 5
-
     for epoch in range(0, num_epochs):
         print("\n" + "=" * 20)
-        print(f"Epoch: {epoch}")
+        print(f"Epoch: [{epoch}/{num_epochs}]")
         for i, (data_A, data_B) in enumerate(zip(images_A, images_B), 1):
-            print(i)
-
             # Set model input
             a_real = data_A[0].to(device)
             b_real = data_B[0].to(device)
@@ -216,8 +220,8 @@ def train(
                 old_a_fake = torch.cat((a_fake.clone(), old_a_fake))
 
             iters += 1
-            if iters % 3 == 0:
-                info = f"[{epoch}/{num_epochs}] FDL_A2B {fool_disc_loss_A2B:.3f} "
+            if iters % print_info == 0:
+                info = f"Epoch [{epoch}/{num_epochs}] batch [{i}] FDL_A2B {fool_disc_loss_A2B:.3f} "
                 info += f"FDL_B2A {fool_disc_loss_B2A:.3f} CL_A {cycle_loss_A:.3f} "
                 info += f"CL_B {cycle_loss_B:.3f} ID_B2A {id_loss_B2A:.3f} "
                 info += f"ID_A2B {id_loss_A2B:.3f} Loss_D_A {D_loss_A:.3f} "
@@ -231,7 +235,7 @@ def train(
 
         iters = 0
         save_models(path, name, G_A2B, G_B2A, D_A, D_B)
-        if epoch % 5 == 0:
+        if epoch % plot_epochs == 0:
             plot_generator_images(G_A2B, G_B2A, test_images_A, test_images_B, device)
     return losses_total
 

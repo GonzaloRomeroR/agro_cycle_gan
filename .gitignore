@@ -17,8 +17,10 @@ _mailinglist
 .idea/
 docs/_build/
 .vscode
-images/
 results/
+
+images/*
+!images/__init__.py
 
 # Coverage reports
 htmlcov/
