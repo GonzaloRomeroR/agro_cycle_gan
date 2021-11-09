@@ -40,7 +40,7 @@ def setup(cmd_args):
         train_images_A,
         train_images_B,
         dataset_name,
-        num_epochs=1,
+        num_epochs=cmd_args.num_epochs,
         device=device,
         test_images_A=test_images_A,
         test_images_B=test_images_B,
@@ -253,6 +253,9 @@ def parse_arguments():
     )
     parser.add_argument(
         "--load_models", action="store_true",
+    )
+    parser.add_argument(
+        "--num_epochs", type=int, default=1,
     )
     return parser.parse_args()
 
