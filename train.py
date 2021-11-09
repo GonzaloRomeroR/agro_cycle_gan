@@ -6,6 +6,7 @@ import random
 from utils.file_utils import download_images, load_models, save_models, create_models
 from utils.image_utils import get_datasets
 from utils.plot_utils import show_batch, plot_generator_images
+from utils.report_utils import generate_report
 
 
 os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
@@ -45,6 +46,8 @@ def setup(cmd_args):
         test_images_A=test_images_A,
         test_images_B=test_images_B,
     )
+
+    generate_report(losses)
 
 
 def train(
@@ -106,6 +109,7 @@ def train(
         "CL_B",
         "ID_B2A",
         "ID_A2B",
+        "gen",
         "disc_A",
         "disc_B",
     ]
@@ -202,6 +206,7 @@ def train(
             losses_epoch["ID_A2B"].append(id_loss_A2B)
             losses_epoch["disc_A"].append(D_loss_A)
             losses_epoch["disc_B"].append(D_loss_B)
+            losses_epoch["gen"].append(loss_G)
 
             if iters == 0 and epoch == 0:
                 old_b_fake = b_fake.clone()
