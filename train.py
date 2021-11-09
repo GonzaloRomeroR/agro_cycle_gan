@@ -3,11 +3,9 @@ import argparse
 import os
 import random
 
-from utils.file_utils import download_images, load_models, save_models
+from utils.file_utils import download_images, load_models, save_models, create_models
 from utils.image_utils import get_datasets
 from utils.plot_utils import show_batch, plot_generator_images
-
-from models.model_factory import ModelCreator
 
 
 os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
@@ -16,7 +14,8 @@ os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
 def setup(cmd_args):
     print("Performing setup")
     device = get_device()
-    if dataset_name := cmd_args.download_dataset:
+    dataset_name = cmd_args.download_dataset
+    if dataset_name:
         print(f"Downloading dataset {dataset_name}")
         download_images(dataset_name)
 
@@ -26,15 +25,11 @@ def setup(cmd_args):
     test_images_A, test_images_B = get_datasets(
         dataset_name=dataset_name, dataset="test"
     )
-    model_creator = ModelCreator()
 
     if cmd_args.load_models:
         G_A2B, G_B2A, D_A, D_B = load_models(f"./results/{dataset_name}", dataset_name)
     else:
-        D_A = model_creator.create(model_type="disc", model_name="").to(device)
-        D_B = model_creator.create(model_type="disc", model_name="").to(device)
-        G_A2B = model_creator.create(model_type="gen", model_name="").to(device)
-        G_B2A = model_creator.create(model_type="gen", model_name="").to(device)
+        G_A2B, G_B2A, D_A, D_B = create_models(device)
 
     losses = train(
         G_A2B,

@@ -5,7 +5,17 @@ import os
 import shutil
 import zipfile
 
+from models.model_factory import ModelCreator
 from pathlib import Path
+
+
+def create_models(device):
+    model_creator = ModelCreator()
+    D_A = model_creator.create(model_type="disc", model_name="").to(device)
+    D_B = model_creator.create(model_type="disc", model_name="").to(device)
+    G_A2B = model_creator.create(model_type="gen", model_name="").to(device)
+    G_B2A = model_creator.create(model_type="gen", model_name="").to(device)
+    return G_A2B, G_B2A, D_A, D_B
 
 
 def save_models(path, name, G_A2B, G_B2A, D_A, D_B):
