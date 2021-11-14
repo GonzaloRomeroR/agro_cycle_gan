@@ -10,15 +10,22 @@ class Discriminator(BaseModel):
     Discriminator class
     """
 
-    def _set_params(self):
-        # Number of channels in the training images
-        self.nc = 3
-        # Size of feature maps in discriminator
-        self.ndf = 64
-        # Learning rate
-        self.lr = 0.0002
-        # Beta 1 for Adam optimizer
-        self.beta_1 = 0.5
+    def _set_params(self, ndf=64, nc=3, lr=0.0002, beta_1=0.5):
+        """Set discriminator parameters
+
+        :param ndf: size of feature maps in discriminator, defaults to 64
+        :type ndf: int, optional
+        :param nc: number of channels in the training images, defaults to 3
+        :type nc: int, optional
+        :param lr: learning rate, defaults to 0.0002
+        :type lr: float, optional
+        :param beta_1: beta_1 for Adam optimizer, defaults to 0.5
+        :type beta_1: float, optional
+        """
+        self.nc = nc
+        self.ndf = ndf
+        self.lr = lr
+        self.beta_1 = beta_1
 
     def _create_model(self):
         self.main = nn.Sequential(

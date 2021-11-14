@@ -33,18 +33,25 @@ class Generator(BaseModel):
     Generator class
     """
 
-    def _set_params(self):
-        # Number of channels in the training images
-        self.nc = 3
-        # Size of feature maps in generator
-        self.ngf = 64
-        # number of ResBlocks
-        self.blocks = 9
-        # Learning rate
-        self.lr = 0.0002
-        # Beta 1 for Adam optimizer
-        self.beta_1 = 0.5
-        # Set cycle consistency criterion
+    def _set_params(self, ngf=64, nc=3, blocks=9, lr=0.0002, beta_1=0.5):
+        """Set generator parameters
+
+        :param ngf: number of channels in the training images, defaults to 64
+        :type ngf: int, optional
+        :param nc: size of feature maps in generator, defaults to 3
+        :type nc: int, optional
+        :param blocks: number of ResBlocks, defaults to 9
+        :type blocks: int, optional
+        :param lr: learning rate, defaults to 0.0002
+        :type lr: float, optional
+        :param beta_1: beta 1 for Adam optimizer, defaults to 0.5
+        :type beta_1: float, optional
+        """
+        self.nc = nc
+        self.ngf = ngf
+        self.blocks = blocks
+        self.lr = lr
+        self.beta_1 = beta_1
         self.cycle_criterion = self.get_cycle_criterion()
 
     def _create_model(self):

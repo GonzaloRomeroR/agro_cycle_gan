@@ -2,11 +2,12 @@ import torch
 import argparse
 import os
 import random
+from subprocess import call
 
 from utils.file_utils import download_images, load_models, save_models, create_models
 from utils.image_utils import get_datasets
 from utils.plot_utils import show_batch, plot_generator_images
-from utils.report_utils import generate_report
+from utils.report_utils import generate_report, generate_model_file
 
 
 os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
@@ -20,17 +21,22 @@ def setup(cmd_args):
         print(f"Downloading dataset {dataset_name}")
         download_images(dataset_name)
 
+    # Set image size
+    im_size = (3, 64, 64)
+
     train_images_A, train_images_B = get_datasets(
-        dataset_name=dataset_name, dataset="train"
+        dataset_name=dataset_name, dataset="train", im_size=im_size[1:]
     )
     test_images_A, test_images_B = get_datasets(
-        dataset_name=dataset_name, dataset="test"
+        dataset_name=dataset_name, dataset="test", im_size=im_size[1:]
     )
 
     if cmd_args.load_models:
         G_A2B, G_B2A, D_A, D_B = load_models(f"./results/{dataset_name}", dataset_name)
     else:
         G_A2B, G_B2A, D_A, D_B = create_models(device)
+
+    generate_model_file(G_A2B, G_B2A, D_A, D_B, size=im_size)
 
     losses = train(
         G_A2B,
@@ -265,6 +271,15 @@ def parse_arguments():
     return parser.parse_args()
 
 
+def suppress_qt_warnings():
+    os.environ["QT_DEVICE_PIXEL_RATIO"] = "0"
+    os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
+    os.environ["QT_SCREEN_SCALE_FACTORS"] = "1"
+    os.environ["QT_SCALE_FACTOR"] = "1"
+
+
 if __name__ == "__main__":
+    suppress_qt_warnings()
     cmd_args = parse_arguments()
     setup(cmd_args)
+

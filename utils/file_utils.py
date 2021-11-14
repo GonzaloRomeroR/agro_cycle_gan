@@ -9,12 +9,19 @@ from models.model_factory import ModelCreator
 from pathlib import Path
 
 
-def create_models(device):
+def create_models(device, **kwargs):
+    """Create discriminator and generator models
+
+    :param device: pytorch device to be used
+    :type device: str
+    :return: tuple with the generators and discriminators
+    :rtype: tuple
+    """
     model_creator = ModelCreator()
-    D_A = model_creator.create(model_type="disc", model_name="").to(device)
-    D_B = model_creator.create(model_type="disc", model_name="").to(device)
-    G_A2B = model_creator.create(model_type="gen", model_name="").to(device)
-    G_B2A = model_creator.create(model_type="gen", model_name="").to(device)
+    D_A = model_creator.create(model_type="disc", model_name="", **kwargs).to(device)
+    D_B = model_creator.create(model_type="disc", model_name="", **kwargs).to(device)
+    G_A2B = model_creator.create(model_type="gen", model_name="", **kwargs).to(device)
+    G_B2A = model_creator.create(model_type="gen", model_name="", **kwargs).to(device)
     return G_A2B, G_B2A, D_A, D_B
 
 
