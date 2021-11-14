@@ -22,6 +22,16 @@ results/
 images/*
 !images/__init__.py
 
+runs/D_B/*
+runs/D_A/*
+runs/G_B2A/*
+runs/G_A2B/*
+!runs/__init__.py
+!runs/D_B/__init__.py
+!runs/D_A/__init__.py
+!runs/G_B2A/__init__.py
+!runs/G_A2B/__init__.py
+
 # Coverage reports
 htmlcov/
 .coverage

@@ -8,6 +8,7 @@ from utils.file_utils import download_images, load_models, save_models, create_m
 from utils.image_utils import get_datasets
 from utils.plot_utils import show_batch, plot_generator_images
 from utils.report_utils import generate_report, generate_model_file
+from utils.tensorboard_utils import create_models_tb
 
 
 os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
@@ -35,6 +36,10 @@ def setup(cmd_args):
         G_A2B, G_B2A, D_A, D_B = load_models(f"./results/{dataset_name}", dataset_name)
     else:
         G_A2B, G_B2A, D_A, D_B = create_models(device)
+
+    images, _ = next(iter(train_images_A))
+
+    create_models_tb(G_A2B, G_B2A, D_A, D_B, images)
 
     generate_model_file(G_A2B, G_B2A, D_A, D_B, size=im_size)
 
