@@ -15,6 +15,11 @@ class TensorboardHandler:
         return class_._instance[name]
 
     def __init__(self, name=None):
+        """Class constructor
+
+        :param name: name of the run folder, defaults to None
+        :type name: str, optional
+        """
         self.name = name
         self.writer = SummaryWriter(name)
 
@@ -29,6 +34,19 @@ class TensorboardHandler:
 
 
 def create_models_tb(G_A2B, G_B2A, D_A, D_B, images):
+    """Create tensorboard runs to store models
+
+    :param G_A2B: Generator from A to B
+    :type G_A2B: `Generator`
+    :param G_B2A: Generator from B to A
+    :type G_B2A: `Generator`
+    :param D_A: Discriminator for A
+    :type D_A: `Discriminator`
+    :param D_B: Discriminator for B
+    :type D_B: `Discriminator`
+    :param images: Image to get the size
+    :type images: Tensor
+    """
     model_dict = {"G_A2B": G_A2B, "G_B2A": G_B2A, "D_A": D_A, "D_B": D_B}
     for model_name in model_dict.keys():
         tb_model = TensorboardHandler(f"./runs/{model_name}")
