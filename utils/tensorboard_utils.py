@@ -2,7 +2,8 @@ from torch.utils.tensorboard import SummaryWriter
 
 
 class TensorboardHandler:
-    """Class to handle tensorboard functions
+    """
+    Class to handle tensorboard functions
     """
 
     _instance = {}
@@ -14,6 +15,7 @@ class TensorboardHandler:
         return class_._instance[name]
 
     def __init__(self, name=None):
+        self.name = name
         self.writer = SummaryWriter(name)
 
     def add_graph(self, model, images):
@@ -21,6 +23,9 @@ class TensorboardHandler:
 
     def add_image(self, grid):
         self.writer.add_image("images", grid, 0)
+
+    def add_scalar(self, dir_name, value, n_iter):
+        self.writer.add_scalar(f"./runs/{self.name}/{dir_name}", value, n_iter)
 
 
 def create_models_tb(G_A2B, G_B2A, D_A, D_B, images):

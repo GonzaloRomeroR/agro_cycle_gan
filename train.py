@@ -8,7 +8,7 @@ from utils.file_utils import download_images, load_models, save_models, create_m
 from utils.image_utils import get_datasets
 from utils.plot_utils import show_batch, plot_generator_images
 from utils.report_utils import generate_report, generate_model_file
-from utils.tensorboard_utils import create_models_tb
+from utils.tensorboard_utils import create_models_tb, TensorboardHandler
 
 
 os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
@@ -125,6 +125,8 @@ def train(
         "disc_B",
     ]
 
+    writer = TensorboardHandler("./runs/Losses")
+
     losses_epoch = {key: [] for key in losses_names}
     losses_total = {key: [] for key in losses_names}
 
@@ -209,15 +211,15 @@ def train(
             G_B2A.optimizer.step()
 
             # Store results
-            losses_epoch["FDL_A2B"].append(fool_disc_loss_A2B)
-            losses_epoch["FDL_B2A"].append(fool_disc_loss_B2A)
-            losses_epoch["CL_A"].append(cycle_loss_A)
-            losses_epoch["CL_B"].append(cycle_loss_B)
-            losses_epoch["ID_B2A"].append(id_loss_B2A)
-            losses_epoch["ID_A2B"].append(id_loss_A2B)
-            losses_epoch["disc_A"].append(D_loss_A)
-            losses_epoch["disc_B"].append(D_loss_B)
-            losses_epoch["gen"].append(loss_G)
+            losses_epoch["FDL_A2B"].append(fool_disc_loss_A2B.item())
+            losses_epoch["FDL_B2A"].append(fool_disc_loss_B2A.item())
+            losses_epoch["CL_A"].append(cycle_loss_A.item())
+            losses_epoch["CL_B"].append(cycle_loss_B.item())
+            losses_epoch["ID_B2A"].append(id_loss_B2A.item())
+            losses_epoch["ID_A2B"].append(id_loss_A2B.item())
+            losses_epoch["disc_A"].append(D_loss_A.item())
+            losses_epoch["disc_B"].append(D_loss_B.item())
+            losses_epoch["gen"].append(loss_G.item())
 
             if iters == 0 and epoch == 0:
                 old_b_fake = b_fake.clone()
@@ -240,7 +242,9 @@ def train(
                 print(info)
 
         for key in losses_epoch.keys():
-            losses_total[key].append(sum(losses_epoch[key]) / len(losses_epoch[key]))
+            loss_key = sum(losses_epoch[key]) / len(losses_epoch[key])
+            losses_total[key].append(loss_key)
+            writer.add_scalar(key, loss_key, epoch)
 
         losses_epoch = {key: [] for key in losses_names}
 
