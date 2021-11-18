@@ -41,9 +41,9 @@ def setup(cmd_args):
     else:
         G_A2B, G_B2A, D_A, D_B = create_models(device)
 
-    images, _ = next(iter(train_images_A))
-
-    create_models_tb(G_A2B, G_B2A, D_A, D_B, images)
+    if cmd_args.tensorboard:
+        images, _ = next(iter(train_images_A))
+        create_models_tb(G_A2B, G_B2A, D_A, D_B, images.to(device))
 
     generate_model_file(G_A2B, G_B2A, D_A, D_B, size=im_size)
 
@@ -279,8 +279,11 @@ def parse_arguments():
         "--image_resize",
         help="size of the image to resize",
         default=None,
-        nargs='+', 
-        type=int
+        nargs="+",
+        type=int,
+    )
+    parser.add_argument(
+        "--tensorboard", help="generate tensorboard files", action="store_true"
     )
     parser.add_argument(
         "--load_models", action="store_true",
