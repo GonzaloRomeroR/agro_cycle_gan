@@ -23,7 +23,11 @@ def setup(cmd_args):
         download_images(dataset_name)
 
     # Set image size
-    im_size = (3, 64, 64)
+    image_resize = cmd_args.image_resize
+    if image_resize:
+        im_size = tuple([3] + image_resize)
+    else:
+        im_size = (3, 64, 64)
 
     train_images_A, train_images_B = get_datasets(
         dataset_name=dataset_name, dataset="train", im_size=im_size[1:]
@@ -270,6 +274,13 @@ def parse_arguments():
         type=str,
         help="name of the dataset to download",
         default=None,
+    )
+    parser.add_argument(
+        "--image_resize",
+        help="size of the image to resize",
+        default=None,
+        nargs='+', 
+        type=int
     )
     parser.add_argument(
         "--load_models", action="store_true",
