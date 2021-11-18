@@ -22,6 +22,9 @@ results/
 images/*
 !images/__init__.py
 
+images_gen/*
+!images_gen/__init__.py
+
 runs/D_B/*
 runs/D_A/*
 runs/G_B2A/*
