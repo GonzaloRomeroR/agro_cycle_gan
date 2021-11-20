@@ -8,7 +8,7 @@ from utils.image_utils import get_datasets
 from utils.plot_utils import plot_generator_images
 from utils.report_utils import generate_report, generate_model_file
 from utils.tensorboard_utils import create_models_tb, TensorboardHandler
-from utils.sys_utils import get_device
+from utils.sys_utils import get_device, suppress_qt_warnings
 
 
 os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
@@ -30,10 +30,16 @@ def setup(cmd_args):
         im_size = (3, 64, 64)
 
     train_images_A, train_images_B = get_datasets(
-        dataset_name=dataset_name, dataset="train", im_size=im_size[1:]
+        dataset_name=dataset_name,
+        dataset="train",
+        im_size=im_size[1:],
+        batch_size=cmd_args.batch_size,
     )
     test_images_A, test_images_B = get_datasets(
-        dataset_name=dataset_name, dataset="test", im_size=im_size[1:]
+        dataset_name=dataset_name,
+        dataset="test",
+        im_size=im_size[1:],
+        batch_size=cmd_args.batch_size,
     )
 
     if cmd_args.load_models:
@@ -60,6 +66,7 @@ def setup(cmd_args):
         device=device,
         test_images_A=test_images_A,
         test_images_B=test_images_B,
+        bs=cmd_args.batch_size,
     )
 
     generate_report(losses)
@@ -79,7 +86,7 @@ def train(
     test_images_B,
     bs=5,
     num_epochs=20,
-    plot_epochs=5,
+    plot_epochs=1,
     print_info=3,
 ):
     """Train the generator and the discriminator
@@ -260,11 +267,13 @@ def train(
 
 
 def parse_arguments():
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(
+        description="Train GANs to generate image synthetic datasets."
+    )
     parser.add_argument(
         "--download_dataset",
         type=str,
-        help="name of the dataset to download",
+        help="name of the dataset to download or use",
         default=None,
     )
     parser.add_argument(
@@ -275,22 +284,20 @@ def parse_arguments():
         type=int,
     )
     parser.add_argument(
-        "--tensorboard", help="generate tensorboard files", action="store_true"
+        "--tensorboard", help="generate tensorboard files", action="store_true",
     )
     parser.add_argument(
-        "--load_models", action="store_true",
+        "--load_models",
+        action="store_true",
+        help="load the trained models from previous saves",
     )
     parser.add_argument(
-        "--num_epochs", type=int, default=1,
+        "--batch_size", type=int, default=5, help="batch size for the training process",
+    )
+    parser.add_argument(
+        "--num_epochs", type=int, default=1, help="number of epochs to train",
     )
     return parser.parse_args()
-
-
-def suppress_qt_warnings():
-    os.environ["QT_DEVICE_PIXEL_RATIO"] = "0"
-    os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
-    os.environ["QT_SCREEN_SCALE_FACTORS"] = "1"
-    os.environ["QT_SCALE_FACTOR"] = "1"
 
 
 if __name__ == "__main__":

@@ -74,12 +74,32 @@ class ImageTransformer:
 
 
 def parse_arguments():
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(
+        description="Transform image from one domain to another"
+    )
+    parser.add_argument(
+        "images_path",
+        type=str,
+        help="path to the folder with the images to transform",
+        default=None,
+    )
+    parser.add_argument(
+        "dest_path",
+        type=str,
+        help="path to the folder to store the transformed images",
+        default=None,
+    )
     parser.add_argument(
         "--generator_name",
         type=str,
         help="name of the generators to use",
         default=None,
+    )
+    parser.add_argument(
+        "--dest_domain",
+        type=str,
+        help="domain of the tranformed images, A or B",
+        default="B",
     )
     return parser.parse_args()
 
@@ -87,7 +107,5 @@ def parse_arguments():
 if __name__ == "__main__":
     cmd_args = parse_arguments()
     image_transformer = ImageTransformer(cmd_args.generator_name)
-    image_transformer.transform_dataset(
-        "./images/horse2zebra/test_A/A", "./images_gen/horse2zebra/"
-    )
+    image_transformer.transform_dataset(cmd_args.images_path, cmd_args.dest_path)
 

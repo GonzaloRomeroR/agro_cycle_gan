@@ -3,7 +3,7 @@ import torchvision.datasets as dset
 import torchvision.transforms as transforms
 
 
-def get_datasets(dataset_name, dataset="train", im_size=(64, 64)):
+def get_datasets(dataset_name, dataset="train", im_size=(64, 64), batch_size=5):
     """Upload and get the datasets
 
     :param dataset_name: name of the dataset to upload
@@ -14,10 +14,14 @@ def get_datasets(dataset_name, dataset="train", im_size=(64, 64)):
     :rtype: ´DataLoader´ tuple
     """
     images_A = upload_images(
-        path=f"./images/{dataset_name}/{dataset}_A/", im_size=im_size
+        path=f"./images/{dataset_name}/{dataset}_A/",
+        im_size=im_size,
+        batch_size=batch_size,
     )
     images_B = upload_images(
-        path=f"./images/{dataset_name}/{dataset}_B/", im_size=im_size
+        path=f"./images/{dataset_name}/{dataset}_B/",
+        im_size=im_size,
+        batch_size=batch_size,
     )
     return images_A, images_B
 
