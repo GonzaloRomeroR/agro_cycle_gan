@@ -48,7 +48,7 @@ class ImageTransformer:
             raise (ValueError, "Domain is not valid")
 
     def transform_dataset(
-        self, origin_path: str, dest_path: str, domain="A", resize=None
+        self, origin_path: str, dest_path: str, domain="B", resize=None
     ):
         """Transforms images folders from one domain to another
 

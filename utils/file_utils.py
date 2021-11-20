@@ -7,6 +7,7 @@ import zipfile
 
 from models.model_factory import ModelCreator
 from pathlib import Path
+from .sys_utils import get_device
 
 
 def create_models(device, **kwargs):
@@ -55,10 +56,8 @@ def load_models(path, name):
     :return: tuple with the loaded models
     :rtype: tuple
     """
-    G_A2B = torch.load(path + "/" + name + "_G_A2B.pt")
-    G_B2A = torch.load(path + "/" + name + "_G_B2A.pt")
-    D_A = torch.load(path + "/" + name + "_D_A.pt")
-    D_B = torch.load(path + "/" + name + "_D_B.pt")
+    G_A2B, G_B2A = load_generators(path, name)
+    D_A, D_B = load_discriminators(path, name)
     return G_A2B, G_B2A, D_A, D_B
 
 
@@ -68,9 +67,20 @@ def load_generators(path, name):
     :return: tuple with the loaded models
     :rtype: tuple
     """
-    G_A2B = torch.load(path + "/" + name + "_G_A2B.pt")
-    G_B2A = torch.load(path + "/" + name + "_G_B2A.pt")
+    G_A2B = torch.load(path + "/" + name + "_G_A2B.pt", map_location=get_device())
+    G_B2A = torch.load(path + "/" + name + "_G_B2A.pt", map_location=get_device())
     return G_A2B, G_B2A
+
+
+def load_discriminators(path, name):
+    """Load discriminators models
+
+    :return: tuple with the loaded models
+    :rtype: tuple
+    """
+    D_A = torch.load(path + "/" + name + "_D_A.pt", map_location=get_device())
+    D_B = torch.load(path + "/" + name + "_D_B.pt", map_location=get_device())
+    return D_A, D_B
 
 
 def download_images(image_type, path="images/"):

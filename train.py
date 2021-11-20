@@ -2,13 +2,13 @@ import torch
 import argparse
 import os
 import random
-from subprocess import call
 
 from utils.file_utils import download_images, load_models, save_models, create_models
 from utils.image_utils import get_datasets
-from utils.plot_utils import show_batch, plot_generator_images
+from utils.plot_utils import plot_generator_images
 from utils.report_utils import generate_report, generate_model_file
 from utils.tensorboard_utils import create_models_tb, TensorboardHandler
+from utils.sys_utils import get_device
 
 
 os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
@@ -16,7 +16,7 @@ os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
 
 def setup(cmd_args):
     print("Performing setup")
-    device = get_device()
+    device = get_device(debug=True)
     dataset_name = cmd_args.download_dataset
     if dataset_name:
         print(f"Downloading dataset {dataset_name}")
@@ -257,14 +257,6 @@ def train(
         if epoch % plot_epochs == 0:
             plot_generator_images(G_A2B, G_B2A, test_images_A, test_images_B, device)
     return losses_total
-
-
-def get_device():
-    if torch.cuda.is_available():
-        print("The code will run on GPU.")
-    else:
-        print("The code will run on CPU.")
-    return torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
 def parse_arguments():
