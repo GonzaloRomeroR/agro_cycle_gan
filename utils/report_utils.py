@@ -8,6 +8,31 @@ from typing import Dict
 from fpdf import FPDF
 
 
+class ParamsLogger:
+    """
+    Class to store the training params
+    """
+
+    _instance = None
+
+    # Singleton to create only one param logger in the whole training process
+    def __new__(class_, *args, **kwargs):
+        if class_._instance is None:
+            class_._instance = object.__new__(class_, *args, **kwargs)
+        return class_._instance
+
+    def __init__(self):
+        self.params = {}
+
+    def generate_params_file(self):
+        """Creates a txt with the params used
+        """
+        with open("./results/params.txt", "w") as f:
+            with redirect_stdout(f):
+                for param, value in self.params.items():
+                    print(f"{param}: {value}")
+
+
 def generate_loss_plot(losses: Dict):
     """Create loss plots
 
@@ -50,12 +75,25 @@ def generate_model_file(G_A2B, G_B2A, D_A, D_B, size=(3, 64, 64)):
 
 
 def create_pdf():
-    """Create pdf report
+    """
+    Create pdf report
     """
     pdf = FPDF()
     pdf.add_page()
+
     pdf.set_font("Arial", "B", 20)
     pdf.cell(30, 10, "Training report", 0, 1)
+
+    pdf.set_font("Arial", "B", 10)
+    pdf.cell(30, 10, "Training parameters", 0, 1)
+
+    with open("./results/params.txt", "r") as params_file:
+        params_data = params_file.readlines()
+
+    pdf.set_font("Arial", "", 8)
+    for line in params_data:
+        pdf.set_x(15)
+        pdf.cell(25, 3, line, 0, 1)
 
     pdf.set_font("Arial", "B", 10)
     pdf.cell(30, 10, "Losses", 0, 1)

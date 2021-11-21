@@ -2,11 +2,13 @@ import torch
 import argparse
 import os
 import random
+import time
 
+from datetime import datetime
 from utils.file_utils import download_images, load_models, save_models, create_models
 from utils.image_utils import get_datasets
 from utils.plot_utils import plot_generator_images
-from utils.report_utils import generate_report, generate_model_file
+from utils.report_utils import generate_report, generate_model_file, ParamsLogger
 from utils.tensorboard_utils import create_models_tb, TensorboardHandler
 from utils.sys_utils import get_device, suppress_qt_warnings
 
@@ -16,6 +18,10 @@ os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
 
 def setup(cmd_args):
     print("Performing setup")
+
+    params_logger = ParamsLogger()
+
+    # Get images
     device = get_device(debug=True)
     dataset_name = cmd_args.use_dataset
     if cmd_args.download_dataset:
@@ -29,19 +35,22 @@ def setup(cmd_args):
     else:
         im_size = (3, 64, 64)
 
+    # Get datasets from both domains
+    batch_size = cmd_args.batch_size
     train_images_A, train_images_B = get_datasets(
         dataset_name=dataset_name,
         dataset="train",
         im_size=im_size[1:],
-        batch_size=cmd_args.batch_size,
+        batch_size=batch_size,
     )
     test_images_A, test_images_B = get_datasets(
         dataset_name=dataset_name,
         dataset="test",
         im_size=im_size[1:],
-        batch_size=cmd_args.batch_size,
+        batch_size=batch_size,
     )
 
+    # Create or load models for training
     if cmd_args.load_models:
         G_A2B, G_B2A, D_A, D_B = load_models(f"./results/{dataset_name}", dataset_name)
     else:
@@ -51,7 +60,24 @@ def setup(cmd_args):
         images, _ = next(iter(train_images_A))
         create_models_tb(G_A2B, G_B2A, D_A, D_B, images.to(device))
 
+    # Generate file with the model information
     generate_model_file(G_A2B, G_B2A, D_A, D_B, size=im_size)
+
+    # Define params for report
+    params_logger.params["date"] = datetime.now()
+    params_logger.params["dataset"] = cmd_args.use_dataset
+    params_logger.params["image_size"] = im_size
+    params_logger.params["batch_size"] = batch_size
+    domains = cmd_args.use_dataset.split("2")
+    if len(domains) == 2:
+        # The dataset name format is domainA2domainB
+        params_logger.params["domain_A"] = domains[0]
+        params_logger.params["domain_B"] = domains[1]
+
+    params_logger.params["configured_epochs"] = cmd_args.num_epochs
+    for name, model in {"G_A2B": G_A2B, "G_B2A": G_B2A, "D_A": D_A, "D_B": D_B}.items():
+        params_logger.params[f"model_name_{name}"] = model.__class__.__name__
+        params_logger.params[f"learning_rate_{name}"] = model.lr
 
     losses = train(
         G_A2B,
@@ -67,8 +93,10 @@ def setup(cmd_args):
         test_images_A=test_images_A,
         test_images_B=test_images_B,
         bs=cmd_args.batch_size,
+        params_logger=params_logger,
     )
 
+    # Generate report
     generate_report(losses)
 
 
@@ -88,6 +116,7 @@ def train(
     num_epochs=20,
     plot_epochs=1,
     print_info=3,
+    params_logger=None,
 ):
     """Train the generator and the discriminator
 
@@ -117,6 +146,8 @@ def train(
     :type plot_epochs: int, optional
     :param print_info: batchs processed before printing losses, defaults to 3
     :type print_info: int, optional
+    :param params_logger: logger to store the training information, defaults to None`
+    :type params_logger: `ParamsLogger`, optional
     """
     print("Starting Training Loop...")
     iters = 0
@@ -140,6 +171,8 @@ def train(
 
     losses_epoch = {key: [] for key in losses_names}
     losses_total = {key: [] for key in losses_names}
+
+    start = time.perf_counter()
 
     for epoch in range(0, num_epochs):
         print("\n" + "=" * 20)
@@ -260,9 +293,19 @@ def train(
         losses_epoch = {key: [] for key in losses_names}
 
         iters = 0
+
+        # Generate epoch information
+        params_logger.params["final_epoch"] = epoch
+        params_logger.params["time"] = time.perf_counter() - start
+
+        params_logger.generate_params_file()
         save_models(path, name, G_A2B, G_B2A, D_A, D_B)
         if epoch % plot_epochs == 0:
             plot_generator_images(G_A2B, G_B2A, test_images_A, test_images_B, device)
+
+    end_time = time.perf_counter() - start
+    print(f"Full trainig took {end_time} s to finish")
+
     return losses_total
 
 
