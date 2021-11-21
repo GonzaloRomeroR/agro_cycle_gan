@@ -17,8 +17,8 @@ os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
 def setup(cmd_args):
     print("Performing setup")
     device = get_device(debug=True)
-    dataset_name = cmd_args.download_dataset
-    if dataset_name:
+    dataset_name = cmd_args.use_dataset
+    if cmd_args.download_dataset:
         print(f"Downloading dataset {dataset_name}")
         download_images(dataset_name)
 
@@ -271,10 +271,10 @@ def parse_arguments():
         description="Train GANs to generate image synthetic datasets."
     )
     parser.add_argument(
-        "--download_dataset",
-        type=str,
-        help="name of the dataset to download or use",
-        default=None,
+        "use_dataset", type=str, help="name of the dataset to use", default=None,
+    )
+    parser.add_argument(
+        "--download_dataset", help="download or obtain dataset", action="store_true"
     )
     parser.add_argument(
         "--image_resize",
