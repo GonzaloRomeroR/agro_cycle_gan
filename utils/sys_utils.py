@@ -16,3 +16,11 @@ def suppress_qt_warnings():
     os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
     os.environ["QT_SCREEN_SCALE_FACTORS"] = "1"
     os.environ["QT_SCALE_FACTOR"] = "1"
+
+
+def suppress_tf_warnings():
+    os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
+
+
+def surpress_sklearn_errors():
+    os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"

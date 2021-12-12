@@ -11,6 +11,7 @@ from utils.plot_utils import plot_generator_images
 from utils.report_utils import generate_report, generate_model_file, ParamsLogger
 from utils.tensorboard_utils import create_models_tb, TensorboardHandler
 from utils.sys_utils import get_device, suppress_qt_warnings
+from utils.metrics_utils import FID
 
 
 os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
@@ -177,6 +178,7 @@ def train(
     for epoch in range(0, num_epochs):
         print("\n" + "=" * 20)
         print(f"Epoch: [{epoch}/{num_epochs}]")
+
         for i, (data_A, data_B) in enumerate(zip(images_A, images_B), 1):
             # Set model input
             a_real = data_A[0].to(device)
