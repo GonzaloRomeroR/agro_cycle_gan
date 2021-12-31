@@ -6,12 +6,13 @@ import time
 
 from datetime import datetime
 from utils.file_utils import download_images, load_models, save_models, create_models
-from utils.image_utils import get_datasets
+from utils.image_utils import get_datasets, upload_images_numpy
 from utils.plot_utils import plot_generator_images
 from utils.report_utils import generate_report, generate_model_file, ParamsLogger
 from utils.tensorboard_utils import create_models_tb, TensorboardHandler
 from utils.sys_utils import get_device, suppress_qt_warnings
 from utils.metrics_utils import FID
+from generate import ImageTransformer
 
 
 os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
@@ -61,6 +62,8 @@ def setup(cmd_args):
         images, _ = next(iter(train_images_A))
         create_models_tb(G_A2B, G_B2A, D_A, D_B, images.to(device))
 
+    metrics = FID() if cmd_args.metrics else None
+
     # Generate file with the model information
     generate_model_file(G_A2B, G_B2A, D_A, D_B, size=im_size)
 
@@ -95,6 +98,8 @@ def setup(cmd_args):
         test_images_B=test_images_B,
         bs=cmd_args.batch_size,
         params_logger=params_logger,
+        metrics=metrics,
+        im_size=im_size,
     )
 
     # Generate report
@@ -118,6 +123,8 @@ def train(
     plot_epochs=1,
     print_info=3,
     params_logger=None,
+    metrics=None,
+    im_size=(64, 64),
 ):
     """Train the generator and the discriminator
 
@@ -147,8 +154,10 @@ def train(
     :type plot_epochs: int, optional
     :param print_info: batchs processed before printing losses, defaults to 3
     :type print_info: int, optional
-    :param params_logger: logger to store the training information, defaults to None`
+    :param params_logger: logger to store the training information, defaults to None
     :type params_logger: `ParamsLogger`, optional
+    :param metrics: logger to store the training information, defaults to None
+    :type metrics: `Metrics`, optional
     """
     print("Starting Training Loop...")
     iters = 0
@@ -279,12 +288,13 @@ def train(
                 old_a_fake = torch.cat((a_fake.clone(), old_a_fake))
 
             iters += 1
+
             if iters % print_info == 0:
                 info = f"Epoch [{epoch}/{num_epochs}] batch [{i}] FDL_A2B {fool_disc_loss_A2B:.3f} "
                 info += f"FDL_B2A {fool_disc_loss_B2A:.3f} CL_A {cycle_loss_A:.3f} "
                 info += f"CL_B {cycle_loss_B:.3f} ID_B2A {id_loss_B2A:.3f} "
                 info += f"ID_A2B {id_loss_A2B:.3f} Loss_D_A {D_loss_A:.3f} "
-                info += f"Loss_D_B {D_loss_B:.3f} "
+                info += f"Loss_D_B {D_loss_B:.3f}"
                 print(info)
 
         for key in losses_epoch.keys():
@@ -304,6 +314,24 @@ def train(
         save_models(path, name, G_A2B, G_B2A, D_A, D_B)
         if epoch % plot_epochs == 0:
             plot_generator_images(G_A2B, G_B2A, test_images_A, test_images_B, device)
+
+        metrics_str = ""
+        if metrics:
+            # Generate images
+            image_transformer = ImageTransformer(name)
+            image_transformer.transform_dataset(
+                f"./images/{name}/test_A/A/", f"./images_gen/{name}/"
+            )
+
+            # Uploading images
+            fake_B = upload_images_numpy(f"./images_gen/{name}/", im_size=im_size[1:])
+            test_B = upload_images_numpy(
+                f"./images/{name}/test_B/B/", im_size=im_size[1:]
+            )
+            # Get score
+            score = metrics.get_score(test_B, fake_B)
+            metrics_str = f"{metrics.name} score: {score}"
+            print(metrics_str)
 
     end_time = time.perf_counter() - start
     print(f"Full trainig took {end_time} s to finish")
@@ -341,6 +369,9 @@ def parse_arguments():
     )
     parser.add_argument(
         "--num_epochs", type=int, default=1, help="number of epochs to train",
+    )
+    parser.add_argument(
+        "--metrics", help="obtain metrics every epoch", action="store_true",
     )
     return parser.parse_args()
 

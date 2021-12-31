@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+
 from utils.sys_utils import suppress_tf_warnings, surpress_sklearn_errors
 
 suppress_tf_warnings()
@@ -40,6 +41,7 @@ class FID(Metrics):
     """
 
     def _set_params(self, input_shape=(299, 299, 3)):
+        self.name = "FID"
         self.model = InceptionV3(
             include_top=False, pooling="avg", input_shape=input_shape
         )
@@ -65,8 +67,12 @@ class FID(Metrics):
         :return: frechnet inception distance
         :rtype: float
         """
+        # Numpy array
         images_real = images_real.astype("float32")
         images_gen = images_gen.astype("float32")
+        # Tensor
+        # images_real = images_real.detach().numpy().astype("float32")
+        # images_gen = images_gen.detach().numpy().astype("float32")
         images_real = self.scale_images(images_real, self.input_shape)
         images_gen = self.scale_images(images_gen, self.input_shape)
         images_real = preprocess_input(images_real)

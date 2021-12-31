@@ -1,6 +1,10 @@
 import torch
 import torchvision.datasets as dset
 import torchvision.transforms as transforms
+import os
+import numpy as np
+
+from PIL import Image
 
 
 def get_datasets(dataset_name, dataset="train", im_size=(64, 64), batch_size=5):
@@ -61,5 +65,19 @@ def upload_images(path, im_size, batch_size=5, num_workers=2):
     return images
 
 
-def plot_images_row():
-    pass
+def upload_images_numpy(path, im_size):
+    """Upload images from folder
+
+    :param path: path to the folder with images
+    :type path: str
+    :param im_size: size of the image
+    :type im_size: tuple
+    :return: image dataset
+    :rtype: numpy array
+    """
+    img_list = []
+    for file_name in os.listdir(path):
+        image = Image.open(f"{path}/{file_name}")
+        image = image.resize(im_size)
+        img_list.append(np.asarray(image))
+    return np.array(img_list)
