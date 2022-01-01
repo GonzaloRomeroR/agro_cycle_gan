@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 
 from utils.sys_utils import suppress_tf_warnings, surpress_sklearn_errors
+from utils.image_utils import upload_images_numpy
 
 suppress_tf_warnings()
 surpress_sklearn_errors()
@@ -11,7 +12,40 @@ import numpy as np
 from scipy.linalg import sqrtm
 import os
 
+from generate import ImageTransformer
+
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
+
+
+def calculate_metrics(metrics, name, im_size, out_domain="B"):
+    """Calculate metrics
+
+    :param metrics: metrics to compute
+    :type metrics: ``Metrics`
+    :param name: name of the dataset to compute
+    :type name: str
+    :param im_size: size of the images
+    :type im_size: tuple (h, w)
+    :param out_domain: target domain to produce the transformation, defaults to "B"
+    :type out_domain: str, optional
+    :return: obtain metrics
+    :rtype: float
+    """
+    in_domain = "A" if out_domain == "B" else "B"
+    # Generate images
+    image_transformer = ImageTransformer(name)
+    image_transformer.transform_dataset(
+        f"./images/{name}/test_{in_domain}/{in_domain}/", f"./images_gen/{name}/"
+    )
+
+    # Uploading images
+    fake_B = upload_images_numpy(f"./images_gen/{name}/", im_size=im_size)
+    test_B = upload_images_numpy(
+        f"./images/{name}/test_{out_domain}/{out_domain}/", im_size=im_size
+    )
+    # Get score
+    score = metrics.get_score(test_B, fake_B)
+    return score
 
 
 class Metrics(ABC):

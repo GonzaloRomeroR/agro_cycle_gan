@@ -7,6 +7,33 @@ import numpy as np
 from PIL import Image
 
 
+def datasets_get(dataset_name, im_size=(64, 64), batch_size=5):
+    """Upload and get the datasets for train and test
+
+    :param dataset_name: name of the dataset to upload
+    :type dataset_name: str
+    :param im_size: image size
+    :type im_size: tuple (h, w), optional
+    :param batch_size: number of images per batch
+    :type batch_size: int, optinal
+    :return: DataLoader tuple with the images of the two domains
+    :rtype: ´DataLoader´ tuple
+    """
+    train_A, train_B = get_datasets(
+        dataset_name=dataset_name,
+        dataset="train",
+        im_size=im_size,
+        batch_size=batch_size,
+    )
+    test_A, test_B = get_datasets(
+        dataset_name=dataset_name,
+        dataset="test",
+        im_size=im_size,
+        batch_size=batch_size,
+    )
+    return train_A, train_B, test_A, test_B
+
+
 def get_datasets(dataset_name, dataset="train", im_size=(64, 64), batch_size=5):
     """Upload and get the datasets
 

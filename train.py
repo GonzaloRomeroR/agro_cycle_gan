@@ -1,21 +1,17 @@
 import torch
-import argparse
 import os
 import random
 import time
 
 from datetime import datetime
-from utils.file_utils import download_images, load_models, save_models, create_models
-from utils.image_utils import get_datasets, upload_images_numpy
+from utils.file_utils import download_images, save_models, get_models
+from utils.image_utils import datasets_get
 from utils.plot_utils import plot_generator_images
 from utils.report_utils import generate_report, generate_model_file, ParamsLogger
 from utils.tensorboard_utils import create_models_tb, TensorboardHandler
 from utils.sys_utils import get_device, suppress_qt_warnings
-from utils.metrics_utils import FID
-from generate import ImageTransformer
-
-
-os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
+from utils.metrics_utils import FID, calculate_metrics
+from utils.parser_utils import parse_arguments
 
 
 def setup(cmd_args):
@@ -39,29 +35,18 @@ def setup(cmd_args):
 
     # Get datasets from both domains
     batch_size = cmd_args.batch_size
-    train_images_A, train_images_B = get_datasets(
-        dataset_name=dataset_name,
-        dataset="train",
-        im_size=im_size[1:],
-        batch_size=batch_size,
-    )
-    test_images_A, test_images_B = get_datasets(
-        dataset_name=dataset_name,
-        dataset="test",
-        im_size=im_size[1:],
-        batch_size=batch_size,
+    train_images_A, train_images_B, test_images_A, test_images_B = datasets_get(
+        dataset_name, im_size[1:], batch_size
     )
 
     # Create or load models for training
-    if cmd_args.load_models:
-        G_A2B, G_B2A, D_A, D_B = load_models(f"./results/{dataset_name}", dataset_name)
-    else:
-        G_A2B, G_B2A, D_A, D_B = create_models(device)
+    G_A2B, G_B2A, D_A, D_B = get_models(dataset_name, device, cmd_args.load_models)
 
     if cmd_args.tensorboard:
         images, _ = next(iter(train_images_A))
         create_models_tb(G_A2B, G_B2A, D_A, D_B, images.to(device))
 
+    # Create metrics object
     metrics = FID() if cmd_args.metrics else None
 
     # Generate file with the model information
@@ -315,23 +300,9 @@ def train(
         if epoch % plot_epochs == 0:
             plot_generator_images(G_A2B, G_B2A, test_images_A, test_images_B, device)
 
-        metrics_str = ""
         if metrics:
-            # Generate images
-            image_transformer = ImageTransformer(name)
-            image_transformer.transform_dataset(
-                f"./images/{name}/test_A/A/", f"./images_gen/{name}/"
-            )
-
-            # Uploading images
-            fake_B = upload_images_numpy(f"./images_gen/{name}/", im_size=im_size[1:])
-            test_B = upload_images_numpy(
-                f"./images/{name}/test_B/B/", im_size=im_size[1:]
-            )
-            # Get score
-            score = metrics.get_score(test_B, fake_B)
-            metrics_str = f"{metrics.name} score: {score}"
-            print(metrics_str)
+            score = calculate_metrics(metrics, name, im_size[1:])
+            print(f"{metrics.name} score: {score}")
 
     end_time = time.perf_counter() - start
     print(f"Full trainig took {end_time} s to finish")
@@ -339,45 +310,13 @@ def train(
     return losses_total
 
 
-def parse_arguments():
-    parser = argparse.ArgumentParser(
-        description="Train GANs to generate image synthetic datasets."
-    )
-    parser.add_argument(
-        "use_dataset", type=str, help="name of the dataset to use", default=None,
-    )
-    parser.add_argument(
-        "--download_dataset", help="download or obtain dataset", action="store_true"
-    )
-    parser.add_argument(
-        "--image_resize",
-        help="size of the image to resize",
-        default=None,
-        nargs="+",
-        type=int,
-    )
-    parser.add_argument(
-        "--tensorboard", help="generate tensorboard files", action="store_true",
-    )
-    parser.add_argument(
-        "--load_models",
-        action="store_true",
-        help="load the trained models from previous saves",
-    )
-    parser.add_argument(
-        "--batch_size", type=int, default=5, help="batch size for the training process",
-    )
-    parser.add_argument(
-        "--num_epochs", type=int, default=1, help="number of epochs to train",
-    )
-    parser.add_argument(
-        "--metrics", help="obtain metrics every epoch", action="store_true",
-    )
-    return parser.parse_args()
+def configure():
+    os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
+    suppress_qt_warnings()
 
 
 if __name__ == "__main__":
-    suppress_qt_warnings()
+    configure()
     cmd_args = parse_arguments()
     setup(cmd_args)
 

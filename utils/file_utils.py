@@ -10,6 +10,25 @@ from pathlib import Path
 from .sys_utils import get_device
 
 
+def get_models(dataset_name: str, device: str, load=False):
+    """Obtain Generator and Discriminator models 
+
+    :param dataset_name: name of the dataset 
+    :type dataset_name: str
+    :param device: type of device
+    :type device: str
+    :param load: flag to load the models from previous runs, defaults to False
+    :type load: bool, optional
+    :return: tuple with the models obtained
+    :rtype: tuple of `Models`
+    """
+    if load:
+        G_A2B, G_B2A, D_A, D_B = load_models(f"./results/{dataset_name}", dataset_name)
+    else:
+        G_A2B, G_B2A, D_A, D_B = create_models(device)
+    return G_A2B, G_B2A, D_A, D_B
+
+
 def create_models(device, **kwargs):
     """Create discriminator and generator models
 
