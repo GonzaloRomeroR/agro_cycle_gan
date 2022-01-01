@@ -1,10 +1,10 @@
 from abc import ABC, abstractmethod
 
-from utils.sys_utils import suppress_tf_warnings, surpress_sklearn_errors
+from utils.sys_utils import suppress_tf_warnings, suppress_sklearn_errors
 from utils.image_utils import upload_images_numpy
 
 suppress_tf_warnings()
-surpress_sklearn_errors()
+suppress_sklearn_errors()
 
 from keras.applications.inception_v3 import InceptionV3
 from keras.applications.inception_v3 import preprocess_input

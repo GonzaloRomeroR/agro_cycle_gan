@@ -22,5 +22,5 @@ def suppress_tf_warnings():
     os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
 
-def surpress_sklearn_errors():
+def suppress_sklearn_errors():
     os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"

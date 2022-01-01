@@ -9,7 +9,7 @@ from utils.image_utils import datasets_get
 from utils.plot_utils import plot_generator_images
 from utils.report_utils import generate_report, generate_model_file, ParamsLogger
 from utils.tensorboard_utils import create_models_tb, TensorboardHandler
-from utils.sys_utils import get_device, suppress_qt_warnings
+from utils.sys_utils import get_device, suppress_qt_warnings, suppress_sklearn_errors
 from utils.metrics_utils import FID, calculate_metrics
 from utils.parser_utils import parse_arguments
 
@@ -314,7 +314,7 @@ def train(
 
 
 def configure():
-    os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
+    suppress_sklearn_errors()
     suppress_qt_warnings()
 
 
