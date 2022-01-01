@@ -32,6 +32,9 @@ class ParamsLogger:
                 for param, value in self.params.items():
                     print(f"{param}: {value}")
 
+    def set_params(self, params_dict: dict):
+        self.params.update(params_dict)
+
 
 def generate_loss_plot(losses: Dict):
     """Create loss plots

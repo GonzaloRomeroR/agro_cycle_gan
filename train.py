@@ -17,8 +17,6 @@ from utils.parser_utils import parse_arguments
 def setup(cmd_args):
     print("Performing setup")
 
-    params_logger = ParamsLogger()
-
     # Get images
     device = get_device(debug=True)
     dataset_name = cmd_args.use_dataset
@@ -42,6 +40,7 @@ def setup(cmd_args):
     # Create or load models for training
     G_A2B, G_B2A, D_A, D_B = get_models(dataset_name, device, cmd_args.load_models)
 
+    # Set tesorboard functions
     if cmd_args.tensorboard:
         images, _ = next(iter(train_images_A))
         create_models_tb(G_A2B, G_B2A, D_A, D_B, images.to(device))
@@ -53,20 +52,24 @@ def setup(cmd_args):
     generate_model_file(G_A2B, G_B2A, D_A, D_B, size=im_size)
 
     # Define params for report
-    params_logger.params["date"] = datetime.now()
-    params_logger.params["dataset"] = cmd_args.use_dataset
-    params_logger.params["image_size"] = im_size
-    params_logger.params["batch_size"] = batch_size
+    params_logger = ParamsLogger()
     domains = cmd_args.use_dataset.split("2")
+    log_params = {
+        "date": datetime.now(),
+        "dataset": cmd_args.use_dataset,
+        "image_size": im_size,
+        "batch_size": batch_size,
+        "configured_epochs": cmd_args.num_epochs,
+    }
     if len(domains) == 2:
         # The dataset name format is domainA2domainB
-        params_logger.params["domain_A"] = domains[0]
-        params_logger.params["domain_B"] = domains[1]
+        log_params["domain_A"] = domains[0]
+        log_params["domain_B"] = domains[1]
 
-    params_logger.params["configured_epochs"] = cmd_args.num_epochs
     for name, model in {"G_A2B": G_A2B, "G_B2A": G_B2A, "D_A": D_A, "D_B": D_B}.items():
-        params_logger.params[f"model_name_{name}"] = model.__class__.__name__
-        params_logger.params[f"learning_rate_{name}"] = model.lr
+        log_params[f"model_name_{name}"] = model.__class__.__name__
+        log_params[f"learning_rate_{name}"] = model.lr
+    params_logger.set_params(log_params)
 
     losses = train(
         G_A2B,
