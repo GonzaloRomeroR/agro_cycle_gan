@@ -12,6 +12,7 @@ from utils.tensorboard_utils import create_models_tb, TensorboardHandler
 from utils.sys_utils import get_device, suppress_qt_warnings, suppress_sklearn_errors
 from utils.metrics_utils import FID, calculate_metrics
 from utils.parser_utils import parse_arguments
+from utils.train_utils import generate_images_cycle
 
 
 def setup(cmd_args):
@@ -160,9 +161,9 @@ def train(
         "CL_B",
         "ID_B2A",
         "ID_A2B",
-        "gen",
-        "disc_A",
-        "disc_B",
+        "GEN_TOTAL",
+        "DISC_A",
+        "DISC_B",
     ]
 
     writer = TensorboardHandler("./runs/Losses")
@@ -182,16 +183,16 @@ def train(
             b_real = data_B[0].to(device)
 
             # Generate images
-            b_fake = G_A2B(a_real)
-            a_recon = G_B2A(b_fake)
-            a_fake = G_B2A(b_real)
-            b_recon = G_A2B(a_fake)
+            a_fake, b_fake, a_recon, b_recon = generate_images_cycle(
+                a_real, b_real, G_A2B, G_B2A
+            )
 
             if iters == 0 and epoch == 0:
                 old_b_fake = b_fake.clone()
                 old_a_fake = a_fake.clone()
 
-            # Discriminator A
+            # Discriminator
+            disc_losses = {}
             D_A.optimizer.zero_grad()
             if (iters > 0 or epoch > 0) and iters % 3 == 0:
                 rand_int = random.randint(5, old_a_fake.shape[0] - 1)
@@ -204,6 +205,7 @@ def train(
             D_A_losses.append(D_loss_A.item())
             D_loss_A.backward()
             D_A.optimizer.step()
+            disc_losses["DISC_A"] = D_loss_A
 
             # Discriminator B
             D_B.optimizer.zero_grad()
@@ -218,33 +220,29 @@ def train(
             D_B_losses.append(D_loss_B.item())
             D_loss_B.backward()
             D_B.optimizer.step()
+            disc_losses["DISC_B"] = D_loss_B
 
             # Generator
+            gen_losses = {}
             G_A2B.optimizer.zero_grad()
             G_B2A.optimizer.zero_grad()
 
-            # Fool discriminator
-            fool_disc_loss_A2B = G_A2B.get_loss(D_B(b_fake))
-            fool_disc_loss_B2A = G_B2A.get_loss(D_A(a_fake))
+            # Fool discriminator loss
+            gen_losses["FDL_A2B"] = G_A2B.get_loss(D_B(b_fake))
+            gen_losses["FDL_B2A"] = G_B2A.get_loss(D_A(a_fake))
 
             # Cycle consistency loss
-            cycle_loss_A = G_B2A.cycle_criterion(a_recon, a_real) * 5
-            cycle_loss_B = G_A2B.cycle_criterion(b_recon, b_real) * 5
+            gen_losses["CL_A"] = G_B2A.cycle_criterion(a_recon, a_real) * 5
+            gen_losses["CL_B"] = G_A2B.cycle_criterion(b_recon, b_real) * 5
 
             # Identity loss
-            id_loss_B2A = G_B2A.cycle_criterion(G_B2A(a_real), a_real) * 10
-            id_loss_A2B = G_A2B.cycle_criterion(G_A2B(b_real), b_real) * 10
+            gen_losses["ID_B2A"] = G_B2A.cycle_criterion(G_B2A(a_real), a_real) * 10
+            gen_losses["ID_A2B"] = G_A2B.cycle_criterion(G_A2B(b_real), b_real) * 10
 
             # Generator losses
-            loss_G = (
-                fool_disc_loss_A2B
-                + fool_disc_loss_B2A
-                + cycle_loss_A
-                + cycle_loss_B
-                + id_loss_B2A
-                + id_loss_A2B
-            )
+            loss_G = sum(gen_losses.values())
             G_losses.append(loss_G)
+            gen_losses["GEN_TOTAL"] = loss_G
 
             # Backward propagation
             loss_G.backward()
@@ -254,15 +252,10 @@ def train(
             G_B2A.optimizer.step()
 
             # Store results
-            losses_epoch["FDL_A2B"].append(fool_disc_loss_A2B.item())
-            losses_epoch["FDL_B2A"].append(fool_disc_loss_B2A.item())
-            losses_epoch["CL_A"].append(cycle_loss_A.item())
-            losses_epoch["CL_B"].append(cycle_loss_B.item())
-            losses_epoch["ID_B2A"].append(id_loss_B2A.item())
-            losses_epoch["ID_A2B"].append(id_loss_A2B.item())
-            losses_epoch["disc_A"].append(D_loss_A.item())
-            losses_epoch["disc_B"].append(D_loss_B.item())
-            losses_epoch["gen"].append(loss_G.item())
+            for name, value in gen_losses.items():
+                losses_epoch[name].append(value.item())
+            for name, value in disc_losses.items():
+                losses_epoch[name].append(value.item())
 
             if iters == 0 and epoch == 0:
                 old_b_fake = b_fake.clone()
@@ -276,13 +269,10 @@ def train(
                 old_a_fake = torch.cat((a_fake.clone(), old_a_fake))
 
             iters += 1
-
             if iters % print_info == 0:
-                info = f"Epoch [{epoch}/{num_epochs}] batch [{i}] FDL_A2B {fool_disc_loss_A2B:.3f} "
-                info += f"FDL_B2A {fool_disc_loss_B2A:.3f} CL_A {cycle_loss_A:.3f} "
-                info += f"CL_B {cycle_loss_B:.3f} ID_B2A {id_loss_B2A:.3f} "
-                info += f"ID_A2B {id_loss_A2B:.3f} Loss_D_A {D_loss_A:.3f} "
-                info += f"Loss_D_B {D_loss_B:.3f}"
+                info = f"Epoch [{epoch}/{num_epochs}] batch [{i}]"
+                for name, loss in {**gen_losses, **disc_losses}.items():
+                    info += f" {name}: {loss}"
                 print(info)
 
         for key in losses_epoch.keys():
