@@ -103,7 +103,7 @@ def train(
     path,
     images_A,
     images_B,
-    name,
+    dataset_name,
     device,
     test_images_A,
     test_images_B,
@@ -131,8 +131,8 @@ def train(
     :type images_B: ´DataLoader´
     :param path: path to load and save the models
     :type path: str
-    :param name: name of the models
-    :type name: str
+    :param dataset_name: name of the models
+    :type dataset_name: str
     :param device: pytorch device
     :type device: ´Device´
     :param bs: batch size, defaults to 5
@@ -285,13 +285,13 @@ def train(
         params_logger.params["time"] = time.perf_counter() - start
 
         params_logger.generate_params_file()
-        save_models(path, name, G_A2B, G_B2A, D_A, D_B)
+        save_models(path, dataset_name, G_A2B, G_B2A, D_A, D_B)
         if epoch % plot_epochs == 0:
             plot_generator_images(G_A2B, G_B2A, test_images_A, test_images_B, device)
 
         # Obtain metrics
         if metrics:
-            score = calculate_metrics(metrics, name, im_size[1:])
+            score = calculate_metrics(metrics, dataset_name, im_size[1:])
             print(f"{metrics.name} score: {score}")
 
     end_time = time.perf_counter() - start
