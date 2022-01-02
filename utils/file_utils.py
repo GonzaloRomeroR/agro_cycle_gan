@@ -75,8 +75,13 @@ def load_models(path, name):
     :return: tuple with the loaded models
     :rtype: tuple
     """
-    G_A2B, G_B2A = load_generators(path, name)
-    D_A, D_B = load_discriminators(path, name)
+    try:
+        G_A2B, G_B2A = load_generators(path, name)
+        D_A, D_B = load_discriminators(path, name)
+    except FileNotFoundError:
+        print(f"Failed loading models: Cannot find trained models in {path}")
+        exit(0)
+
     return G_A2B, G_B2A, D_A, D_B
 
 
