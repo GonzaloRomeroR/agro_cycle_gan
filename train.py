@@ -193,34 +193,27 @@ def train(
 
             # Discriminator
             disc_losses = {}
-            D_A.optimizer.zero_grad()
-            if (iters > 0 or epoch > 0) and iters % 3 == 0:
-                rand_int = random.randint(5, old_a_fake.shape[0] - 1)
-                D_loss_A = D_A.get_loss(
-                    D_A(a_real), D_A(old_a_fake[rand_int - 5 : rand_int].detach())
-                )
-            else:
-                D_loss_A = D_A.get_loss(D_A(a_real), D_A(a_fake.detach()))
+            for disc in [D_A, D_B]:
+                disc_name = "DISC_A" if disc == D_A else "DISC_B"
+                im_real = a_real if disc == D_A else b_real
+                im_fake = a_fake if disc == D_A else b_fake
+                old_im_fake = old_a_fake if disc == D_A else old_b_fake
+                D_losses = D_A_losses if disc == D_A else D_B_losses
 
-            D_A_losses.append(D_loss_A.item())
-            D_loss_A.backward()
-            D_A.optimizer.step()
-            disc_losses["DISC_A"] = D_loss_A
+                disc.optimizer.zero_grad()
+                if (iters > 0 or epoch > 0) and iters % 3 == 0:
+                    rand_int = random.randint(5, old_im_fake.shape[0] - 1)
+                    disc_loss = disc.get_loss(
+                        disc(im_real),
+                        disc(old_im_fake[rand_int - 5 : rand_int].detach()),
+                    )
+                else:
+                    disc_loss = disc.get_loss(disc(im_real), disc(im_fake.detach()))
 
-            # Discriminator B
-            D_B.optimizer.zero_grad()
-            if (iters > 0 or epoch > 0) and iters % 3 == 0:
-                rand_int = random.randint(5, old_b_fake.shape[0] - 1)
-                D_loss_B = D_B.get_loss(
-                    D_B(b_real), D_B(old_b_fake[rand_int - 5 : rand_int].detach())
-                )
-            else:
-                D_loss_B = D_B.get_loss(D_B(b_real), D_B(b_fake.detach()))
-
-            D_B_losses.append(D_loss_B.item())
-            D_loss_B.backward()
-            D_B.optimizer.step()
-            disc_losses["DISC_B"] = D_loss_B
+                D_losses.append(disc_loss.item())
+                disc_loss.backward()
+                disc.optimizer.step()
+                disc_losses[disc_name] = disc_loss
 
             # Generator
             gen_losses = {}
@@ -252,11 +245,11 @@ def train(
             G_B2A.optimizer.step()
 
             # Store results
-            for name, value in gen_losses.items():
-                losses_epoch[name].append(value.item())
-            for name, value in disc_losses.items():
-                losses_epoch[name].append(value.item())
+            for losses in [gen_losses, disc_losses]:
+                for name, value in losses.items():
+                    losses_epoch[name].append(value.item())
 
+            # Update old image fake
             if iters == 0 and epoch == 0:
                 old_b_fake = b_fake.clone()
                 old_a_fake = a_fake.clone()
@@ -269,12 +262,15 @@ def train(
                 old_a_fake = torch.cat((a_fake.clone(), old_a_fake))
 
             iters += 1
+
+            # Print iteration results
             if iters % print_info == 0:
                 info = f"Epoch [{epoch}/{num_epochs}] batch [{i}]"
                 for name, loss in {**gen_losses, **disc_losses}.items():
-                    info += f" {name}: {loss}"
+                    info += f" {name}: {loss:.3f}"
                 print(info)
 
+        # Obtain total losses
         for key in losses_epoch.keys():
             loss_key = sum(losses_epoch[key]) / len(losses_epoch[key])
             losses_total[key].append(loss_key)
@@ -293,6 +289,7 @@ def train(
         if epoch % plot_epochs == 0:
             plot_generator_images(G_A2B, G_B2A, test_images_A, test_images_B, device)
 
+        # Obtain metrics
         if metrics:
             score = calculate_metrics(metrics, name, im_size[1:])
             print(f"{metrics.name} score: {score}")
