@@ -1,5 +1,5 @@
-from .generator import Generator
-from .discriminator import Discriminator
+from .generators.basic_generator import BasicGenerator
+from .discriminators.basic_discriminator import BasicDiscriminator
 
 
 class ModelCreator:
@@ -17,14 +17,14 @@ class ModelCreator:
         """
         if model_type == "gen":
             if model_name == "example":
-                return Generator(**kwargs)
+                return BasicGenerator(**kwargs)
             else:
-                return Generator(**kwargs)
+                return BasicGenerator(**kwargs)
         elif model_type == "disc":
             if model_name == "example":
-                return Discriminator(**kwargs)
+                return BasicDiscriminator(**kwargs)
             else:
-                return Discriminator(**kwargs)
+                return BasicDiscriminator(**kwargs)
         else:
             raise Exception("Model type not supported")
 
