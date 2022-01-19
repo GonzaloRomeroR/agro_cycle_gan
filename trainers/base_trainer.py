@@ -160,17 +160,9 @@ class BaseTrainer(ABC):
                 self.device,
             )
 
-        print(get_gpu_usage())
-        print(get_memory_usage())
-        print(get_cpu_usage())
-
-        print(f"GPU Usage: {get_gpu_usage()}")
-        print(f"Memory Usage: {get_memory_usage()}")
-        print(f"CPU usage: {get_cpu_usage()}")
-
         print(
-            "Epoch {}: GPU Usage {}, Memory Usage {} %, CPU usage {} %".format(
-                epoch, get_gpu_usage(), get_memory_usage(), get_cpu_usage()
+            "Epoch {}: GPU Usage {}, Memory Usage {} %".format(
+                epoch, get_gpu_usage(), get_memory_usage()
             )
         )
         # Obtain metrics
