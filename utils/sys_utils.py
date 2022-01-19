@@ -31,13 +31,11 @@ def suppress_sklearn_errors():
 
 def get_memory_usage():
     percentage = psutil.virtual_memory()[2]
-    print(f"RAM memory used: {percentage}%")
     return percentage
 
 
 def get_cpu_usage():
     cpu_usage = psutil.cpu_percent(4)
-    print(f"CPU used: {cpu_usage}%")
     return cpu_usage
 
 
@@ -49,10 +47,10 @@ def get_gpu_usage():
         for i in range(deviceCount):
             handle = nvidia_smi.nvmlDeviceGetHandleByIndex(i)
             info = nvidia_smi.nvmlDeviceGetMemoryInfo(handle)
-            gpu_usage[nvidia_smi.nvmlDeviceGetName(handle)] = (
-                100 * info.free / info.total
+            gpu_usage[nvidia_smi.nvmlDeviceGetName(handle)] = "{} %".format(
+                100 * (info.total - info.free) / info.total
             )
-        print(f"GPU used: {gpu_usage}")
+
         return gpu_usage
     except:
         print("WARNING: Cannot get gpu usage")
