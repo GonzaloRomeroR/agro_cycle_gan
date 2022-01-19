@@ -1,10 +1,11 @@
 import time
+from abc import ABC, abstractmethod
 
 from utils.file_utils import save_models
-from utils.plot_utils import plot_generator_images
-from utils.tensorboard_utils import TensorboardHandler
 from utils.metrics_utils import calculate_metrics
-from abc import ABC, abstractmethod
+from utils.plot_utils import plot_generator_images
+from utils.sys_utils import get_cpu_usage, get_gpu_usage, get_memory_usage
+from utils.tensorboard_utils import TensorboardHandler
 
 
 class BaseTrainer(ABC):
@@ -159,6 +160,10 @@ class BaseTrainer(ABC):
                 self.device,
             )
 
+        print(
+            f"Epoch {epoch}: GPU Usage {get_gpu_usage():.2f} %, \
+                Memory Usage {get_memory_usage():.2f} %, CPU usage {get_cpu_usage:.2f} %"
+        )
         # Obtain metrics
         if self.metrics:
             score = calculate_metrics(self.metrics, self.dataset_name, self.im_size[1:])
