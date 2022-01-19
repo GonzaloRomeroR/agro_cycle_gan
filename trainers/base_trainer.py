@@ -161,8 +161,7 @@ class BaseTrainer(ABC):
             )
 
         print(
-            f"Epoch {epoch}: GPU Usage {get_gpu_usage():.2f} %, \
-                Memory Usage {get_memory_usage():.2f} %, CPU usage {get_cpu_usage:.2f} %"
+            f"Epoch {epoch}: GPU Usage {get_gpu_usage()}, Memory Usage {get_memory_usage():.2f} %, CPU usage {get_cpu_usage:.2f} %"
         )
         # Obtain metrics
         if self.metrics:
