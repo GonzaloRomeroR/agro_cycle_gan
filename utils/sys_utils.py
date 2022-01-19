@@ -54,4 +54,5 @@ def get_gpu_usage():
         return gpu_usage
     except:
         print("WARNING: Cannot get gpu usage")
+        return None
 
