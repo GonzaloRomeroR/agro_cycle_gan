@@ -47,7 +47,7 @@ def get_gpu_usage():
         for i in range(deviceCount):
             handle = nvidia_smi.nvmlDeviceGetHandleByIndex(i)
             info = nvidia_smi.nvmlDeviceGetMemoryInfo(handle)
-            gpu_usage[nvidia_smi.nvmlDeviceGetName(handle)] = "{} %".format(
+            gpu_usage[nvidia_smi.nvmlDeviceGetName(handle)] = (
                 100 * (info.total - info.free) / info.total
             )
 

@@ -160,7 +160,7 @@ class BaseTrainer(ABC):
                 self.device,
             )
 
-        print(get_gpu_usage())
+        get_gpu_usage()
         # Obtain metrics
         if self.metrics:
             score = calculate_metrics(self.metrics, self.dataset_name, self.im_size[1:])
