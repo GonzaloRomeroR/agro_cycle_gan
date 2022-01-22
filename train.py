@@ -34,7 +34,13 @@ def setup(cmd_args):
     )
 
     # Create or load models for training
-    G_A2B, G_B2A, D_A, D_B = get_models(dataset_name, device, cmd_args.load_models)
+    G_A2B, G_B2A, D_A, D_B = get_models(
+        dataset_name,
+        device,
+        cmd_args.load_models,
+        disc_name=cmd_args.discriminator,
+        gen_name=cmd_args.generator,
+    )
 
     # Set tesorboard functions
     if cmd_args.tensorboard:

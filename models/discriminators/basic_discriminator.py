@@ -5,7 +5,7 @@ from .base_discriminator import BaseDiscriminator
 
 class BasicDiscriminator(BaseDiscriminator):
     """
-    BasicDiscriminator class
+    Basic Discriminator class
     """
 
     def _create_model(self):

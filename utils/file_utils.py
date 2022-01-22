@@ -1,16 +1,17 @@
-import torch
-import gdown
-import sys
 import os
 import shutil
+import sys
 import zipfile
-
-from models.model_factory import ModelCreator
 from pathlib import Path
+
+import gdown
+import torch
+from models.model_factory import ModelCreator
+
 from .sys_utils import get_device
 
 
-def get_models(dataset_name: str, device: str, load=False):
+def get_models(dataset_name: str, device: str, load=False, disc_name="", gen_name=""):
     """Obtain Generator and Discriminator models 
 
     :param dataset_name: name of the dataset 
@@ -25,11 +26,13 @@ def get_models(dataset_name: str, device: str, load=False):
     if load:
         G_A2B, G_B2A, D_A, D_B = load_models(f"./results/{dataset_name}", dataset_name)
     else:
-        G_A2B, G_B2A, D_A, D_B = create_models(device)
+        G_A2B, G_B2A, D_A, D_B = create_models(
+            device, disc_name=disc_name, gen_name=gen_name
+        )
     return G_A2B, G_B2A, D_A, D_B
 
 
-def create_models(device, **kwargs):
+def create_models(device, gen_name="", disc_name="", **kwargs):
     """Create discriminator and generator models
 
     :param device: pytorch device to be used
@@ -38,10 +41,18 @@ def create_models(device, **kwargs):
     :rtype: tuple
     """
     model_creator = ModelCreator()
-    D_A = model_creator.create(model_type="disc", model_name="", **kwargs).to(device)
-    D_B = model_creator.create(model_type="disc", model_name="", **kwargs).to(device)
-    G_A2B = model_creator.create(model_type="gen", model_name="", **kwargs).to(device)
-    G_B2A = model_creator.create(model_type="gen", model_name="", **kwargs).to(device)
+    D_A = model_creator.create(model_type="disc", model_name=disc_name, **kwargs).to(
+        device
+    )
+    D_B = model_creator.create(model_type="disc", model_name=disc_name, **kwargs).to(
+        device
+    )
+    G_A2B = model_creator.create(model_type="gen", model_name=gen_name, **kwargs).to(
+        device
+    )
+    G_B2A = model_creator.create(model_type="gen", model_name=gen_name, **kwargs).to(
+        device
+    )
     return G_A2B, G_B2A, D_A, D_B
 
 

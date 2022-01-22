@@ -1,5 +1,6 @@
-from .generators.basic_generator import BasicGenerator
 from .discriminators.basic_discriminator import BasicDiscriminator
+from .generators.basic_generator import BasicGenerator
+from .generators.mixer_generator import MixerGenerator
 
 
 class ModelCreator:
@@ -16,8 +17,8 @@ class ModelCreator:
         :type model_name: str
         """
         if model_type == "gen":
-            if model_name == "example":
-                return BasicGenerator(**kwargs)
+            if model_name == "mixer":
+                return MixerGenerator(**kwargs)
             else:
                 return BasicGenerator(**kwargs)
         elif model_type == "disc":

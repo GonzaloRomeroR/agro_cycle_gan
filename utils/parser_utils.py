@@ -35,4 +35,13 @@ def parse_arguments():
     parser.add_argument(
         "--metrics", help="obtain metrics every epoch", action="store_true",
     )
+    parser.add_argument(
+        "--generator", type=str, help="name of the generator to use", default="",
+    )
+    parser.add_argument(
+        "--discriminator",
+        type=str,
+        help="name of the discriminator to use",
+        default="",
+    )
     return parser.parse_args()
