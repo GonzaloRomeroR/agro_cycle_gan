@@ -18,6 +18,7 @@ _mailinglist
 docs/_build/
 .vscode
 results/
+__pycache__/
 
 images/*
 !images/__init__.py
