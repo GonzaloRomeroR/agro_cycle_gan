@@ -19,6 +19,7 @@ docs/_build/
 .vscode
 results/
 __pycache__/
+docs/sphinx-docs/_build/
 
 images/*
 !images/__init__.py
