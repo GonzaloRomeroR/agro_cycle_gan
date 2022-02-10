@@ -10,22 +10,49 @@ class BasicDiscriminator(BaseDiscriminator):
 
     def _create_model(self):
         self.main = nn.Sequential(
-            # input is (nc) x 128 x 128
-            nn.Conv2d(self.nc, self.ndf, 4, 2, 1, bias=False),
-            nn.LeakyReLU(0.2, inplace=True),
-            # state size. (self.ndf) x 64 x 64
-            nn.Conv2d(self.ndf, self.ndf * 2, 4, 2, 1, bias=False),
-            nn.InstanceNorm2d(self.ndf * 2),
-            nn.LeakyReLU(0.2, inplace=True),
-            # state size. (self.ndf*2) x 32 x 32
-            nn.Conv2d(self.ndf * 2, self.ndf * 4, 4, 2, 1, bias=False),
-            nn.InstanceNorm2d(self.ndf * 4),
-            nn.LeakyReLU(0.2, inplace=True),
-            # state size. (self.ndf*4) x 16 x 16
-            nn.Conv2d(self.ndf * 4, self.ndf * 8, 4, 1, 1),
-            nn.InstanceNorm2d(self.ndf * 8),
-            nn.LeakyReLU(0.2, inplace=True),
-            # state size. (self.ndf*8) x 15 x 15
-            nn.Conv2d(self.ndf * 8, 1, 4, 1, 1)
-            # state size. 1 x 14 x 14
+            nn.Conv2d(
+                in_channels=self.nc,
+                out_channels=self.ndf,
+                kernel_size=4,
+                stride=2,
+                padding=1,
+                bias=False,
+            ),
+            nn.LeakyReLU(negative_slope=0.2, inplace=True),
+            nn.Conv2d(
+                in_channels=self.ndf,
+                out_channels=self.ndf * 2,
+                kernel_size=4,
+                stride=2,
+                padding=1,
+                bias=False,
+            ),
+            nn.InstanceNorm2d(num_features=self.ndf * 2),
+            nn.LeakyReLU(negative_slope=0.2, inplace=True),
+            nn.Conv2d(
+                in_channels=self.ndf * 2,
+                out_channels=self.ndf * 4,
+                kernel_size=4,
+                stride=2,
+                padding=1,
+                bias=False,
+            ),
+            nn.InstanceNorm2d(num_features=self.ndf * 4),
+            nn.LeakyReLU(negative_slope=0.2, inplace=True),
+            nn.Conv2d(
+                in_channels=self.ndf * 4,
+                out_channels=self.ndf * 8,
+                kernel_size=4,
+                stride=1,
+                padding=1,
+            ),
+            nn.InstanceNorm2d(num_features=self.ndf * 8),
+            nn.LeakyReLU(negative_slope=0.2, inplace=True),
+            nn.Conv2d(
+                in_channels=self.ndf * 8,
+                out_channels=1,
+                kernel_size=4,
+                stride=1,
+                padding=1,
+            ),
         )

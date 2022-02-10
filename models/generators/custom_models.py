@@ -11,10 +11,22 @@ class ResBlock(nn.Module):
         self.nf = nf
         super(ResBlock, self).__init__()
         self.conv = nn.Sequential(
-            nn.Conv2d(self.nf, self.nf, 3, 1, 1),
-            nn.InstanceNorm2d(self.nf),
+            nn.Conv2d(
+                in_channels=self.nf,
+                out_channels=self.nf,
+                kernel_size=3,
+                stride=1,
+                padding=1,
+            ),
+            nn.InstanceNorm2d(num_features=self.nf),
             nn.ReLU(),
-            nn.Conv2d(self.nf, self.nf, 3, 1, 1),
+            nn.Conv2d(
+                in_channels=self.nf,
+                out_channels=self.nf,
+                kernel_size=3,
+                stride=1,
+                padding=1,
+            ),
         )
         self.norm = nn.InstanceNorm2d(nf)
 
