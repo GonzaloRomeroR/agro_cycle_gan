@@ -30,3 +30,7 @@ Where `./images/horse2zebra/test_A/A` is the folder containing the images to tra
 ### Documentation 
 
 * https://agro-cycle-gan.readthedocs.io/en/latest/ (WIP)
+
+### Kaggle example
+
+* https://www.kaggle.com/gonzaromeror/agro-cycle-gan/
