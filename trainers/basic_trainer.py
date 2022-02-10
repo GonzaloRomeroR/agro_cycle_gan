@@ -5,6 +5,10 @@ from .base_trainer import BaseTrainer
 
 
 class BasicTrainer(BaseTrainer):
+    def _set_training_params(self):
+        self.lambda_cycle = 5
+        self.lambda_identity = 10
+
     def _train_model(self):
         iters = 0
         for epoch in range(0, self.num_epochs):
@@ -59,15 +63,21 @@ class BasicTrainer(BaseTrainer):
                 gen_losses["FDL_B2A"] = self.G_B2A.get_loss(self.D_A(a_fake))
 
                 # Cycle consistency loss
-                gen_losses["CL_A"] = self.G_B2A.cycle_criterion(a_recon, a_real) * 5
-                gen_losses["CL_B"] = self.G_A2B.cycle_criterion(b_recon, b_real) * 5
+                gen_losses["CL_A"] = (
+                    self.G_B2A.cycle_criterion(a_recon, a_real) * self.lambda_cycle
+                )
+                gen_losses["CL_B"] = (
+                    self.G_A2B.cycle_criterion(b_recon, b_real) * self.lambda_cycle
+                )
 
                 # Identity loss
                 gen_losses["ID_B2A"] = (
-                    self.G_B2A.cycle_criterion(self.G_B2A(a_real), a_real) * 10
+                    self.G_B2A.cycle_criterion(self.G_B2A(a_real), a_real)
+                    * self.lambda_identity
                 )
                 gen_losses["ID_A2B"] = (
-                    self.G_A2B.cycle_criterion(self.G_A2B(b_real), b_real) * 10
+                    self.G_A2B.cycle_criterion(self.G_A2B(b_real), b_real)
+                    * self.lambda_identity
                 )
 
                 # Generator losses

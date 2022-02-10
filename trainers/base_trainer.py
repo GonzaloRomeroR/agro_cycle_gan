@@ -84,10 +84,17 @@ class BaseTrainer(ABC):
         self.params_logger = params_logger
         self.metrics = metrics
         self.im_size = im_size
+        self._set_training_params()
         self._define_storing()
         self.tensorboard = tensorboard
         if self.tensorboard:
             self._set_tensorboard()
+
+    @abstractmethod
+    def _set_training_params(self):
+        """
+        Set parameters for training
+        """
 
     def _define_storing(self):
         self.D_A_losses = []
