@@ -1,0 +1,15 @@
+fpdf==1.7.2
+gdown==3.13.0
+keras==2.7.0
+matplotlib==3.3.4
+numpy==1.22.2
+nvidia_ml_py3==7.352.0
+nvidia_smi==0.1.3
+Pillow==9.0.1
+psutil==5.8.0
+scipy==1.6.2
+sphinx_rtd_theme==1.0.0
+torch==1.9.0
+torchsummary==1.5.1
+torchvision==0.10.0
+~umpy==1.20.1
