@@ -4,7 +4,7 @@ from .base_generator import BaseGenerator
 from .custom_models import ResBlock
 
 
-class BasicGenerator(BaseGenerator):
+class CycleganGenerator(BaseGenerator):
     """
     Basic Generator class
     """

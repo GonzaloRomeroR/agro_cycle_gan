@@ -1,5 +1,5 @@
 from .discriminators.basic_discriminator import BasicDiscriminator
-from .generators.basic_generator import BasicGenerator
+from .generators.cyclegan_generator import CycleganGenerator
 from .generators.mixer_generator import MixerGenerator
 
 
@@ -20,7 +20,7 @@ class ModelCreator:
             if model_name == "mixer":
                 return MixerGenerator(**kwargs)
             else:
-                return BasicGenerator(**kwargs)
+                return CycleganGenerator(**kwargs)
         elif model_type == "disc":
             if model_name == "example":
                 return BasicDiscriminator(**kwargs)
