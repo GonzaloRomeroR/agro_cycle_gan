@@ -1,13 +1,14 @@
-import torch
 import argparse
 import os
-
-
-from utils.file_utils import load_generators
-from PIL import Image
 from pathlib import Path
+from typing import Any
+
+import torch
+from PIL import Image
 from torchvision import transforms
 from torchvision.utils import save_image
+
+from utils.file_utils import load_generators
 
 
 class ImageTransformer:
@@ -28,12 +29,12 @@ class ImageTransformer:
         )
         Path(f"./images_gen/{dataset_name}").mkdir(parents=True, exist_ok=True)
 
-    def transform_image(self, image, domain="A"):
+    def transform_image(self, image, domain="B"):
         """Transforms images from one domain to another
 
         :param image: image tensor to transform
         :type image: Tersor
-        :param domain: domain for the images to be transformed, defaults to "A"
+        :param domain: domain for the images to be transformed, defaults to "B"
         :type domain: str, optional
         :return: transformed image tensor
         :rtype: Tensor
@@ -48,8 +49,8 @@ class ImageTransformer:
             raise (ValueError, "Domain is not valid")
 
     def transform_dataset(
-        self, origin_path: str, dest_path: str, domain="B", resize=None
-    ):
+        self, origin_path: str, dest_path: str, domain: str = "B", resize: Any = None
+    ) -> None:
         """Transforms images folders from one domain to another
 
         :param origin_path: path of the folder with the images to transform
@@ -73,7 +74,7 @@ class ImageTransformer:
             save_image(image_trans, f"{dest_path}/{img_name}")
 
 
-def parse_arguments():
+def parse_arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Transform image from one domain to another"
     )

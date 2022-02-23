@@ -1,11 +1,11 @@
-import matplotlib.pyplot as plt
-from pathlib import Path
-from torchsummary import summary
-from contextlib import redirect_stdout
 import os
-
+from contextlib import redirect_stdout
+from pathlib import Path
 from typing import Dict
+
+import matplotlib.pyplot as plt
 from fpdf import FPDF
+from torchsummary import summary
 
 
 class ParamsLogger:
@@ -24,7 +24,7 @@ class ParamsLogger:
     def __init__(self):
         self.params = {}
 
-    def generate_params_file(self):
+    def generate_params_file(self) -> None:
         """Creates a txt with the params used
         """
         with open("./results/params.txt", "w") as f:
@@ -32,11 +32,11 @@ class ParamsLogger:
                 for param, value in self.params.items():
                     print(f"{param}: {value}")
 
-    def set_params(self, params_dict: dict):
+    def set_params(self, params_dict: dict) -> None:
         self.params.update(params_dict)
 
 
-def generate_loss_plot(losses: Dict):
+def generate_loss_plot(losses: Dict) -> None:
     """Create loss plots
 
     :param losses: dictionary with the different losses stored during training
@@ -58,11 +58,11 @@ def generate_model_plots():
     pass
 
 
-def print_summary(model, size):
+def print_summary(model, size) -> None:
     summary(model, size)
 
 
-def generate_model_file(G_A2B, G_B2A, D_A, D_B, size=(3, 64, 64)):
+def generate_model_file(G_A2B, G_B2A, D_A, D_B, size=(3, 64, 64))-> None:
     """Creates a txt with the models used
     """
     with open("./results/models.txt", "w") as f:
@@ -77,7 +77,7 @@ def generate_model_file(G_A2B, G_B2A, D_A, D_B, size=(3, 64, 64)):
             summary(D_B, size)
 
 
-def create_pdf():
+def create_pdf() -> None:
     """
     Create pdf report
     """
@@ -122,7 +122,7 @@ def create_pdf():
     pdf.output("./results/report.pdf", "F")
 
 
-def generate_report(losses: Dict):
+def generate_report(losses: Dict) -> None:
     generate_loss_plot(losses)
     generate_model_plots()
     create_pdf()

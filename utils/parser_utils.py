@@ -1,7 +1,7 @@
 import argparse
 
 
-def parse_arguments():
+def parse_arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Train GANs to generate image synthetic datasets."
     )

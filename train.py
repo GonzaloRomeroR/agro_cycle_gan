@@ -1,3 +1,4 @@
+import argparse
 from datetime import datetime
 
 from trainers.basic_trainer import BasicTrainer
@@ -10,7 +11,7 @@ from utils.sys_utils import get_device, suppress_qt_warnings, suppress_sklearn_e
 from utils.tensorboard_utils import create_models_tb
 
 
-def setup(cmd_args):
+def setup(cmd_args: argparse.Namespace) -> None:
     print("Performing setup")
 
     # Get images
@@ -99,7 +100,7 @@ def setup(cmd_args):
     generate_report(losses)
 
 
-def configure():
+def configure() -> None:
     suppress_sklearn_errors()
     suppress_qt_warnings()
 

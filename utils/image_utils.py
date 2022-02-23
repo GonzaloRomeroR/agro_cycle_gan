@@ -1,13 +1,16 @@
+import os
+from typing import Tuple
+
+import numpy as np
 import torch
 import torchvision.datasets as dset
 import torchvision.transforms as transforms
-import os
-import numpy as np
-
 from PIL import Image
 
 
-def datasets_get(dataset_name, im_size=(64, 64), batch_size=5):
+def datasets_get(
+    dataset_name: str, im_size: Tuple = (64, 64), batch_size: int = 5
+) -> Tuple:
     """Upload and get the datasets for train and test
 
     :param dataset_name: name of the dataset to upload
@@ -34,7 +37,12 @@ def datasets_get(dataset_name, im_size=(64, 64), batch_size=5):
     return train_A, train_B, test_A, test_B
 
 
-def get_datasets(dataset_name, dataset="train", im_size=(64, 64), batch_size=5):
+def get_datasets(
+    dataset_name: str,
+    dataset: str = "train",
+    im_size: Tuple = (64, 64),
+    batch_size: int = 5,
+):
     """Upload and get the datasets
 
     :param dataset_name: name of the dataset to upload
@@ -57,7 +65,7 @@ def get_datasets(dataset_name, dataset="train", im_size=(64, 64), batch_size=5):
     return images_A, images_B
 
 
-def upload_images(path, im_size, batch_size=5, num_workers=2):
+def upload_images(path: str, im_size: Tuple, batch_size: int = 5, num_workers: int = 2):
     """Upload images from folder
 
     :param path: path to the folder with images
@@ -92,7 +100,7 @@ def upload_images(path, im_size, batch_size=5, num_workers=2):
     return images
 
 
-def upload_images_numpy(path, im_size):
+def upload_images_numpy(path: str, im_size: Tuple):
     """Upload images from folder
 
     :param path: path to the folder with images

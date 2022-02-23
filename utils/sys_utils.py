@@ -5,7 +5,7 @@ import psutil
 import torch
 
 
-def get_device(debug=False):
+def get_device(debug: bool = False):
     if debug:
         if torch.cuda.is_available():
             print("The code will run on GPU.")

@@ -3,6 +3,7 @@ import shutil
 import sys
 import zipfile
 from pathlib import Path
+from typing import Tuple
 
 import gdown
 import torch
@@ -11,7 +12,9 @@ from models.model_factory import ModelCreator
 from .sys_utils import get_device
 
 
-def get_models(dataset_name: str, device: str, load=False, disc_name="", gen_name=""):
+def get_models(
+    dataset_name: str, device: str, load=False, disc_name: str = "", gen_name: str = ""
+):
     """Obtain Generator and Discriminator models 
 
     :param dataset_name: name of the dataset 
@@ -32,7 +35,7 @@ def get_models(dataset_name: str, device: str, load=False, disc_name="", gen_nam
     return G_A2B, G_B2A, D_A, D_B
 
 
-def create_models(device, gen_name="", disc_name="", **kwargs):
+def create_models(device, gen_name: str = "", disc_name: str = "", **kwargs):
     """Create discriminator and generator models
 
     :param device: pytorch device to be used
@@ -56,7 +59,7 @@ def create_models(device, gen_name="", disc_name="", **kwargs):
     return G_A2B, G_B2A, D_A, D_B
 
 
-def save_models(path, name, G_A2B, G_B2A, D_A, D_B):
+def save_models(path: str, name: str, G_A2B, G_B2A, D_A, D_B):
     """Save trained models
 
     :param G_A2B: Generator to transform from A to B 
@@ -80,7 +83,7 @@ def save_models(path, name, G_A2B, G_B2A, D_A, D_B):
     torch.save(D_B, path + "/" + name + "_D_B.pt")
 
 
-def load_models(path, name):
+def load_models(path: str, name: str) -> Tuple:
     """Load trained models
 
     :return: tuple with the loaded models
@@ -96,7 +99,7 @@ def load_models(path, name):
     return G_A2B, G_B2A, D_A, D_B
 
 
-def load_generators(path, name):
+def load_generators(path: str, name: str) -> Tuple:
     """Load generator models
 
     :return: tuple with the loaded models
@@ -107,7 +110,7 @@ def load_generators(path, name):
     return G_A2B, G_B2A
 
 
-def load_discriminators(path, name):
+def load_discriminators(path: str, name: str) -> Tuple:
     """Load discriminators models
 
     :return: tuple with the loaded models
@@ -118,7 +121,7 @@ def load_discriminators(path, name):
     return D_A, D_B
 
 
-def download_images(image_type, path="images/"):
+def download_images(image_type: str, path: str = "images/"):
     """Download images from and url
 
     :param image_type: type of the dataset to download
@@ -132,7 +135,7 @@ def download_images(image_type, path="images/"):
         raise RuntimeError("Dataset not found")
 
 
-def download_zebras(path):
+def download_zebras(path: str):
     zip_name = "horse2zebra.zip"
     zip_path = path + zip_name
     if not os.path.exists(zip_path.rsplit(".", 1)[0]):
@@ -148,7 +151,7 @@ def download_zebras(path):
         print("Dataset is already downloaded")
 
 
-def unzip(path):
+def unzip(path: str):
     """Unzips file
 
     :param path: path to the file to unzip

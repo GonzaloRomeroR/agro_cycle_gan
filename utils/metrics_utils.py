@@ -1,23 +1,25 @@
 from abc import ABC, abstractmethod
 
-from utils.sys_utils import suppress_tf_warnings, suppress_sklearn_errors
 from utils.image_utils import upload_images_numpy
+from utils.sys_utils import suppress_sklearn_errors, suppress_tf_warnings
 
 suppress_tf_warnings()
 suppress_sklearn_errors()
 
-from keras.applications.inception_v3 import InceptionV3
-from keras.applications.inception_v3 import preprocess_input
-import numpy as np
-from scipy.linalg import sqrtm
 import os
+from typing import Tuple
 
+import numpy as np
 from generate import ImageTransformer
+from keras.applications.inception_v3 import InceptionV3, preprocess_input
+from scipy.linalg import sqrtm
 
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
 
-def calculate_metrics(metrics, name, im_size, out_domain="B"):
+def calculate_metrics(
+    metrics, name: str, im_size: Tuple[int], out_domain: str = "B"
+) -> float:
     """Calculate metrics
 
     :param metrics: metrics to compute
