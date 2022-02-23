@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+
 import torch.nn as nn
 
 
@@ -30,6 +31,6 @@ class BaseModel(ABC, nn.Module):
         return
 
     @abstractmethod
-    def forward():
+    def forward(self):
         return
 

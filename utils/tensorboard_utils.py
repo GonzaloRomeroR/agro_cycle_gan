@@ -1,3 +1,5 @@
+from typing import Dict
+
 from torch.utils.tensorboard import SummaryWriter
 
 
@@ -6,7 +8,7 @@ class TensorboardHandler:
     Class to handle tensorboard functions
     """
 
-    _instance = {}
+    _instance: Dict = {}
 
     # Singleton to create only one writer per model
     def __new__(class_, name=None, *args, **kwargs):
