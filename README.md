@@ -2,7 +2,7 @@
 
 Platform to create syntetic image datasets using CycleGAN. It transforms images from a domain A with some features to a domain B with different features (for example horses to horses, day to night, etc). It uses CycleGAN, which allows to use unsupervised learning to transform images between two domains. Apart from CycleGAN, other image-to-image translation algorithms are being added, such as MixerGAN. Better parametrizations and more models are going to be added in the future.
 
-<img src="./docs/images/transformation.PNG" alt="drawing" width="500"/>
+<img src="./docs/images/transformation.png" alt="drawing" width="500"/>
 
 
 In order to do so, it is possible to add the the image dataset to the *images* folder as follows:  
