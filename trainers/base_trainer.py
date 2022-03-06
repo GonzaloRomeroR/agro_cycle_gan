@@ -4,11 +4,15 @@ from abc import ABC, abstractmethod
 from utils.file_utils import save_models
 from utils.metrics_utils import calculate_metrics
 from utils.plot_utils import plot_generator_images
-from utils.sys_utils import get_cpu_usage, get_gpu_usage, get_memory_usage
+from utils.sys_utils import get_gpu_usage
 from utils.tensorboard_utils import TensorboardHandler
 
 
 class BaseTrainer(ABC):
+    """
+    Base Trainer class
+    """
+
     def __init__(
         self,
         G_A2B,
@@ -116,7 +120,7 @@ class BaseTrainer(ABC):
         self.losses_epoch = {key: [] for key in self.losses_names}
         self.losses_total = {key: [] for key in self.losses_names}
 
-    def _set_tensorboard(self):
+    def _set_tensorboard(self) -> None:
         self.writer = TensorboardHandler("./runs/Losses")
 
     def generate_images_cycle(self, a_real, b_real, G_A2B, G_B2A):
@@ -129,7 +133,7 @@ class BaseTrainer(ABC):
         b_recon = G_A2B(a_fake)
         return a_fake, b_fake, a_recon, b_recon
 
-    def _print_iter_info(self, epoch, iteration, gen_losses, disc_losses):
+    def _print_iter_info(self, epoch, iteration, gen_losses, disc_losses) -> None:
         info = f"Epoch [{epoch}/{self.num_epochs}] batch [{iteration}]"
         for name, loss in {**gen_losses, **disc_losses}.items():
             info += f" {name}: {loss:.3f}"

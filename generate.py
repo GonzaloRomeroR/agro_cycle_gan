@@ -29,7 +29,7 @@ class ImageTransformer:
         )
         Path(f"./images_gen/{dataset_name}").mkdir(parents=True, exist_ok=True)
 
-    def transform_image(self, image, domain="B"):
+    def transform_image(self, image, domain: str = "B"):
         """Transforms images from one domain to another
 
         :param image: image tensor to transform
@@ -46,7 +46,7 @@ class ImageTransformer:
             self.G_A2B.eval()
             return self.G_A2B(image)
         else:
-            raise (ValueError, "Domain is not valid")
+            raise ValueError("Domain is not valid")
 
     def transform_dataset(
         self, origin_path: str, dest_path: str, domain: str = "B", resize: Any = None

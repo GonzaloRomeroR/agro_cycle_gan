@@ -16,21 +16,21 @@ class BaseModel(ABC, nn.Module):
 
     @abstractmethod
     def _set_params(self, **kwargs):
-        return
+        pass
 
     @abstractmethod
     def _set_optimizer(self):
-        return
+        pass
 
     @abstractmethod
     def _create_model(self):
-        return
+        pass
 
     @abstractmethod
     def get_loss(self):
-        return
+        pass
 
     @abstractmethod
     def forward(self):
-        return
+        pass
 

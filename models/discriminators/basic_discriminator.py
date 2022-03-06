@@ -8,7 +8,7 @@ class BasicDiscriminator(BaseDiscriminator):
     Basic Discriminator class
     """
 
-    def _create_model(self):
+    def _create_model(self) -> None:
         self.main = nn.Sequential(
             nn.Conv2d(
                 in_channels=self.nc,

@@ -1,7 +1,8 @@
+from abc import abstractmethod
+
 import torch
 
 from ..base_model import BaseModel
-from abc import abstractmethod
 
 
 class BaseDiscriminator(BaseModel):

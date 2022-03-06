@@ -10,7 +10,9 @@ class BaseGenerator(BaseModel):
     Base Generator class
     """
 
-    def _set_params(self, n_channels=3, lr=0.0002, beta_1=0.5, **kwargs):
+    def _set_params(
+        self, n_channels: int = 3, lr: float = 0.0002, beta_1: float = 0.5, **kwargs
+    ) -> None:
         """Set generator parameters
 
         :param ngf: size of feature maps in generator, defaults to 64
@@ -30,10 +32,10 @@ class BaseGenerator(BaseModel):
         self.cycle_criterion = self.get_cycle_criterion()
         self._set_custom_params(**kwargs)
 
-    def _set_custom_params(**kwargs):
+    def _set_custom_params(self, **kwargs) -> None:
         pass
 
-    def _set_optimizer(self):
+    def _set_optimizer(self) -> None:
         self.optimizer = self.get_optimizer()
 
     def get_optimizer(self):
@@ -50,7 +52,7 @@ class BaseGenerator(BaseModel):
     @abstractmethod
     def forward(self, x):
         pass
-    
+
     @abstractmethod
     def _create_model(self):
         pass

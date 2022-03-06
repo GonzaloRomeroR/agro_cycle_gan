@@ -1,15 +1,17 @@
 import random
+from typing import Any
+
 import torch
 
 from .base_trainer import BaseTrainer
 
 
 class BasicTrainer(BaseTrainer):
-    def _set_training_params(self):
+    def _set_training_params(self) -> None:
         self.lambda_cycle = 5
         self.lambda_identity = 10
 
-    def _train_model(self):
+    def _train_model(self) -> None:
         iters = 0
         for epoch in range(0, self.num_epochs):
             print("\n" + "=" * 20)
@@ -81,7 +83,7 @@ class BasicTrainer(BaseTrainer):
                 )
 
                 # Generator losses
-                loss_G = sum(gen_losses.values())
+                loss_G: Any = sum(gen_losses.values())
                 self.G_losses.append(loss_G)
                 gen_losses["GEN_TOTAL"] = loss_G
 

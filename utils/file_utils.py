@@ -7,6 +7,8 @@ from typing import Tuple
 
 import gdown
 import torch
+from models.discriminators.base_discriminator import BaseDiscriminator
+from models.generators.base_generator import BaseGenerator
 from models.model_factory import ModelCreator
 
 from .sys_utils import get_device
@@ -59,7 +61,14 @@ def create_models(device, gen_name: str = "", disc_name: str = "", **kwargs):
     return G_A2B, G_B2A, D_A, D_B
 
 
-def save_models(path: str, name: str, G_A2B, G_B2A, D_A, D_B):
+def save_models(
+    path: str,
+    name: str,
+    G_A2B: BaseGenerator,
+    G_B2A: BaseGenerator,
+    D_A: BaseDiscriminator,
+    D_B: BaseDiscriminator,
+) -> None:
     """Save trained models
 
     :param G_A2B: Generator to transform from A to B 
