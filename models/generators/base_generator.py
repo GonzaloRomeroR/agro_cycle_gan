@@ -43,15 +43,15 @@ class BaseGenerator(BaseModel):
     def _set_optimizer(self) -> None:
         self.optimizer = self.get_optimizer()
 
-    def get_optimizer(self):
+    def get_optimizer(self) -> Any:
         return torch.optim.Adam(
             self.parameters(), lr=self.lr, betas=(self.beta_1, 0.999)
         )
 
-    def get_cycle_criterion(self):
+    def get_cycle_criterion(self) -> Any:
         return torch.nn.L1Loss()
 
-    def get_loss(self, fake):
+    def get_loss(self, fake: torch.Tensor) -> torch.Tensor:
         return torch.mean((fake - 1) ** 2)
 
     @abstractmethod

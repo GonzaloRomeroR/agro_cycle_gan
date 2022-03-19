@@ -1,5 +1,9 @@
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 
+import torch
+from models.base_model import BaseModel
+from models.discriminators.base_discriminator import BaseDiscriminator
+from models.generators.base_generator import BaseGenerator
 from torch.utils.tensorboard import SummaryWriter
 
 
@@ -27,7 +31,7 @@ class TensorboardHandler:
         self.name = name
         self.writer = SummaryWriter(name)
 
-    def add_graph(self, model, images) -> None:
+    def add_graph(self, model: BaseModel, images: torch.Tensor) -> None:
         self.writer.add_graph(model, images)
 
     def add_image(self, grid: Any) -> None:
@@ -37,7 +41,13 @@ class TensorboardHandler:
         self.writer.add_scalar(f"./runs/{self.name}/{dir_name}", value, n_iter)
 
 
-def create_models_tb(G_A2B, G_B2A, D_A, D_B, images) -> None:
+def create_models_tb(
+    G_A2B: BaseGenerator,
+    G_B2A: BaseGenerator,
+    D_A: BaseDiscriminator,
+    D_B: BaseDiscriminator,
+    images: torch.Tensor,
+) -> None:
     """Create tensorboard runs to store models
 
     :param G_A2B: Generator from A to B

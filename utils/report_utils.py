@@ -65,7 +65,7 @@ def generate_model_file(
     G_B2A: BaseGenerator,
     D_A: BaseDiscriminator,
     D_B: BaseDiscriminator,
-    size: Tuple[int, int, int] = (3, 64, 64),
+    size: Tuple[int, ...] = (3, 64, 64),
 ) -> None:
     """Creates a txt with the models used
     """

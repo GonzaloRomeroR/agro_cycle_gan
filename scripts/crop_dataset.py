@@ -40,7 +40,7 @@ class ImageCropper:
         self,
         data_folder: str,
         dest_folder: str,
-        size: Tuple[int, int] = (256, 256),
+        size: Tuple[int, ...] = (256, 256),
         samples: int = 1,
     ) -> None:
         """Crop image dataset

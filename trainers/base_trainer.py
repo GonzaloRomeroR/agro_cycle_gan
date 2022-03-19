@@ -31,13 +31,13 @@ class BaseTrainer(ABC):
         device: torch.device,
         test_images_A: torch.utils.data.DataLoader[Any],
         test_images_B: torch.utils.data.DataLoader[Any],
+        params_logger: ParamsLogger,
         bs: int = 5,
         num_epochs: int = 20,
         plot_epochs: int = 1,
         print_info: int = 3,
-        params_logger: Optional[ParamsLogger] = None,
         metrics: Optional[Metrics] = None,
-        im_size: Tuple[int, int] = (64, 64),
+        im_size: Tuple[int, ...] = (64, 64),
         tensorboard: bool = False,
     ) -> None:
         """Train the generator and the discriminator

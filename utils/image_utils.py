@@ -5,11 +5,12 @@ import numpy as np
 import torch
 import torchvision.datasets as dset
 import torchvision.transforms as transforms
+from numpy.typing import NDArray
 from PIL import Image
 
 
 def datasets_get(
-    dataset_name: str, im_size: Tuple[int, int] = (64, 64), batch_size: int = 5
+    dataset_name: str, im_size: Tuple[int, ...] = (64, 64), batch_size: int = 5
 ) -> Tuple[torch.utils.data.DataLoader[Any], ...]:
     """Upload and get the datasets for train and test
 
@@ -40,7 +41,7 @@ def datasets_get(
 def get_datasets(
     dataset_name: str,
     dataset: str = "train",
-    im_size: Tuple[int, int] = (64, 64),
+    im_size: Tuple[int, ...] = (64, 64),
     batch_size: int = 5,
 ) -> Tuple[torch.utils.data.DataLoader[Any], ...]:
     """Upload and get the datasets
@@ -66,7 +67,7 @@ def get_datasets(
 
 
 def upload_images(
-    path: str, im_size: Tuple[int, int], batch_size: int = 5, num_workers: int = 2
+    path: str, im_size: Tuple[int, ...], batch_size: int = 5, num_workers: int = 2
 ) -> torch.utils.data.DataLoader[Any]:
     """Upload images from folder
 
@@ -102,7 +103,7 @@ def upload_images(
     return images
 
 
-def upload_images_numpy(path: str, im_size: Tuple[int, int]) -> np.ndarray:
+def upload_images_numpy(path: str, im_size: Tuple[int, ...]) -> NDArray[Any]:
     """Upload images from folder
 
     :param path: path to the folder with images

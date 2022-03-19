@@ -38,13 +38,13 @@ class ResBlock(nn.Module):
 
 
 class View(nn.Module):
-    def __init__(self, shape: Tuple[int, int]):
+    def __init__(self, shape: Tuple[int, ...]):
         super().__init__()
         self.shape = shape
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:
         batch_size = input.size(0)
-        tensor_shape: Tuple[int, int, int] = (batch_size, *self.shape)
+        tensor_shape: Tuple[int, ...] = (batch_size, *self.shape)
         out = input.view(tensor_shape)
         return out
 
