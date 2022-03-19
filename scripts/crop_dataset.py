@@ -1,9 +1,11 @@
-import os
 import argparse
-import numpy as np
-
-from PIL import Image
+import os
 from pathlib import Path
+from typing import Tuple
+
+import numpy as np
+import torch
+from PIL import Image
 from torchvision import transforms
 from torchvision.utils import save_image
 
@@ -12,7 +14,10 @@ class ImageCropper:
     """
     Class to crop images
     """
-    def get_random_crop(self, image, crop_height, crop_width):
+
+    def get_random_crop(
+        self, image: torch.Tensor, crop_height: int, crop_width: int
+    ) -> torch.Tensor:
         """Randomly crop image
 
         :param image: image tensor
@@ -32,8 +37,12 @@ class ImageCropper:
         return crop
 
     def create_cropped_dataset(
-        self, data_folder, dest_folder, size=(256, 256), samples=1
-    ):
+        self,
+        data_folder: str,
+        dest_folder: str,
+        size: Tuple[int, int] = (256, 256),
+        samples: int = 1,
+    ) -> None:
         """Crop image dataset
 
         :param data_folder: path of the folder with images
@@ -54,7 +63,7 @@ class ImageCropper:
                 save_image(image_cropped, f"{dest_folder}/{num}_{img_name}")
 
 
-def parse_arguments():
+def parse_arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Crop images in dataset")
 
     parser.add_argument(

@@ -29,7 +29,7 @@ class ImageTransformer:
         )
         Path(f"./images_gen/{dataset_name}").mkdir(parents=True, exist_ok=True)
 
-    def transform_image(self, image, domain: str = "B"):
+    def transform_image(self, image: torch.Tensor, domain: str = "B") -> Any:
         """Transforms images from one domain to another
 
         :param image: image tensor to transform

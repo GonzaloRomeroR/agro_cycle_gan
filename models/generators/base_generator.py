@@ -1,4 +1,5 @@
 from abc import abstractmethod
+from typing import Any, Dict
 
 import torch
 
@@ -11,7 +12,11 @@ class BaseGenerator(BaseModel):
     """
 
     def _set_params(
-        self, n_channels: int = 3, lr: float = 0.0002, beta_1: float = 0.5, **kwargs
+        self,
+        n_channels: int = 3,
+        lr: float = 0.0002,
+        beta_1: float = 0.5,
+        **kwargs: Dict[str, Any]
     ) -> None:
         """Set generator parameters
 
@@ -50,9 +55,9 @@ class BaseGenerator(BaseModel):
         return torch.mean((fake - 1) ** 2)
 
     @abstractmethod
-    def forward(self, x):
+    def forward(self, x: Any) -> None:
         pass
 
     @abstractmethod
-    def _create_model(self):
+    def _create_model(self) -> None:
         pass

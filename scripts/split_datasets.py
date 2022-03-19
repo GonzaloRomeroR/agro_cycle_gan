@@ -1,11 +1,14 @@
+import argparse
 import os
+import random
 from pathlib import Path
 from shutil import copyfile, rmtree
-import random
-import argparse
+from typing import Dict, List, Tuple
 
 
-def list_splitter(list_to_split, ratio):
+def list_splitter(
+    list_to_split: List[str], ratio: float
+) -> Tuple[List[str], List[str]]:
     """
     Randomly split list based on ratio
     """
@@ -19,9 +22,9 @@ def split_dataset(
     folder_A: str,
     folder_B: str,
     output_name: str,
-    dest_folder="./images/",
-    perc_train=0.95,
-):
+    dest_folder: str = "./images/",
+    perc_train: float = 0.95,
+) -> None:
     """
     Split image dataset for both domains in train and test.
 
@@ -49,15 +52,15 @@ def split_dataset(
             )
     for name, folder in {"A": folder_A, "B": folder_B}.items():
         train, test = list_splitter(os.listdir(folder), perc_train)
-        for set_name, data in {"train": train, "test": test}.items():
-            for image in data:
+        for set_name, dataset in {"train": train, "test": test}.items():
+            for image in dataset:
                 copyfile(
                     f"{folder}/{image}",
                     f"{dataset_path}/{set_name}_{name}/{name}/{image}",
                 )
 
 
-def parse_arguments():
+def parse_arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Split dataset to be used in current image transformation"
     )

@@ -1,4 +1,15 @@
-def generate_images_cycle(a_real, b_real, G_A2B, G_B2A):
+from typing import Tuple
+
+import torch
+from models.generators.base_generator import BaseGenerator
+
+
+def generate_images_cycle(
+    a_real: torch.Tensor,
+    b_real: torch.Tensor,
+    G_A2B: BaseGenerator,
+    G_B2A: BaseGenerator,
+) -> Tuple[torch.Tensor, ...]:
     """
     Create fake and reconstructed images.
     """

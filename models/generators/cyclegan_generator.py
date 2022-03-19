@@ -13,7 +13,7 @@ class CycleganGenerator(BaseGenerator):
         self.filters = filters
         self.blocks = blocks
 
-    def _create_model(self):
+    def _create_model(self) -> None:
         layers = [
             nn.ReflectionPad2d(padding=3),
             nn.Conv2d(

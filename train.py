@@ -24,7 +24,9 @@ def setup(cmd_args: argparse.Namespace) -> None:
     # Set image size
     image_resize = cmd_args.image_resize
     if image_resize:
-        im_size = tuple([3] + image_resize)
+        # Do this to avoid mypy warnings
+        im_size_list = [int(value) for value in [3] + image_resize]
+        im_size = tuple(im_size_list)
     else:
         im_size = (3, 64, 64)
 

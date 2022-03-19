@@ -3,7 +3,7 @@ import shutil
 import sys
 import zipfile
 from pathlib import Path
-from typing import Tuple
+from typing import Any, Dict, Tuple, Type
 
 import gdown
 import torch
@@ -15,8 +15,12 @@ from .sys_utils import get_device
 
 
 def get_models(
-    dataset_name: str, device: str, load=False, disc_name: str = "", gen_name: str = ""
-):
+    dataset_name: str,
+    device: torch.device,
+    load: bool = False,
+    disc_name: str = "",
+    gen_name: str = "",
+) -> Tuple[BaseGenerator, BaseGenerator, BaseDiscriminator, BaseDiscriminator]:
     """Obtain Generator and Discriminator models 
 
     :param dataset_name: name of the dataset 
@@ -37,7 +41,12 @@ def get_models(
     return G_A2B, G_B2A, D_A, D_B
 
 
-def create_models(device, gen_name: str = "", disc_name: str = "", **kwargs):
+def create_models(
+    device: torch.device,
+    gen_name: str = "",
+    disc_name: str = "",
+    **kwargs: Dict[str, Any],
+) -> Tuple[BaseGenerator, BaseGenerator, BaseDiscriminator, BaseDiscriminator]:
     """Create discriminator and generator models
 
     :param device: pytorch device to be used
@@ -92,7 +101,9 @@ def save_models(
     torch.save(D_B, path + "/" + name + "_D_B.pt")
 
 
-def load_models(path: str, name: str) -> Tuple:
+def load_models(
+    path: str, name: str
+) -> Tuple[BaseGenerator, BaseGenerator, BaseDiscriminator, BaseDiscriminator]:
     """Load trained models
 
     :return: tuple with the loaded models
@@ -108,7 +119,7 @@ def load_models(path: str, name: str) -> Tuple:
     return G_A2B, G_B2A, D_A, D_B
 
 
-def load_generators(path: str, name: str) -> Tuple:
+def load_generators(path: str, name: str) -> Tuple[BaseGenerator, BaseGenerator]:
     """Load generator models
 
     :return: tuple with the loaded models
@@ -119,7 +130,9 @@ def load_generators(path: str, name: str) -> Tuple:
     return G_A2B, G_B2A
 
 
-def load_discriminators(path: str, name: str) -> Tuple:
+def load_discriminators(
+    path: str, name: str
+) -> Tuple[BaseDiscriminator, BaseDiscriminator]:
     """Load discriminators models
 
     :return: tuple with the loaded models

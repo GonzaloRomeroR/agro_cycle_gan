@@ -1,9 +1,14 @@
 import time
 from abc import ABC, abstractmethod
+from typing import Any, Dict, List, Optional, Tuple
 
+import torch
+from models.discriminators.base_discriminator import BaseDiscriminator
+from models.generators.base_generator import BaseGenerator
 from utils.file_utils import save_models
-from utils.metrics_utils import calculate_metrics
+from utils.metrics_utils import Metrics, calculate_metrics
 from utils.plot_utils import plot_generator_images
+from utils.report_utils import ParamsLogger
 from utils.sys_utils import get_gpu_usage
 from utils.tensorboard_utils import TensorboardHandler
 
@@ -15,25 +20,25 @@ class BaseTrainer(ABC):
 
     def __init__(
         self,
-        G_A2B,
-        G_B2A,
-        D_A,
-        D_B,
-        models_path,
-        images_A,
-        images_B,
-        dataset_name,
-        device,
-        test_images_A,
-        test_images_B,
-        bs=5,
-        num_epochs=20,
-        plot_epochs=1,
-        print_info=3,
-        params_logger=None,
-        metrics=None,
-        im_size=(64, 64),
-        tensorboard=False,
+        G_A2B: BaseGenerator,
+        G_B2A: BaseGenerator,
+        D_A: BaseDiscriminator,
+        D_B: BaseDiscriminator,
+        models_path: str,
+        images_A: torch.Tensor,
+        images_B: torch.Tensor,
+        dataset_name: str,
+        device: torch.device,
+        test_images_A: torch.utils.data.DataLoader[Any],
+        test_images_B: torch.utils.data.DataLoader[Any],
+        bs: int = 5,
+        num_epochs: int = 20,
+        plot_epochs: int = 1,
+        print_info: int = 3,
+        params_logger: Optional[ParamsLogger] = None,
+        metrics: Optional[Metrics] = None,
+        im_size: Tuple[int, int] = (64, 64),
+        tensorboard: bool = False,
     ) -> None:
         """Train the generator and the discriminator
 
@@ -95,15 +100,15 @@ class BaseTrainer(ABC):
             self._set_tensorboard()
 
     @abstractmethod
-    def _set_training_params(self):
+    def _set_training_params(self) -> None:
         """
         Set parameters for training
         """
 
-    def _define_storing(self):
-        self.D_A_losses = []
-        self.D_B_losses = []
-        self.G_losses = []
+    def _define_storing(self) -> None:
+        self.D_A_losses: List[Any] = []
+        self.D_B_losses: List[Any] = []
+        self.G_losses: List[Any] = []
 
         self.losses_names = [
             "FDL_A2B",
@@ -117,13 +122,19 @@ class BaseTrainer(ABC):
             "DISC_B",
         ]
 
-        self.losses_epoch = {key: [] for key in self.losses_names}
-        self.losses_total = {key: [] for key in self.losses_names}
+        self.losses_epoch: Dict[str, Any] = {key: [] for key in self.losses_names}
+        self.losses_total: Dict[str, Any] = {key: [] for key in self.losses_names}
 
     def _set_tensorboard(self) -> None:
         self.writer = TensorboardHandler("./runs/Losses")
 
-    def generate_images_cycle(self, a_real, b_real, G_A2B, G_B2A):
+    def generate_images_cycle(
+        self,
+        a_real: torch.Tensor,
+        b_real: torch.Tensor,
+        G_A2B: BaseGenerator,
+        G_B2A: BaseGenerator,
+    ) -> Tuple[torch.Tensor, ...]:
         """
         Create fake and reconstructed images.
         """
@@ -133,13 +144,19 @@ class BaseTrainer(ABC):
         b_recon = G_A2B(a_fake)
         return a_fake, b_fake, a_recon, b_recon
 
-    def _print_iter_info(self, epoch, iteration, gen_losses, disc_losses) -> None:
+    def _print_iter_info(
+        self,
+        epoch: int,
+        iteration: int,
+        gen_losses: Dict[str, Any],
+        disc_losses: Dict[str, Any],
+    ) -> None:
         info = f"Epoch [{epoch}/{self.num_epochs}] batch [{iteration}]"
         for name, loss in {**gen_losses, **disc_losses}.items():
             info += f" {name}: {loss:.3f}"
         print(info)
 
-    def _run_post_epoch(self, epoch):
+    def _run_post_epoch(self, epoch: int) -> None:
         # Obtain total losses
         for key in self.losses_epoch.keys():
             loss_key = sum(self.losses_epoch[key]) / len(self.losses_epoch[key])
@@ -177,7 +194,7 @@ class BaseTrainer(ABC):
             score = calculate_metrics(self.metrics, self.dataset_name, self.im_size[1:])
             print(f"{self.metrics.name} score: {score}")
 
-    def train(self):
+    def train(self) -> Dict[str, Any]:
         self.start_time = time.perf_counter()
         self._train_model()
         end_time = time.perf_counter() - self.start_time
@@ -185,5 +202,5 @@ class BaseTrainer(ABC):
         return self.losses_total
 
     @abstractmethod
-    def _train_model(self):
+    def _train_model(self) -> None:
         pass

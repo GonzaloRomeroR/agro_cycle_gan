@@ -1,4 +1,8 @@
+from typing import Any, Dict, Union
+
+from .discriminators.base_discriminator import BaseDiscriminator
 from .discriminators.basic_discriminator import BasicDiscriminator
+from .generators.base_generator import BaseGenerator
 from .generators.cyclegan_generator import CycleganGenerator
 from .generators.mixer_generator import MixerGenerator
 
@@ -8,7 +12,9 @@ class ModelCreator:
     Model factory
     """
 
-    def create(self, model_type: str, model_name: str, **kwargs):
+    def create(
+        self, model_type: str, model_name: str, **kwargs: Dict[str, Any]
+    ) -> Union[BaseDiscriminator, BaseGenerator]:
         """Create and return model
 
         :param model_type: model type, gen or disc

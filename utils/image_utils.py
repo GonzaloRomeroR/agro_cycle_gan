@@ -1,5 +1,5 @@
 import os
-from typing import Tuple
+from typing import Any, Tuple
 
 import numpy as np
 import torch
@@ -9,8 +9,8 @@ from PIL import Image
 
 
 def datasets_get(
-    dataset_name: str, im_size: Tuple = (64, 64), batch_size: int = 5
-) -> Tuple:
+    dataset_name: str, im_size: Tuple[int, int] = (64, 64), batch_size: int = 5
+) -> Tuple[torch.utils.data.DataLoader[Any], ...]:
     """Upload and get the datasets for train and test
 
     :param dataset_name: name of the dataset to upload
@@ -40,9 +40,9 @@ def datasets_get(
 def get_datasets(
     dataset_name: str,
     dataset: str = "train",
-    im_size: Tuple = (64, 64),
+    im_size: Tuple[int, int] = (64, 64),
     batch_size: int = 5,
-):
+) -> Tuple[torch.utils.data.DataLoader[Any], ...]:
     """Upload and get the datasets
 
     :param dataset_name: name of the dataset to upload
@@ -65,7 +65,9 @@ def get_datasets(
     return images_A, images_B
 
 
-def upload_images(path: str, im_size: Tuple, batch_size: int = 5, num_workers: int = 2):
+def upload_images(
+    path: str, im_size: Tuple[int, int], batch_size: int = 5, num_workers: int = 2
+) -> torch.utils.data.DataLoader[Any]:
     """Upload images from folder
 
     :param path: path to the folder with images
@@ -100,7 +102,7 @@ def upload_images(path: str, im_size: Tuple, batch_size: int = 5, num_workers: i
     return images
 
 
-def upload_images_numpy(path: str, im_size: Tuple):
+def upload_images_numpy(path: str, im_size: Tuple[int, int]) -> np.ndarray:
     """Upload images from folder
 
     :param path: path to the folder with images

@@ -15,7 +15,7 @@ def parse_arguments() -> argparse.Namespace:
         "--image_resize",
         help="size of the image to resize",
         default=None,
-        nargs="+",
+        nargs=2,
         type=int,
     )
     parser.add_argument(

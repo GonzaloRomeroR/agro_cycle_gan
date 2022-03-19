@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
 
+import torch
+
 from utils.image_utils import upload_images_numpy
 from utils.sys_utils import suppress_sklearn_errors, suppress_tf_warnings
 
@@ -7,7 +9,7 @@ suppress_tf_warnings()
 suppress_sklearn_errors()
 
 import os
-from typing import Tuple
+from typing import Any, Dict, List, Tuple
 
 import numpy as np
 from generate import ImageTransformer
@@ -18,7 +20,7 @@ os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
 
 def calculate_metrics(
-    metrics, name: str, im_size: Tuple[int], out_domain: str = "B"
+    metrics, name: str, im_size: Tuple[int, int], out_domain: str = "B"
 ) -> float:
     """Calculate metrics
 
@@ -55,19 +57,21 @@ class Metrics(ABC):
     Base class for calculating metrics
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: List[Any], **kwargs: Dict[str, Any]):
         self._set_params(*args, **kwargs)
 
     @abstractmethod
-    def _set_params(self, *args, **kwargs):
+    def _set_params(self, *args: List[Any], **kwargs: Dict[str, Any]) -> None:
         pass
 
     @abstractmethod
-    def get_score(self, images_real, images_gen):
+    def get_score(self, images_real: torch.Tensor, images_gen: torch.Tensor) -> None:
         pass
 
     @abstractmethod
-    def calculate_score(self, images_real, images_gen):
+    def calculate_score(
+        self, images_real: torch.Tensor, images_gen: torch.Tensor
+    ) -> None:
         pass
 
 
@@ -76,7 +80,7 @@ class FID(Metrics):
     Class to calculate the frechnet inception score 
     """
 
-    def _set_params(self, input_shape=(299, 299, 3)):
+    def _set_params(self, input_shape: Tuple[int, int, int] = (299, 299, 3)) -> None:
         self.name = "FID"
         self.model = InceptionV3(
             include_top=False, pooling="avg", input_shape=input_shape
@@ -90,7 +94,9 @@ class FID(Metrics):
             images_list.append(new_image)
         return np.asarray(images_list)
 
-    def get_score(self, images_real, images_gen):
+    def get_score(
+        self, images_real: np.ndarray, images_gen: np.ndarray,
+    ) -> float:
         """
         Get frechnet inception distance
 
@@ -116,7 +122,9 @@ class FID(Metrics):
         fid = self.calculate_score(images_real, images_gen)
         return fid
 
-    def calculate_score(self, images_real, images_gen):
+    def calculate_score(
+        self, images_real: torch.Tensor, images_gen: torch.Tensor
+    ) -> float:
         # Calculate activations
         act1 = self.model.predict(images_real)
         act2 = self.model.predict(images_gen)

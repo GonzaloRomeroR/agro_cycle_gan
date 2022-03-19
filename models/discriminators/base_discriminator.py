@@ -10,7 +10,7 @@ class BaseDiscriminator(BaseModel):
     Base Discriminator class
     """
 
-    def _set_params(self, ndf=64, nc=3, lr=0.0002, beta_1=0.5):
+    def _set_params(self, ndf=64, nc=3, lr=0.0002, beta_1=0.5) -> None:
         """Set discriminator parameters
 
         :param ndf: size of feature maps in discriminator, defaults to 64
@@ -28,10 +28,10 @@ class BaseDiscriminator(BaseModel):
         self.beta_1 = beta_1
 
     @abstractmethod
-    def _create_model(self):
+    def _create_model(self) -> None:
         pass
 
-    def _set_optimizer(self):
+    def _set_optimizer(self) -> None:
         self.optimizer = self.get_optimizer()
 
     def get_optimizer(self):

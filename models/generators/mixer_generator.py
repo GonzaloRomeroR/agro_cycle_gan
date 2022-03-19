@@ -16,14 +16,14 @@ class MixerGenerator(BaseGenerator):
         embed_dim=256,
         transform_layers=9,
         patch_size=8,
-    ):
+    ) -> None:
         self.patch_dim = patch_dim
         self.image_size = image_size
         self.embed_dim = embed_dim
         self.transform_layers = transform_layers
         self.patch_size = patch_size
 
-    def _create_model(self):
+    def _create_model(self) -> None:
         # Stem
         model = [
             nn.Conv2d(

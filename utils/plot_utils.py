@@ -1,11 +1,15 @@
-from typing import List
+from typing import Any, List
 
 import matplotlib.pyplot as plt
 import numpy as np
+import torch
 import torchvision.utils as vutils
+from models.generators.base_generator import BaseGenerator
 
 
-def show_batch(batch: List, device: str, title: str = "Batch images") -> None:
+def show_batch(
+    batch: List[Any], device: torch.device, title: str = "Batch images"
+) -> None:
     """Show image batch
 
     :param batch: batch of images to plot  
@@ -27,7 +31,13 @@ def show_batch(batch: List, device: str, title: str = "Batch images") -> None:
     plt.show()
 
 
-def plot_generator_images(G_A2B, G_B2A, dataloader_A, dataloader_B, device) -> None:
+def plot_generator_images(
+    G_A2B: BaseGenerator,
+    G_B2A: BaseGenerator,
+    dataloader_A: torch.utils.data.DataLoader[Any],
+    dataloader_B: torch.utils.data.DataLoader[Any],
+    device: torch.device,
+) -> None:
     """Plot generated images
 
     :param G_A2B: generator to transform from A to B
