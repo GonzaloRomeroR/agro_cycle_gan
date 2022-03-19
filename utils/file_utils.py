@@ -130,7 +130,7 @@ def load_discriminators(path: str, name: str) -> Tuple:
     return D_A, D_B
 
 
-def download_images(image_type: str, path: str = "images/"):
+def download_images(image_type: str, path: str = "images/") -> None:
     """Download images from and url
 
     :param image_type: type of the dataset to download
@@ -144,7 +144,7 @@ def download_images(image_type: str, path: str = "images/"):
         raise RuntimeError("Dataset not found")
 
 
-def download_zebras(path: str):
+def download_zebras(path: str) -> None:
     zip_name = "horse2zebra.zip"
     zip_path = path + zip_name
     if not os.path.exists(zip_path.rsplit(".", 1)[0]):
@@ -160,7 +160,7 @@ def download_zebras(path: str):
         print("Dataset is already downloaded")
 
 
-def unzip(path: str):
+def unzip(path: str) -> None:
     """Unzips file
 
     :param path: path to the file to unzip
@@ -170,7 +170,7 @@ def unzip(path: str):
         zip_ref.extractall(path.rsplit("/", 1)[0])
 
 
-def move_files():
+def move_files() -> None:
     shutil.move("/content/horse2zebra/train/A", "/content/horses_train/A")
     shutil.move("/content/horse2zebra/train/B", "/content/zebra_train/B")
     shutil.move("/content/horse2zebra/test/A", "/content/horses_test/A")

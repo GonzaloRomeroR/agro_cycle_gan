@@ -8,7 +8,7 @@ class ModelCreator:
     Model factory
     """
 
-    def create(self, model_type, model_name, **kwargs):
+    def create(self, model_type: str, model_name: str, **kwargs):
         """Create and return model
 
         :param model_type: model type, gen or disc
