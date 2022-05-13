@@ -1,5 +1,7 @@
+import torch
 import torch.nn as nn
 
+from typing import Any
 from .base_generator import BaseGenerator
 from .custom_models import MixerBlock, View
 
@@ -11,11 +13,11 @@ class MixerGenerator(BaseGenerator):
 
     def _set_custom_params(
         self,
-        patch_dim=64,
-        image_size=256,
-        embed_dim=256,
-        transform_layers=9,
-        patch_size=8,
+        patch_dim: int = 64,
+        image_size: int = 256,
+        embed_dim: int = 256,
+        transform_layers: int = 9,
+        patch_size: int = 8,
     ) -> None:
         self.patch_dim = patch_dim
         self.image_size = image_size
@@ -128,5 +130,5 @@ class MixerGenerator(BaseGenerator):
         model += [nn.Tanh()]
         self.model = nn.Sequential(*model)
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> Any:
         return self.model(x)

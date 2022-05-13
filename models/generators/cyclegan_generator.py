@@ -1,5 +1,7 @@
+from torch import Tensor
 import torch.nn as nn
 
+from typing import Any
 from .base_generator import BaseGenerator
 from .custom_models import ResBlock
 
@@ -9,7 +11,7 @@ class CycleganGenerator(BaseGenerator):
     Basic Generator class
     """
 
-    def _set_custom_params(self, filters=64, blocks=9):
+    def _set_custom_params(self, filters: int = 64, blocks: int = 9) -> None:
         self.filters = filters
         self.blocks = blocks
 
@@ -81,5 +83,5 @@ class CycleganGenerator(BaseGenerator):
         )
         self.model = nn.Sequential(*layers)
 
-    def forward(self, x):
+    def forward(self, x: Tensor) -> Any:
         return self.model(x)

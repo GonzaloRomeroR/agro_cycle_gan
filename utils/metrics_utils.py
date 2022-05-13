@@ -27,6 +27,7 @@ class Metrics(ABC):
 
     def __init__(self, *args: List[Any], **kwargs: Dict[str, Any]):
         self._set_params(*args, **kwargs)
+        self.name: str
 
     @abstractmethod
     def _set_params(self, *args: List[Any], **kwargs: Dict[str, Any]) -> None:
@@ -141,5 +142,5 @@ class FID(Metrics):
             covmean = covmean.real
         # Calculate score
         fid = ssdiff + np.trace(sigma1 + sigma2 - 2.0 * covmean)
-        return np.abs(fid)
+        return float(np.abs(fid))
 

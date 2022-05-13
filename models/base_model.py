@@ -1,3 +1,5 @@
+import torch
+
 from abc import ABC, abstractmethod
 from typing import Any, Dict
 
@@ -11,6 +13,7 @@ class BaseModel(ABC, nn.Module):
 
     def __init__(self, **kwargs: Dict[str, Any]) -> None:
         super().__init__()
+        self.main: Any
         self._set_params(**kwargs)
         self._create_model()
         self._set_optimizer()
@@ -32,6 +35,6 @@ class BaseModel(ABC, nn.Module):
         pass
 
     @abstractmethod
-    def forward(self) -> None:
+    def forward(self, x: torch.Tensor) -> Any:
         pass
 

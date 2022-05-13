@@ -55,7 +55,7 @@ class BaseGenerator(BaseModel):
         return torch.mean((fake - 1) ** 2)
 
     @abstractmethod
-    def forward(self, x: Any) -> None:
+    def forward(self, x: Any) -> Any:
         pass
 
     @abstractmethod
