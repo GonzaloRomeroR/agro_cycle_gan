@@ -43,3 +43,5 @@ htmlcov/
 .coverage
 .coverage.*
 *,cover
+
+environments/py310/*
