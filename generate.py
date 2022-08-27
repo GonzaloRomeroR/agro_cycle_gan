@@ -63,12 +63,13 @@ class ImageTransformer:
         :type resize: tuple, optional
         """
         print(f"Tranforming dataset")
+        device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         Path(dest_path).mkdir(parents=True, exist_ok=True)
         for img_name in os.listdir(origin_path):
             image = Image.open(f"{origin_path}/{img_name}").convert("RGB")
             if resize:
                 image = transforms.Resize(resize)(image)
-            image = transforms.ToTensor()(image)
+            image = transforms.ToTensor()(image).to(device)
             image = torch.unsqueeze(image, dim=0)
             image_trans = self.transform_image(image, domain)
             save_image(image_trans, f"{dest_path}/{img_name}")
@@ -102,11 +103,23 @@ def parse_arguments() -> argparse.Namespace:
         help="domain of the tranformed images, A or B",
         default="B",
     )
+    parser.add_argument(
+        "--image_resize",
+        help="size of the image to resize",
+        default=None,
+        nargs=2,
+        type=int,
+    )
     return parser.parse_args()
 
 
 if __name__ == "__main__":
     cmd_args = parse_arguments()
     image_transformer = ImageTransformer(cmd_args.generator_name)
-    image_transformer.transform_dataset(cmd_args.images_path, cmd_args.dest_path)
+    image_transformer.transform_dataset(
+        cmd_args.images_path, 
+        cmd_args.dest_path,
+        cmd_args.dest_domain,
+        cmd_args.image_resize
+    )
 
