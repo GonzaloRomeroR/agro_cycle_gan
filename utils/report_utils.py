@@ -47,6 +47,7 @@ def generate_loss_plot(losses: Dict[str, Any]) -> None:
     Path("./results/losses_plots/").mkdir(parents=True, exist_ok=True)
 
     for loss_name in losses.keys():
+        plt.figure()
         plt.plot(losses[loss_name])
         plt.grid()
         plt.title(loss_name)
