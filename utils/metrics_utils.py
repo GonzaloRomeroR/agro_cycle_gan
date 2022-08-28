@@ -84,6 +84,8 @@ class FID(Metrics):
 
     def _set_params(self, input_shape: Tuple[int, ...] = (299, 299, 3)) -> None:
         self.name = "FID"
+
+        #self.model = torch.hub.load('pytorch/vision:v0.10.0', 'inception_v3', pretrained=True)
         self.model = InceptionV3(
             include_top=False, pooling="avg", input_shape=input_shape
         )
