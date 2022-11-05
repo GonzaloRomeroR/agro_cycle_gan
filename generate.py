@@ -102,11 +102,23 @@ def parse_arguments() -> argparse.Namespace:
         help="domain of the tranformed images, A or B",
         default="B",
     )
+    parser.add_argument(
+        "--image_resize",
+        help="size of the image to resize",
+        default=None,
+        nargs=2,
+        type=int,
+    )
     return parser.parse_args()
 
 
 if __name__ == "__main__":
     cmd_args = parse_arguments()
     image_transformer = ImageTransformer(cmd_args.generator_name)
-    image_transformer.transform_dataset(cmd_args.images_path, cmd_args.dest_path)
+    image_transformer.transform_dataset(
+        cmd_args.images_path, 
+        cmd_args.dest_path,
+        cmd_args.dest_domain,
+        cmd_args.image_resize
+    )
 
