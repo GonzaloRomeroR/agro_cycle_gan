@@ -2,9 +2,15 @@ import os
 import shutil
 import sys
 import zipfile
-import kaggle
+
 from pathlib import Path
-from typing import Any, Dict, Tuple, Type
+from typing import Any, Dict, Tuple
+
+
+try:
+    import kaggle
+except IOError:
+    print("Cannot import kaggle, could not find kaggle.json")
 
 import gdown
 import torch
@@ -22,9 +28,9 @@ def get_models(
     disc_name: str = "",
     gen_name: str = "",
 ) -> Tuple[BaseGenerator, BaseGenerator, BaseDiscriminator, BaseDiscriminator]:
-    """Obtain Generator and Discriminator models 
+    """Obtain Generator and Discriminator models
 
-    :param dataset_name: name of the dataset 
+    :param dataset_name: name of the dataset
     :type dataset_name: str
     :param device: type of device
     :type device: str
@@ -81,7 +87,7 @@ def save_models(
 ) -> None:
     """Save trained models
 
-    :param G_A2B: Generator to transform from A to B 
+    :param G_A2B: Generator to transform from A to B
     :type G_A2B: Generator
     :param G_B2A: generator to transform from B to A
     :type G_B2A: Generator
@@ -157,7 +163,7 @@ def download_images(image_type: str, path: str = "images/") -> None:
     elif image_type == "soy_small2soy_big":
         download_soy_small2soy_big(path)
     elif image_type == "soy2corn":
-        download_soy_soy2corn(path)
+        download_soy2corn(path)
     elif image_type == "over_corn2over_wheat":
         download_over_corn2over_wheat(path)
     else:
@@ -165,25 +171,45 @@ def download_images(image_type: str, path: str = "images/") -> None:
 
 
 def download_soy2corn(path: str) -> None:
+    breakpoint()
     if not os.path.exists(path + "/soy2corn"):
+        if "kaggle" not in sys.modules:
+            raise RuntimeError(
+                "Cannot download dataset since kaggle could not be imported"
+            )
         kaggle.api.authenticate()
-        kaggle.api.dataset_download_files('gonzaromeror/soycorn', path=path, unzip=True)
+        kaggle.api.dataset_download_files("gonzaromeror/soycorn", path=path, unzip=True)
     else:
         print("Dataset is already downloaded")
+
 
 def download_soy_small2soy_big(path: str) -> None:
     if not os.path.exists(path + "/soy_small2soy_big"):
+        if "kaggle" not in sys.modules:
+            raise RuntimeError(
+                "Cannot download dataset since kaggle could not be imported"
+            )
         kaggle.api.authenticate()
-        kaggle.api.dataset_download_files('gonzaromeror/soysmallbig', path=path, unzip=True)
+        kaggle.api.dataset_download_files(
+            "gonzaromeror/soysmallbig", path=path, unzip=True
+        )
     else:
         print("Dataset is already downloaded")
 
+
 def download_over_corn2over_wheat(path: str) -> None:
     if not os.path.exists(path + "/over_corn2over_wheat"):
+        if "kaggle" not in sys.modules:
+            raise RuntimeError(
+                "Cannot download dataset since kaggle could not be imported"
+            )
         kaggle.api.authenticate()
-        kaggle.api.dataset_download_files('gonzaromeror/overcornoverwheat', path=path, unzip=True)
+        kaggle.api.dataset_download_files(
+            "gonzaromeror/overcornoverwheat", path=path, unzip=True
+        )
     else:
         print("Dataset is already downloaded")
+
 
 def download_horse2zebras(path: str) -> None:
     zip_name = "horse2zebra.zip"
