@@ -7,6 +7,7 @@ import torch
 from PIL import Image
 from torchvision import transforms
 from torchvision.utils import save_image
+from typing import Optional
 
 from utils.file_utils import load_generators
 
@@ -49,7 +50,7 @@ class ImageTransformer:
             raise ValueError("Domain is not valid")
 
     def transform_dataset(
-        self, origin_path: str, dest_path: str, domain: str = "B", resize: Any = None
+        self, origin_path: str, dest_path: str, domain: str = "B", resize: Any = None, image_num: Optional[int] = None
     ) -> None:
         """Transforms images folders from one domain to another
 
@@ -61,14 +62,21 @@ class ImageTransformer:
         :type domain: str, optional
         :param resize: tuple to resize the input, defaults to None
         :type resize: tuple, optional
+        :param image_num: number of images to generate, defaults to None
+        :type resize: int, optional
         """
         print(f"Tranforming dataset")
+        device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         Path(dest_path).mkdir(parents=True, exist_ok=True)
-        for img_name in os.listdir(origin_path):
+        if image_num is None:
+            image_num = len(os.listdir(origin_path))
+        for i, img_name in enumerate(os.listdir(origin_path)):
+            if i == image_num:
+                break
             image = Image.open(f"{origin_path}/{img_name}").convert("RGB")
             if resize:
                 image = transforms.Resize(resize)(image)
-            image = transforms.ToTensor()(image)
+            image = transforms.ToTensor()(image).to(device)
             image = torch.unsqueeze(image, dim=0)
             image_trans = self.transform_image(image, domain)
             save_image(image_trans, f"{dest_path}/{img_name}")

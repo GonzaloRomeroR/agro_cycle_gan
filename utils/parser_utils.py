@@ -22,6 +22,11 @@ def parse_arguments() -> argparse.Namespace:
         "--tensorboard", help="generate tensorboard files", action="store_true",
     )
     parser.add_argument(
+        "--store_models",
+        action="store_true",
+        help="store models in specific folder with datetime",
+    )
+    parser.add_argument(
         "--load_models",
         action="store_true",
         help="load the trained models from previous saves",

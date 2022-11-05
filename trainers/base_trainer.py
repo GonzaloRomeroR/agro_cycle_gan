@@ -1,4 +1,5 @@
 import time
+import datetime
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -156,6 +157,17 @@ class BaseTrainer(ABC):
             info += f" {name}: {loss:.3f}"
         print(info)
 
+    def convert_total_time_format(self, seconds: float) -> str:
+        """
+        Converts seconds to hour minute seconds format
+        """
+        hours = seconds // 3600
+        seconds -= hours * 3600
+        minutes = seconds // 60
+        seconds -= minutes * 60
+        return f"{hours} h {minutes} m {seconds} s"
+
+
     def _run_post_epoch(self, epoch: int) -> None:
         # Obtain total losses
         for key in self.losses_epoch.keys():
@@ -168,7 +180,8 @@ class BaseTrainer(ABC):
 
         # Generate epoch information
         self.params_logger.params["final_epoch"] = epoch
-        self.params_logger.params["time"] = time.perf_counter() - self.start_time
+        total_time = round(time.perf_counter() - self.start_time)
+        self.params_logger.params["time"] = str(self.convert_total_time_format(total_time))
         self.params_logger.generate_params_file()
 
         save_models(
@@ -197,8 +210,8 @@ class BaseTrainer(ABC):
     def train(self) -> Dict[str, Any]:
         self.start_time = time.perf_counter()
         self._train_model()
-        end_time = time.perf_counter() - self.start_time
-        print(f"Full trainig took {end_time} s to finish")
+        end_time = self.convert_total_time_format(round(time.perf_counter() - self.start_time))
+        print(f"Full trainig took {end_time} to finish")
         return self.losses_total
 
     @abstractmethod

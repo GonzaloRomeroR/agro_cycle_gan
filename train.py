@@ -1,5 +1,7 @@
 import argparse
 from datetime import datetime
+from distutils.dir_util import copy_tree
+from time import gmtime, strftime
 
 from trainers.basic_trainer import BasicTrainer
 from utils.file_utils import download_images, get_models
@@ -98,8 +100,14 @@ def setup(cmd_args: argparse.Namespace) -> None:
 
     losses = trainer.train()
 
+    if cmd_args.store_models:
+        copy_tree(
+            f"./results/{dataset_name}", 
+            f"./results/{dataset_name}/models_{str(strftime('%Y-%m-%d-%H:%M:%S', gmtime()))}"
+            )
     # Generate report
     generate_report(losses)
+
 
 
 def configure() -> None:

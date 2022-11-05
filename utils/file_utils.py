@@ -2,6 +2,7 @@ import os
 import shutil
 import sys
 import zipfile
+import kaggle
 from pathlib import Path
 from typing import Any, Dict, Tuple, Type
 
@@ -152,12 +153,39 @@ def download_images(image_type: str, path: str = "images/") -> None:
     :type path: str
     """
     if image_type == "horse2zebra":
-        download_zebras(path)
+        download_horse2zebras(path)
+    elif image_type == "soy_small2soy_big":
+        download_soy_small2soy_big(path)
+    elif image_type == "soy2corn":
+        download_soy_soy2corn(path)
+    elif image_type == "over_corn2over_wheat":
+        download_over_corn2over_wheat(path)
     else:
         raise RuntimeError("Dataset not found")
 
 
-def download_zebras(path: str) -> None:
+def download_soy2corn(path: str) -> None:
+    if not os.path.exists(path + "/soy2corn"):
+        kaggle.api.authenticate()
+        kaggle.api.dataset_download_files('gonzaromeror/soycorn', path=path, unzip=True)
+    else:
+        print("Dataset is already downloaded")
+
+def download_soy_small2soy_big(path: str) -> None:
+    if not os.path.exists(path + "/soy_small2soy_big"):
+        kaggle.api.authenticate()
+        kaggle.api.dataset_download_files('gonzaromeror/soysmallbig', path=path, unzip=True)
+    else:
+        print("Dataset is already downloaded")
+
+def download_over_corn2over_wheat(path: str) -> None:
+    if not os.path.exists(path + "/over_corn2over_wheat"):
+        kaggle.api.authenticate()
+        kaggle.api.dataset_download_files('gonzaromeror/overcornoverwheat', path=path, unzip=True)
+    else:
+        print("Dataset is already downloaded")
+
+def download_horse2zebras(path: str) -> None:
     zip_name = "horse2zebra.zip"
     zip_path = path + zip_name
     if not os.path.exists(zip_path.rsplit(".", 1)[0]):
@@ -181,11 +209,3 @@ def unzip(path: str) -> None:
     """
     with zipfile.ZipFile(path, "r") as zip_ref:
         zip_ref.extractall(path.rsplit("/", 1)[0])
-
-
-def move_files() -> None:
-    shutil.move("/content/horse2zebra/train/A", "/content/horses_train/A")
-    shutil.move("/content/horse2zebra/train/B", "/content/zebra_train/B")
-    shutil.move("/content/horse2zebra/test/A", "/content/horses_test/A")
-    shutil.move("/content/horse2zebra/test/B", "/content/zebra_test/B")
-
