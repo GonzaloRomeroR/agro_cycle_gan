@@ -158,6 +158,7 @@ def download_images(image_type: str, path: str = "images/") -> None:
     :param path: path to store the images
     :type path: str
     """
+    print(f"Downloading dataset {image_type}")
     if image_type == "horse2zebra":
         download_horse2zebras(path)
     elif image_type == "soy_small2soy_big":

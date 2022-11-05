@@ -1,7 +1,23 @@
 from typing import Tuple
+from dataclasses import dataclass, field
 
 import torch
 from models.generators.base_generator import BaseGenerator
+
+
+@dataclass
+class Config:
+    use_dataset: str = None
+    download_dataset: bool = False
+    image_resize: list = field(default_factory=list)
+    tensorboard: bool = False
+    store_models: bool = False
+    load_models: bool = False
+    batch_size: int = 5
+    num_epochs: int = 1
+    metrics: bool = True
+    generator: str = ""
+    discriminator: str = ""
 
 
 def generate_images_cycle(

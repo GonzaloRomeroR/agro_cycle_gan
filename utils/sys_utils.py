@@ -6,6 +6,11 @@ import psutil
 import torch
 
 
+def system_configuration() -> None:
+    suppress_sklearn_errors()
+    suppress_qt_warnings()
+
+
 def get_device(debug: bool = False) -> torch.device:
     if debug:
         if torch.cuda.is_available():
@@ -55,4 +60,3 @@ def get_gpu_usage() -> Optional[Dict[Any, Any]]:
     except:
         print("WARNING: Cannot get gpu usage")
         return None
-
