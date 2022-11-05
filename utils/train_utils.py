@@ -18,6 +18,7 @@ class Config:
     metrics: bool = True
     generator: str = ""
     discriminator: str = ""
+    metrics: bool = False
 
 
 def generate_images_cycle(

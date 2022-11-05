@@ -3,6 +3,7 @@ from typing import Any, Tuple
 
 import numpy as np
 import torch
+import pathlib
 import torchvision.datasets as dset
 import torchvision.transforms as transforms
 from numpy.typing import NDArray
@@ -53,13 +54,14 @@ def get_datasets(
     :return: DataLoader tuple with the images of the two domains
     :rtype: ´DataLoader´ tuple
     """
+    file_path = pathlib.Path(__file__).parent.resolve()
     images_A = upload_images(
-        path=f"./images/{dataset_name}/{dataset}_A/",
+        path=f"{file_path}/../images/{dataset_name}/{dataset}_A/",
         im_size=im_size,
         batch_size=batch_size,
     )
     images_B = upload_images(
-        path=f"./images/{dataset_name}/{dataset}_B/",
+        path=f"{file_path}/../images/{dataset_name}/{dataset}_B/",
         im_size=im_size,
         batch_size=batch_size,
     )

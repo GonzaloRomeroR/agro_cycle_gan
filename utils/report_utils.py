@@ -27,9 +27,9 @@ class ParamsLogger:
         self.params: Dict[str, Any] = {}
 
     def generate_params_file(self) -> None:
-        """Creates a txt with the params used
-        """
-        with open("./results/params.txt", "w") as f:
+        """Creates a txt with the params used"""
+        file_path = Path(__file__).parent.resolve()
+        with open(f"{file_path}/../results/params.txt", "w") as f:
             with redirect_stdout(f):
                 for param, value in self.params.items():
                     print(f"{param}: {value}")
@@ -44,7 +44,8 @@ def generate_loss_plot(losses: Dict[str, Any]) -> None:
     :param losses: dictionary with the different losses stored during training
     :type losses: dict
     """
-    Path("./results/losses_plots/").mkdir(parents=True, exist_ok=True)
+    file_path = Path(__file__).parent.resolve()
+    Path(f"{file_path}/../results/losses_plots/").mkdir(parents=True, exist_ok=True)
 
     for loss_name in losses.keys():
         plt.figure()
@@ -53,7 +54,7 @@ def generate_loss_plot(losses: Dict[str, Any]) -> None:
         plt.title(loss_name)
         plt.xlabel("epochs")
         plt.ylabel("loss")
-        plt.savefig(f"./results/losses_plots/{loss_name}.png")
+        plt.savefig(f"{file_path}/../results/losses_plots/{loss_name}.png")
         plt.close()
 
 
@@ -68,9 +69,9 @@ def generate_model_file(
     D_B: BaseDiscriminator,
     size: Tuple[int, ...] = (3, 64, 64),
 ) -> None:
-    """Creates a txt with the models used
-    """
-    with open("./results/models.txt", "w") as f:
+    """Creates a txt with the models used"""
+    file_path = Path(__file__).parent.resolve()
+    with open(f"{file_path}/../results/models.txt", "w") as f:
         with redirect_stdout(f):
             print("Generator A TO B:")
             summary(G_A2B, size)
@@ -124,11 +125,11 @@ def create_pdf() -> None:
         else:
             pdf.cell(25, 3, line, 0, 1)
 
-    pdf.output("./results/report.pdf", "F")
+    file_path = Path(__file__).parent.resolve()
+    pdf.output(f"{file_path}/../results/report.pdf", "F")
 
 
 def generate_report(losses: Dict[str, Any]) -> None:
     generate_loss_plot(losses)
     generate_model_plots()
     create_pdf()
-

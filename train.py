@@ -14,9 +14,8 @@ from utils.tensorboard_utils import create_models_tb
 from utils.train_utils import Config
 
 
-
 def train(config: Config) -> None:
-    
+
     system_configuration()
     print("Performing setup")
 
@@ -111,9 +110,6 @@ def train(config: Config) -> None:
         )
     # Generate report
     generate_report(losses)
-
-
-
 
 
 if __name__ == "__main__":
