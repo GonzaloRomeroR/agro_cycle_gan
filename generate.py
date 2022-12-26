@@ -50,7 +50,12 @@ class ImageTransformer:
             raise ValueError("Domain is not valid")
 
     def transform_dataset(
-        self, origin_path: str, dest_path: str, domain: str = "B", resize: Any = None, image_num: Optional[int] = None
+        self,
+        origin_path: str,
+        dest_path: str,
+        domain: str = "B",
+        resize: Any = None,
+        image_num: Optional[int] = None,
     ) -> None:
         """Transforms images folders from one domain to another
 
@@ -73,6 +78,13 @@ class ImageTransformer:
         for i, img_name in enumerate(os.listdir(origin_path)):
             if i == image_num:
                 break
+
+            if not img_name.lower().endswith(
+                (".png", ".jpg", ".jpeg", ".tiff", ".bmp", ".gif")
+            ):
+                # Not a valid image
+                continue
+
             image = Image.open(f"{origin_path}/{img_name}").convert("RGB")
             if resize:
                 image = transforms.Resize(resize)(image)
@@ -124,9 +136,8 @@ if __name__ == "__main__":
     cmd_args = parse_arguments()
     image_transformer = ImageTransformer(cmd_args.generator_name)
     image_transformer.transform_dataset(
-        cmd_args.images_path, 
+        cmd_args.images_path,
         cmd_args.dest_path,
         cmd_args.dest_domain,
-        cmd_args.image_resize
+        cmd_args.image_resize,
     )
-
