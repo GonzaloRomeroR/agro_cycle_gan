@@ -25,13 +25,14 @@ class ModelCreator:
         if model_type == "gen":
             if model_name == "mixer":
                 return MixerGenerator(**kwargs)
+            elif model_name == "cyclegan":
+                return CycleganGenerator(**kwargs)
             else:
                 return CycleganGenerator(**kwargs)
         elif model_type == "disc":
-            if model_name == "example":
+            if model_name == "basic":
                 return BasicDiscriminator(**kwargs)
             else:
                 return BasicDiscriminator(**kwargs)
         else:
             raise Exception("Model type not supported")
-
