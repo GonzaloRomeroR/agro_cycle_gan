@@ -92,6 +92,7 @@ class ImageTransformer:
             image = torch.unsqueeze(image, dim=0)
             image_trans = self.transform_image(image, domain)
             save_image(image_trans, f"{dest_path}/{img_name}")
+        print("Finished transforming dataset")
 
 
 def parse_arguments() -> argparse.Namespace:
