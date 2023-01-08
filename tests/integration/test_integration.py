@@ -3,6 +3,10 @@ import sys
 sys.path.append("../")
 sys.path.append("../../")
 from train import train, Config
+from generate import ImageTransformer
+from pathlib import Path
+
+file_path = Path(__file__).parent.resolve()
 
 
 def test_training():
@@ -17,4 +21,9 @@ def test_training():
 
 
 def test_generation():
+    image_transformer = ImageTransformer("testA2testB")
+    image_transformer.transform_dataset(
+        origin_path=f"{file_path}/../../images/testA2testB/test_A/A",
+        dest_path=f"{file_path}/../../images_gen/",
+    )
     assert True
