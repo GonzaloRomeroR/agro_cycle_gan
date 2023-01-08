@@ -87,6 +87,7 @@ def create_pdf() -> None:
     """
     Create pdf report
     """
+    file_path = Path(__file__).parent.resolve()
     pdf = FPDF()
     pdf.add_page()
 
@@ -96,7 +97,7 @@ def create_pdf() -> None:
     pdf.set_font("Arial", "B", 10)
     pdf.cell(30, 10, "Training parameters", 0, 1)
 
-    with open("./results/params.txt", "r") as params_file:
+    with open(f"{file_path}/../results/params.txt", "r") as params_file:
         params_data = params_file.readlines()
 
     pdf.set_font("Arial", "", 8)
@@ -106,13 +107,13 @@ def create_pdf() -> None:
 
     pdf.set_font("Arial", "B", 10)
     pdf.cell(30, 10, "Losses", 0, 1)
-    for plot in os.listdir("./results/losses_plots"):
-        pdf.image(f"./results/losses_plots/{plot}", w=100, h=70)
+    for plot in os.listdir(f"{file_path}/../results/losses_plots"):
+        pdf.image(f"{file_path}/../results/losses_plots/{plot}", w=100, h=70)
 
     pdf.set_font("Arial", "B", 10)
     pdf.cell(30, 10, "Models", 0, 1)
 
-    with open("./results/models.txt", "r") as model_file:
+    with open(f"{file_path}/../results/models.txt", "r") as model_file:
         model_data = model_file.readlines()
 
     pdf.set_font("Arial", "", 6)

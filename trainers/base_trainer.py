@@ -40,6 +40,7 @@ class BaseTrainer(ABC):
         metrics: Optional[Metrics] = None,
         im_size: Tuple[int, ...] = (64, 64),
         tensorboard: bool = False,
+        plot_image_epoch=False,
     ) -> None:
         """Train the generator and the discriminator
 
@@ -75,6 +76,8 @@ class BaseTrainer(ABC):
         :type metrics: `Metrics`, optional
         :param tensorboad: flag to store in tensorboard, defaults to False
         :type metrics: bool, optional
+        :param plot_image_epoch: flag to plot image after epoch, defaults to False
+        :type metrics: bool, optional
         """
         self.G_A2B = G_A2B
         self.G_B2A = G_B2A
@@ -97,6 +100,7 @@ class BaseTrainer(ABC):
         self._set_training_params()
         self._define_storing()
         self.tensorboard = tensorboard
+        self.plot_image_epoch = plot_image_epoch
         if self.tensorboard:
             self._set_tensorboard()
 
@@ -167,7 +171,6 @@ class BaseTrainer(ABC):
         seconds -= minutes * 60
         return f"{hours} h {minutes} m {seconds} s"
 
-
     def _run_post_epoch(self, epoch: int) -> None:
         # Obtain total losses
         for key in self.losses_epoch.keys():
@@ -181,7 +184,9 @@ class BaseTrainer(ABC):
         # Generate epoch information
         self.params_logger.params["final_epoch"] = epoch
         total_time = round(time.perf_counter() - self.start_time)
-        self.params_logger.params["time"] = str(self.convert_total_time_format(total_time))
+        self.params_logger.params["time"] = str(
+            self.convert_total_time_format(total_time)
+        )
         self.params_logger.generate_params_file()
 
         save_models(
@@ -192,7 +197,7 @@ class BaseTrainer(ABC):
             self.D_A,
             self.D_B,
         )
-        if epoch % self.plot_epochs == 0:
+        if epoch % self.plot_epochs == 0 and self.plot_image_epoch:
             plot_generator_images(
                 self.G_A2B,
                 self.G_B2A,
@@ -210,7 +215,9 @@ class BaseTrainer(ABC):
     def train(self) -> Dict[str, Any]:
         self.start_time = time.perf_counter()
         self._train_model()
-        end_time = self.convert_total_time_format(round(time.perf_counter() - self.start_time))
+        end_time = self.convert_total_time_format(
+            round(time.perf_counter() - self.start_time)
+        )
         print(f"Full trainig took {end_time} to finish")
         return self.losses_total
 

@@ -23,9 +23,11 @@ docs/sphinx-docs/_build/
 
 images/*
 !images/__init__.py
+!images/testA2testB
 
 images_gen/*
 !images_gen/__init__.py
+
 
 runs/D_B/*
 runs/D_A/*
