@@ -36,6 +36,7 @@ jedi==0.18.1
 joblib==1.1.0
 jupyter-client==7.3.0
 jupyter-core==4.10.0
+kaggle==1.5.12
 keras==2.9.0
 Keras-Preprocessing==1.1.2
 kiwisolver==1.4.2
