@@ -1,7 +1,5 @@
 import sys
 
-sys.path.append("../")
-sys.path.append("../../")
 from train import train, Config
 from generate import ImageTransformer
 from pathlib import Path
