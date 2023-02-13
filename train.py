@@ -3,7 +3,7 @@ from distutils.dir_util import copy_tree
 from time import gmtime, strftime
 from dacite import from_dict
 
-from trainers.basic_trainer import BasicTrainer
+from trainers.basic_trainer import BasicTrainer, BaseTrainer
 from utils.file_utils import download_images, get_models
 from utils.image_utils import datasets_get
 from utils.metrics_utils import FID
@@ -14,10 +14,12 @@ from utils.tensorboard_utils import create_models_tb
 from utils.train_utils import Config
 
 
-def train(config: Config) -> None:
-
-    system_configuration()
+def setup(config: Config) -> BaseTrainer:
+    """
+    Setup initial configuration and return trainer
+    """
     print("Performing setup")
+    system_configuration()
 
     device = get_device(debug=True)
     dataset_name = config.use_dataset
@@ -100,7 +102,16 @@ def train(config: Config) -> None:
         im_size=im_size,
         tensorboard=config.tensorboard,
     )
+    return trainer
 
+
+def train(config: Config) -> None:
+    """
+    Train model saving information about the output
+    """
+    dataset_name = config.use_dataset
+
+    trainer = setup(config)
     losses = trainer.train()
 
     if config.store_models:

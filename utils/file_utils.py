@@ -16,7 +16,7 @@ import gdown
 import torch
 from models.discriminators.base_discriminator import BaseDiscriminator
 from models.generators.base_generator import BaseGenerator
-from models.model_factory import ModelCreator
+from models.model_factory import ModelFactory
 
 from .sys_utils import get_device
 
@@ -61,7 +61,7 @@ def create_models(
     :return: tuple with the generators and discriminators
     :rtype: tuple
     """
-    model_creator = ModelCreator()
+    model_creator = ModelFactory()
     D_A = model_creator.create(model_type="disc", model_name=disc_name, **kwargs).to(
         device
     )

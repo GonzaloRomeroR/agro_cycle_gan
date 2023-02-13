@@ -7,7 +7,7 @@ from .generators.cyclegan_generator import CycleganGenerator
 from .generators.mixer_generator import MixerGenerator
 
 
-class ModelCreator:
+class ModelFactory:
     """
     Model factory
     """
