@@ -141,7 +141,8 @@ class BaseTrainer(ABC):
         G_B2A: BaseGenerator,
     ) -> Tuple[torch.Tensor, ...]:
         """
-        Create fake and reconstructed images.
+        Create batches of fake and reconstructed images
+        based on batches of real images as input.
         """
         b_fake = G_A2B(a_real)
         a_recon = G_B2A(b_fake)
@@ -171,16 +172,7 @@ class BaseTrainer(ABC):
         seconds -= minutes * 60
         return f"{hours} h {minutes} m {seconds} s"
 
-    def _run_post_epoch(self, epoch: int) -> None:
-        # Obtain total losses
-        for key in self.losses_epoch.keys():
-            loss_key = sum(self.losses_epoch[key]) / len(self.losses_epoch[key])
-            self.losses_total[key].append(loss_key)
-            if self.tensorboard:
-                self.writer.add_scalar(key, loss_key, epoch)
-
-        self.losses_epoch = {key: [] for key in self.losses_names}
-
+    def _save_epoch_information(self, epoch: int) -> None:
         # Generate epoch information
         self.params_logger.params["final_epoch"] = epoch
         total_time = round(time.perf_counter() - self.start_time)
@@ -188,6 +180,22 @@ class BaseTrainer(ABC):
             self.convert_total_time_format(total_time)
         )
         self.params_logger.generate_params_file()
+
+    def _obtain_total_losses(self, epoch: int) -> None:
+        # Obtain total losses
+        for key in self.losses_epoch.keys():
+            loss_key = sum(self.losses_epoch[key]) / len(self.losses_epoch[key])
+            self.losses_total[key].append(loss_key)
+            if self.tensorboard:
+                self.writer.add_scalar(key, loss_key, epoch)
+
+        # Clear epoch list
+        self.losses_epoch = {key: [] for key in self.losses_names}
+
+    def _run_post_epoch(self, epoch: int) -> None:
+
+        self._obtain_total_losses(epoch)
+        self._save_epoch_information(epoch)
 
         save_models(
             self.models_path,
@@ -206,13 +214,18 @@ class BaseTrainer(ABC):
                 self.device,
             )
 
+        # Get gpu usage
         print(get_gpu_usage())
+
         # Obtain metrics
         if self.metrics:
             score = calculate_metrics(self.metrics, self.dataset_name, self.im_size[1:])
             print(f"{self.metrics.name} score: {score}")
 
     def train(self) -> Dict[str, Any]:
+        """
+        Train model getting the training losses
+        """
         self.start_time = time.perf_counter()
         self._train_model()
         end_time = self.convert_total_time_format(
