@@ -27,6 +27,7 @@ class BaseDiscriminator(BaseModel):
         self.ndf = ndf
         self.lr = lr
         self.beta_1 = beta_1
+        self.beta_2 = 0.999
 
     @abstractmethod
     def _create_model(self) -> None:
@@ -37,7 +38,7 @@ class BaseDiscriminator(BaseModel):
 
     def get_optimizer(self) -> Any:
         return torch.optim.Adam(
-            self.parameters(), lr=self.lr, betas=(self.beta_1, 0.999)
+            self.parameters(), lr=self.lr, betas=(self.beta_1, self.beta_2)
         )
 
     def get_loss(self, real: torch.Tensor, fake: torch.Tensor) -> torch.Tensor:
