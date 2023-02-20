@@ -35,7 +35,7 @@ For pip users, install the required packages: `pip install environments/requirem
 To train the models use:
 
 ```bash
-python -u train.py horse2zebra --batch_size 10 --num_epochs 20 --image_resize 64 64
+python -u train.py horse2zebra --batch_size 10 --num_epochs 20 --image_resize 64 64 --plot_image_epoch
 ```
 
 Where `horse2zebra` is the name of the folder with the training images.
