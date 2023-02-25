@@ -23,7 +23,7 @@ class BaseGenerator(BaseModel):
         :param ngf: size of feature maps in generator, defaults to 64
         :type ngf: int, optional
         :param n_channels: number of channels in the training images, defaults to 3
-        :type n_channels: int, optional   
+        :type n_channels: int, optional
         :param blocks: number of ResBlocks, defaults to 9
         :type blocks: int, optional
         :param lr: learning rate, defaults to 0.0002
@@ -34,6 +34,7 @@ class BaseGenerator(BaseModel):
         self.n_channels = n_channels
         self.lr = lr
         self.beta_1 = beta_1
+        self.beta_2 = 0.999
         self.cycle_criterion = self.get_cycle_criterion()
         self._set_custom_params(**kwargs)
 
@@ -45,7 +46,7 @@ class BaseGenerator(BaseModel):
 
     def get_optimizer(self) -> Any:
         return torch.optim.Adam(
-            self.parameters(), lr=self.lr, betas=(self.beta_1, 0.999)
+            self.parameters(), lr=self.lr, betas=(self.beta_1, self.beta_2)
         )
 
     def get_cycle_criterion(self) -> Any:

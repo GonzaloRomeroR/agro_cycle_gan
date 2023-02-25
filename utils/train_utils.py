@@ -19,6 +19,7 @@ class Config:
     generator: str = ""
     discriminator: str = ""
     metrics: bool = False
+    plot_image_epoch: bool = False
 
 
 def generate_images_cycle(

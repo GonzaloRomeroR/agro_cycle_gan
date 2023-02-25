@@ -6,7 +6,10 @@ def parse_arguments() -> argparse.Namespace:
         description="Train GANs to generate image synthetic datasets."
     )
     parser.add_argument(
-        "use_dataset", type=str, help="name of the dataset to use", default=None,
+        "use_dataset",
+        type=str,
+        help="name of the dataset to use",
+        default=None,
     )
     parser.add_argument(
         "--download_dataset", help="download or obtain dataset", action="store_true"
@@ -19,7 +22,9 @@ def parse_arguments() -> argparse.Namespace:
         type=int,
     )
     parser.add_argument(
-        "--tensorboard", help="generate tensorboard files", action="store_true",
+        "--tensorboard",
+        help="generate tensorboard files",
+        action="store_true",
     )
     parser.add_argument(
         "--store_models",
@@ -32,16 +37,32 @@ def parse_arguments() -> argparse.Namespace:
         help="load the trained models from previous saves",
     )
     parser.add_argument(
-        "--batch_size", type=int, default=5, help="batch size for the training process",
+        "--batch_size",
+        type=int,
+        default=5,
+        help="batch size for the training process",
     )
     parser.add_argument(
-        "--num_epochs", type=int, default=1, help="number of epochs to train",
+        "--num_epochs",
+        type=int,
+        default=1,
+        help="number of epochs to train",
     )
     parser.add_argument(
-        "--metrics", help="obtain metrics every epoch", action="store_true",
+        "--metrics",
+        help="obtain metrics every epoch",
+        action="store_true",
     )
     parser.add_argument(
-        "--generator", type=str, help="name of the generator to use", default="",
+        "--plot_image_epoch",
+        help="plot images after every epoch",
+        action="store_true",
+    )
+    parser.add_argument(
+        "--generator",
+        type=str,
+        help="name of the generator to use",
+        default="",
     )
     parser.add_argument(
         "--discriminator",
