@@ -7,7 +7,7 @@ import torch
 from models.discriminators.base_discriminator import BaseDiscriminator
 from models.generators.base_generator import BaseGenerator
 from utils.file_utils import save_models
-from utils.metrics_utils import Metrics, calculate_metrics
+from utils.metrics_utils import Metrics
 from utils.plot_utils import plot_generator_images
 from utils.report_utils import ParamsLogger
 from utils.sys_utils import get_gpu_usage
@@ -219,7 +219,7 @@ class BaseTrainer(ABC):
 
         # Obtain metrics
         if self.metrics:
-            score = calculate_metrics(self.metrics, self.dataset_name, self.im_size[1:])
+            score = self.metrics.calculate_metrics(self.dataset_name, self.im_size[1:])
             print(f"{self.metrics.name} score: {score}")
 
     def train(self) -> Dict[str, Any]:
