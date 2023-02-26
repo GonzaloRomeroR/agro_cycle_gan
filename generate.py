@@ -71,7 +71,8 @@ class ImageTransformer:
         :type resize: int, optional
         """
         print(f"Tranforming dataset")
-        device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        # device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        device = torch.device("cpu")
         Path(dest_path).mkdir(parents=True, exist_ok=True)
         if image_num is None:
             image_num = len(os.listdir(origin_path))
