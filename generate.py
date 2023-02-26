@@ -91,6 +91,7 @@ class ImageTransformer:
             image = transforms.ToTensor()(image).to(device)
             image = torch.unsqueeze(image, dim=0)
             image_trans = self.transform_image(image, domain)
+            image.close()
             save_image(image_trans, f"{dest_path}/{img_name}")
         print("Finished transforming dataset")
 
