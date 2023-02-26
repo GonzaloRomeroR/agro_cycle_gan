@@ -50,8 +50,9 @@ def parse_arguments() -> argparse.Namespace:
     )
     parser.add_argument(
         "--metrics",
+        type=str,
         help="obtain metrics every epoch",
-        action="store_true",
+        default="",
     )
     parser.add_argument(
         "--plot_image_epoch",
