@@ -71,8 +71,7 @@ class ImageTransformer:
         :type resize: int, optional
         """
         print(f"Tranforming dataset")
-        # device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-        device = torch.device("cpu")
+        device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         Path(dest_path).mkdir(parents=True, exist_ok=True)
         if image_num is None:
             image_num = len(os.listdir(origin_path))
@@ -93,6 +92,7 @@ class ImageTransformer:
                 image = torch.unsqueeze(image, dim=0)
                 image_trans = self.transform_image(image, domain)
                 save_image(image_trans, f"{dest_path}/{img_name}")
+
         print("Finished transforming dataset")
 
 

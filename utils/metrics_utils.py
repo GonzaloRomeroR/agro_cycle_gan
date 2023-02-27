@@ -7,6 +7,7 @@ from utils.image_utils import upload_images_numpy, upload_images
 from utils.sys_utils import suppress_sklearn_errors, suppress_tf_warnings
 
 from torchmetrics.image.fid import FrechetInceptionDistance
+from torchvision.utils import save_image
 
 suppress_tf_warnings()
 suppress_sklearn_errors()
@@ -108,9 +109,20 @@ class FID_Pytorch_TorchMetrics(Metrics):
         in_domain = "A" if out_domain == "B" else "B"
         # Generate images
         image_transformer = ImageTransformer(name)
-        image_transformer.transform_dataset(
-            f"./images/{name}/test_{in_domain}/{in_domain}/", f"./images_gen/{name}/"
+
+        test_images = upload_images(
+            f"./images/{name}/test_{in_domain}/", im_size=im_size, batch_size=1
         )
+
+        for i, image in enumerate(test_images):
+            print(f"Generated image {i}")
+            image = image[0].to(get_device())
+            images_gen = image_transformer.transform_image(image)
+            save_image(images_gen, f"./images_gen/{name}/{i}.jpg")
+
+        # image_transformer.transform_dataset(
+        #    f"./images/{name}/test_{in_domain}/{in_domain}/", f"./images_gen/{name}/"
+        # )
 
         # Uploading images
         fake_B = upload_images_numpy(f"./images_gen/{name}/", im_size=im_size)
