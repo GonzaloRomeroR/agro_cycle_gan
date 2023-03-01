@@ -120,10 +120,6 @@ class FID_Pytorch_TorchMetrics(Metrics):
             images_gen = image_transformer.transform_image(image)
             save_image(images_gen, f"./images_gen/{name}/{i}.jpg")
 
-        # image_transformer.transform_dataset(
-        #    f"./images/{name}/test_{in_domain}/{in_domain}/", f"./images_gen/{name}/"
-        # )
-
         # Uploading images
         fake_B = upload_images_numpy(f"./images_gen/{name}/", im_size=im_size)
         test_B = upload_images_numpy(

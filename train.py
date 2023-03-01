@@ -121,7 +121,7 @@ def train(config: Config) -> None:
             f"./results/{dataset_name}/models_{str(strftime('%Y-%m-%d-%H:%M:%S', gmtime()))}",
         )
     # Generate report
-    generate_report(losses)
+    generate_report(losses, trainer.metrics_per_epoch)
 
 
 if __name__ == "__main__":

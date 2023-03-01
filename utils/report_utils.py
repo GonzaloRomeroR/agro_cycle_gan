@@ -1,4 +1,5 @@
 import os
+import shutil
 from contextlib import redirect_stdout
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
@@ -58,6 +59,26 @@ def generate_loss_plot(losses: Dict[str, Any]) -> None:
         plt.close()
 
 
+def generate_metrics_plot(metrics: Dict[str, Any]) -> None:
+    """Create metrics plots
+
+    :param metrics: list with the metrics stored during training
+    :type metrics: dict
+    """
+    file_path = Path(__file__).parent.resolve()
+    Path(f"{file_path}/../results/metrics_plots/").mkdir(parents=True, exist_ok=True)
+
+    for metrics_name in metrics.keys():
+        plt.figure()
+        plt.plot(metrics[metrics_name])
+        plt.grid()
+        plt.title(metrics_name)
+        plt.xlabel("epochs")
+        plt.ylabel(metrics_name)
+        plt.savefig(f"{file_path}/../results/metrics_plots/{metrics_name}.png")
+        plt.close()
+
+
 def generate_model_plots() -> None:
     pass
 
@@ -111,6 +132,11 @@ def create_pdf() -> None:
         pdf.image(f"{file_path}/../results/losses_plots/{plot}", w=100, h=70)
 
     pdf.set_font("Arial", "B", 10)
+    pdf.cell(30, 10, "Metrics", 0, 1)
+    for plot in os.listdir(f"{file_path}/../results/metrics_plots"):
+        pdf.image(f"{file_path}/../results/metrics_plots/{plot}", w=100, h=70)
+
+    pdf.set_font("Arial", "B", 10)
     pdf.cell(30, 10, "Models", 0, 1)
 
     with open(f"{file_path}/../results/models.txt", "r") as model_file:
@@ -130,7 +156,35 @@ def create_pdf() -> None:
     pdf.output(f"{file_path}/../results/report.pdf", "F")
 
 
-def generate_report(losses: Dict[str, Any]) -> None:
+def clear_folder(folder: str) -> None:
+
+    if not os.path.isdir(folder):
+        return
+
+    for filename in os.listdir(folder):
+        file_path = os.path.join(folder, filename)
+        try:
+            if os.path.isfile(file_path) or os.path.islink(file_path):
+                os.unlink(file_path)
+            elif os.path.isdir(file_path):
+                shutil.rmtree(file_path)
+        except Exception as e:
+            print("Failed to delete %s. Reason: %s" % (file_path, e))
+
+
+def clear_reports() -> None:
+    file_path = Path(__file__).parent.resolve()
+    clear_folder(f"{file_path}/../results/losses_plots")
+    clear_folder(f"{file_path}/../results/metrics_plots")
+
+
+def generate_report(losses: Dict[str, Any], metrics: Dict[str, Any]) -> None:
+
+    clear_reports()
     generate_loss_plot(losses)
+
+    if bool(metrics):
+        generate_metrics_plot(metrics)
+
     generate_model_plots()
     create_pdf()

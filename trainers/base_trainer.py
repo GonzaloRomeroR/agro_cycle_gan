@@ -8,7 +8,7 @@ from models.discriminators.base_discriminator import BaseDiscriminator
 from models.generators.base_generator import BaseGenerator
 from utils.file_utils import save_models
 from utils.metrics_utils import Metrics
-from utils.plot_utils import plot_generator_images
+from utils.plot_utils import plot_generator_images, plot_metrics
 from utils.report_utils import ParamsLogger
 from utils.sys_utils import get_gpu_usage
 from utils.tensorboard_utils import TensorboardHandler
@@ -101,6 +101,7 @@ class BaseTrainer(ABC):
         self._define_storing()
         self.tensorboard = tensorboard
         self.plot_image_epoch = plot_image_epoch
+        self.metrics_per_epoch = {}
         if self.tensorboard:
             self._set_tensorboard()
 
@@ -221,6 +222,14 @@ class BaseTrainer(ABC):
         if self.metrics:
             score = self.metrics.calculate_metrics(self.dataset_name, self.im_size[1:])
             print(f"{self.metrics.name} score: {score}")
+
+            if self.metrics.name not in self.metrics_per_epoch:
+                self.metrics_per_epoch[self.metrics.name] = []
+
+            self.metrics_per_epoch[self.metrics.name].append(score)
+
+            if epoch % self.plot_epochs == 0 and self.plot_image_epoch:
+                plot_metrics(self.metrics_per_epoch)
 
     def train(self) -> Dict[str, Any]:
         """
