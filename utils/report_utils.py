@@ -174,6 +174,10 @@ def clear_folder(folder: str) -> None:
 
 def clear_reports() -> None:
     file_path = Path(__file__).parent.resolve()
+
+    if os.path.isfile(f"{file_path}/../results/report.pdf"):
+        os.remove(f"{file_path}/../results/report.pdf")
+
     clear_folder(f"{file_path}/../results/losses_plots")
     clear_folder(f"{file_path}/../results/metrics_plots")
 

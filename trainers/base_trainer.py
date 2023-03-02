@@ -12,6 +12,7 @@ from utils.plot_utils import plot_generator_images, plot_metrics
 from utils.report_utils import ParamsLogger
 from utils.sys_utils import get_gpu_usage
 from utils.tensorboard_utils import TensorboardHandler
+from utils.report_utils import generate_report
 
 
 class BaseTrainer(ABC):
@@ -230,6 +231,9 @@ class BaseTrainer(ABC):
 
             if epoch % self.plot_epochs == 0 and self.plot_image_epoch:
                 plot_metrics(self.metrics_per_epoch)
+
+        if epoch != 0 and epoch % 10 == 0:
+            generate_report(self.losses_total, self.metrics_per_epoch)
 
     def train(self) -> Dict[str, Any]:
         """
