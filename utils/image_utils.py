@@ -8,11 +8,21 @@ import torchvision.datasets as dset
 import torchvision.transforms as transforms
 from numpy.typing import NDArray
 from PIL import Image
+from dataclasses import dataclass
+
+
+@dataclass
+class DatasetDataloaders:
+    name: str = ""
+    train_A: torch.utils.data.DataLoader[Any] = None
+    train_B: torch.utils.data.DataLoader[Any] = None
+    test_A: torch.utils.data.DataLoader[Any] = None
+    test_B: torch.utils.data.DataLoader[Any] = None
 
 
 def datasets_get(
     dataset_name: str, im_size: Tuple[int, ...] = (64, 64), batch_size: int = 5
-) -> Tuple[torch.utils.data.DataLoader[Any], ...]:
+) -> DatasetDataloaders:
     """Upload and get the datasets for train and test
 
     :param dataset_name: name of the dataset to upload
@@ -21,22 +31,25 @@ def datasets_get(
     :type im_size: tuple (h, w), optional
     :param batch_size: number of images per batch
     :type batch_size: int, optinal
-    :return: DataLoader tuple with the images of the two domains
-    :rtype: ´DataLoader´ tuple
+    :return: DatasetDataloaders with the images of the two domains
+    :rtype: DatasetDataloaders
     """
-    train_A, train_B = get_datasets(
+
+    datasets = DatasetDataloaders()
+    datasets.name = dataset_name
+    (datasets.train_A, datasets.train_B) = get_datasets(
         dataset_name=dataset_name,
         dataset="train",
         im_size=im_size,
         batch_size=batch_size,
     )
-    test_A, test_B = get_datasets(
+    (datasets.test_A, datasets.test_B) = get_datasets(
         dataset_name=dataset_name,
         dataset="test",
         im_size=im_size,
         batch_size=batch_size,
     )
-    return train_A, train_B, test_A, test_B
+    return datasets
 
 
 def get_datasets(

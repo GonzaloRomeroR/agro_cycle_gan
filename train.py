@@ -1,5 +1,6 @@
+import shutil
+
 from datetime import datetime
-from distutils.dir_util import copy_tree
 from time import gmtime, strftime
 from dacite import from_dict
 
@@ -39,9 +40,7 @@ def setup(config: Config) -> BaseTrainer:
 
     # Get datasets from both domains
     batch_size = config.batch_size
-    train_images_A, train_images_B, test_images_A, test_images_B = datasets_get(
-        dataset_name, im_size[1:], batch_size
-    )
+    datasets = datasets_get(dataset_name, im_size[1:], batch_size)
 
     # Create or load models for training
     G_A2B, G_B2A, D_A, D_B = get_models(
@@ -54,7 +53,7 @@ def setup(config: Config) -> BaseTrainer:
 
     # Set tesorboard functions
     if config.tensorboard:
-        images, _ = next(iter(train_images_A))
+        images, _ = next(iter(datasets.train_A))
         create_models_tb(G_A2B, G_B2A, D_A, D_B, images.to(device))
 
     # Create metrics object
@@ -89,13 +88,9 @@ def setup(config: Config) -> BaseTrainer:
         D_A,
         D_B,
         f"./results/{dataset_name}",
-        train_images_A,
-        train_images_B,
-        dataset_name,
+        datasets,
         num_epochs=config.num_epochs,
         device=device,
-        test_images_A=test_images_A,
-        test_images_B=test_images_B,
         bs=config.batch_size,
         params_logger=params_logger,
         metrics=metrics,
@@ -116,7 +111,7 @@ def train(config: Config) -> None:
     losses = trainer.train()
 
     if config.store_models:
-        copy_tree(
+        shutil.copytree(
             f"./results/{dataset_name}",
             f"./results/{dataset_name}/models_{str(strftime('%Y-%m-%d-%H:%M:%S', gmtime()))}",
         )

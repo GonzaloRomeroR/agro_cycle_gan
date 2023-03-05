@@ -13,6 +13,7 @@ from utils.report_utils import ParamsLogger
 from utils.sys_utils import get_gpu_usage
 from utils.tensorboard_utils import TensorboardHandler
 from utils.report_utils import generate_report
+from utils.image_utils import DatasetDataloaders
 
 
 class BaseTrainer(ABC):
@@ -27,12 +28,8 @@ class BaseTrainer(ABC):
         D_A: BaseDiscriminator,
         D_B: BaseDiscriminator,
         models_path: str,
-        images_A: torch.utils.data.DataLoader[Any],
-        images_B: torch.utils.data.DataLoader[Any],
-        dataset_name: str,
+        datasets: DatasetDataloaders,
         device: torch.device,
-        test_images_A: torch.utils.data.DataLoader[Any],
-        test_images_B: torch.utils.data.DataLoader[Any],
         params_logger: ParamsLogger,
         bs: int = 5,
         num_epochs: int = 20,
@@ -53,14 +50,10 @@ class BaseTrainer(ABC):
         :type D_A: `Discriminator`
         :param D_B: discriminator for images in the domain A
         :type D_B: `Discriminator`
-        :param images_A: dataloader with images of the domain A
-        :type images_A: ´DataLoader´
-        :param images_B: dataloader with images of the domain B
-        :type images_B: ´DataLoader´
+        :param datasets: object with dataloaders with images
+        :type datasets: ´DatasetDataloaders´
         :param models_path: path to load and save the models
         :type models_path: str
-        :param dataset_name: name of the models
-        :type dataset_name: str
         :param device: pytorch device
         :type device: ´Device´
         :param bs: batch size, defaults to 5
@@ -85,12 +78,12 @@ class BaseTrainer(ABC):
         self.D_A = D_A
         self.D_B = D_B
         self.models_path = models_path
-        self.images_A = images_A
-        self.images_B = images_B
-        self.dataset_name = dataset_name
+        self.images_A = datasets.train_A
+        self.images_B = datasets.train_B
+        self.dataset_name = datasets.name
         self.device = device
-        self.test_images_A = test_images_A
-        self.test_images_B = test_images_B
+        self.test_images_A = datasets.test_A
+        self.test_images_B = datasets.test_B
         self.bs = bs
         self.num_epochs = num_epochs
         self.plot_epochs = plot_epochs

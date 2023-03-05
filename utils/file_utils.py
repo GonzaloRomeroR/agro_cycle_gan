@@ -10,7 +10,7 @@ from typing import Any, Dict, Tuple
 try:
     import kaggle
 except IOError:
-    print("Cannot import kaggle, could not find kaggle.json")
+    pass  # Cannot import kaggle, could not find kaggle.json
 
 import gdown
 import torch
