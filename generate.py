@@ -85,13 +85,14 @@ class ImageTransformer:
                 # Not a valid image
                 continue
 
-            image = Image.open(f"{origin_path}/{img_name}").convert("RGB")
-            if resize:
-                image = transforms.Resize(resize)(image)
-            image = transforms.ToTensor()(image).to(device)
-            image = torch.unsqueeze(image, dim=0)
-            image_trans = self.transform_image(image, domain)
-            save_image(image_trans, f"{dest_path}/{img_name}")
+            with Image.open(f"{origin_path}/{img_name}").convert("RGB") as image:
+                if resize:
+                    image = transforms.Resize(resize)(image)
+                image = transforms.ToTensor()(image).to(device)
+                image = torch.unsqueeze(image, dim=0)
+                image_trans = self.transform_image(image, domain)
+                save_image(image_trans, f"{dest_path}/{img_name}")
+
         print("Finished transforming dataset")
 
 

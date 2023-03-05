@@ -120,4 +120,5 @@ def upload_images_numpy(path: str, im_size: Tuple[int, ...]) -> NDArray[Any]:
         image = Image.open(f"{path}/{file_name}")
         image = image.resize(im_size)
         img_list.append(np.asarray(image))
+        image.close()
     return np.array(img_list)

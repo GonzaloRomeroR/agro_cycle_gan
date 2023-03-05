@@ -18,7 +18,7 @@ class Config:
     metrics: bool = True
     generator: str = ""
     discriminator: str = ""
-    metrics: bool = False
+    metrics: str = ""
     plot_image_epoch: bool = False
 
 

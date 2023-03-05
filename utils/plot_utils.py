@@ -1,4 +1,4 @@
-from typing import Any, List
+from typing import Any, List, Dict
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -12,9 +12,9 @@ def show_batch(
 ) -> None:
     """Show image batch
 
-    :param batch: batch of images to plot  
+    :param batch: batch of images to plot
     :type batch: list
-    :param device: pytorch device  
+    :param device: pytorch device
     :type device: pytorch device
     """
     plt.figure(figsize=(12, 12))
@@ -23,7 +23,9 @@ def show_batch(
     plt.imshow(
         np.transpose(
             vutils.make_grid(
-                batch[0].to(device)[:10], padding=2, normalize=True,
+                batch[0].to(device)[:10],
+                padding=2,
+                normalize=True,
             ).cpu(),
             (1, 2, 0),
         )
@@ -48,7 +50,7 @@ def plot_generator_images(
     :type dataloader_A: `Dataloader`
     :param dataloader_B: dataloader with images of the domain B
     :type dataloader_B: `Dataloader`
-    :param device: pytorch  
+    :param device: pytorch
     :type device: `Device`
     """
     batch_a_test = next(iter(dataloader_A))[0].to(device)
@@ -65,3 +67,19 @@ def plot_generator_images(
     show_batch(real_b_test, device, title="Real B")
     show_batch(fake_a_test, device, title="Fake A")
 
+
+def plot_metrics(metrics: Dict[str, Any]) -> None:
+    """Create metrics plots
+
+    :param metrics: list with the metrics stored during training
+    :type metrics: dict
+    """
+
+    for metrics_name in metrics.keys():
+        plt.figure()
+        plt.plot(metrics[metrics_name])
+        plt.grid()
+        plt.title(metrics_name)
+        plt.xlabel("epochs")
+        plt.ylabel(metrics_name)
+        plt.show()
