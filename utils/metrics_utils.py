@@ -41,12 +41,6 @@ class Metrics(ABC):
     def get_score(self, images_real: NDArray[Any], images_gen: NDArray[Any]) -> float:
         pass
 
-    @abstractmethod
-    def calculate_score(
-        self, images_real: NDArray[Any], images_gen: NDArray[Any]
-    ) -> float:
-        pass
-
     def calculate_metrics(
         self, name: str, im_size: Tuple[int, ...], out_domain: str = "B"
     ) -> float:
@@ -151,11 +145,6 @@ class FID_Pytorch_TorchMetrics(Metrics):
 
         return self.fid.compute()
 
-    def calculate_score(
-        self, features_real: NDArray[Any], features_gen: NDArray[Any]
-    ) -> float:
-        pass
-
 
 class FID_TensorFlow_DataLoader(Metrics):
     """
@@ -165,7 +154,6 @@ class FID_TensorFlow_DataLoader(Metrics):
     def _set_params(self, input_shape: Tuple[int, ...] = (299, 299, 3)) -> None:
         self.name = "FID"
 
-        # self.model = torch.hub.load('pytorch/vision:v0.10.0', 'inception_v3', pretrained=True)
         self.model = InceptionV3(
             include_top=False, pooling="avg", input_shape=input_shape
         )
@@ -255,20 +243,7 @@ class FID_TensorFlow_DataLoader(Metrics):
         :return: frechnet inception distance
         :rtype: float
         """
-        # Numpy array
-        images_real = images_real.astype("float32")
-        images_gen = images_gen.astype("float32")
-        # Tensor
-        # images_real = images_real.detach().numpy().astype("float32")
-        # images_gen = images_gen.detach().numpy().astype("float32")
-        images_real = self.scale_images(images_real, self.input_shape)
-        images_gen = self.scale_images(images_gen, self.input_shape)
-        images_real = preprocess_input(images_real)
-        images_gen = preprocess_input(images_gen)
-        # Calculate activations
-        act1 = self.model.predict(images_real)
-        act2 = self.model.predict(images_gen)
-        return self.calculate_score(act1, act2)
+        pass
 
     def calculate_score(
         self, features_real: NDArray[Any], features_gen: NDArray[Any]
