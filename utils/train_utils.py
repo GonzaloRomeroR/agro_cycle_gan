@@ -20,6 +20,7 @@ class Config:
     discriminator: str = ""
     metrics: str = ""
     plot_image_epoch: bool = False
+    comments: str = ""
 
 
 def generate_images_cycle(

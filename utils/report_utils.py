@@ -1,5 +1,7 @@
 import os
 import shutil
+import json
+import re
 from contextlib import redirect_stdout
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
@@ -25,7 +27,8 @@ class ParamsLogger:
         return class_._instance
 
     def __init__(self) -> None:
-        self.params: Dict[str, Any] = {}
+        if not hasattr(self, "params"):
+            self.params: Dict[str, Any] = {}
 
     def generate_params_file(self) -> None:
         """Creates a txt with the params used"""
@@ -77,6 +80,38 @@ def generate_metrics_plot(metrics: Dict[str, Any]) -> None:
         plt.ylabel(metrics_name)
         plt.savefig(f"{file_path}/../results/metrics_plots/{metrics_name}.png")
         plt.close()
+
+
+def generate_report_json(
+    params: Dict[str, Any],
+    metrics: Dict[str, Any],
+    losses: Dict[str, Any],
+    models_path="./results/models.txt",
+):
+    results = {}
+    results.update(params)
+
+    metrics_to_list = {}
+    for name, metrics in metrics.items():
+        metrics_to_list[name] = [metric.item() for metric in metrics]
+
+    results["metrics"] = metrics_to_list
+    results["losses"] = losses
+
+    if os.path.isfile(models_path):
+        with open(models_path) as f:
+            results["models"] = f.readlines()
+
+    output_name = "train"
+    if "dataset" in results:
+        output_name += f"_{results['dataset']}"
+    if "date" in results:
+        output_name += f"_{results['date']}"
+
+    with open(
+        "./results/" + re.sub(r"[^\w\-_\. ]", "_", f"{output_name}.json"), "w"
+    ) as fp:
+        json.dump(results, fp)
 
 
 def generate_model_plots() -> None:
@@ -182,7 +217,9 @@ def clear_reports() -> None:
     clear_folder(f"{file_path}/../results/metrics_plots")
 
 
-def generate_report(losses: Dict[str, Any], metrics: Dict[str, Any]) -> None:
+def generate_report(
+    train_params: Dict[str, Any], losses: Dict[str, Any], metrics: Dict[str, Any]
+) -> None:
 
     clear_reports()
     generate_loss_plot(losses)
@@ -190,5 +227,6 @@ def generate_report(losses: Dict[str, Any], metrics: Dict[str, Any]) -> None:
     if bool(metrics):
         generate_metrics_plot(metrics)
 
+    generate_report_json(train_params, metrics, losses)
     generate_model_plots()
     create_pdf()

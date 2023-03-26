@@ -71,4 +71,10 @@ def parse_arguments() -> argparse.Namespace:
         help="name of the discriminator to use",
         default="",
     )
+    parser.add_argument(
+        "--comments",
+        type=str,
+        help="comments to add in results artifacts",
+        default="",
+    )
     return parser.parse_args()

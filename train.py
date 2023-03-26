@@ -66,7 +66,8 @@ def setup(config: Config) -> BaseTrainer:
     params_logger = ParamsLogger()
     domains = config.use_dataset.split("2")
     log_params = {
-        "date": datetime.now(),
+        "comments": config.comments,
+        "date": str(datetime.now()),
         "dataset": config.use_dataset,
         "image_size": im_size,
         "batch_size": batch_size,
@@ -116,7 +117,7 @@ def train(config: Config) -> None:
             f"./results/{dataset_name}/models_{str(strftime('%Y-%m-%d-%H:%M:%S', gmtime()))}",
         )
     # Generate report
-    generate_report(losses, trainer.metrics_per_epoch)
+    generate_report(ParamsLogger().params, losses, trainer.metrics_per_epoch)
 
 
 if __name__ == "__main__":

@@ -226,7 +226,9 @@ class BaseTrainer(ABC):
                 plot_metrics(self.metrics_per_epoch)
 
         if epoch != 0 and epoch % 10 == 0:
-            generate_report(self.losses_total, self.metrics_per_epoch)
+            generate_report(
+                self.params_logger.params, self.losses_total, self.metrics_per_epoch
+            )
 
     def train(self) -> Dict[str, Any]:
         """
