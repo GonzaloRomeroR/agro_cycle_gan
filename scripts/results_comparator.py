@@ -9,6 +9,11 @@ from os.path import isfile, join
 
 
 class ResultsComparator:
+
+    """
+    Comparates different training results based on the json output files
+    """
+
     def __init__(self, input_path, output_path):
         self.input_path = input_path
         self.output_path = output_path
@@ -40,10 +45,11 @@ class ResultsComparator:
 
         for metric in metrics_names:
             plt.figure()
-            for name, data in self.output_dicts.items():
-                plt.plot(data["metrics"][metric], label=name)
+            for _, data in self.output_dicts.items():
+                plt.plot(data["metrics"][metric], label=data["comments"])
             plt.grid()
             plt.title(metric)
+            plt.legend()
             plt.xlabel("epochs")
             plt.ylabel(metric)
             plt.savefig(f"{self.output_path}/{metric}.png")
@@ -54,10 +60,11 @@ class ResultsComparator:
 
         for loss in losses_names:
             plt.figure()
-            for name, data in self.output_dicts.items():
-                plt.plot(data["losses"][loss], label=name)
+            for _, data in self.output_dicts.items():
+                plt.plot(data["losses"][loss], label=data["comments"])
             plt.grid()
             plt.title(loss)
+            plt.legend()
             plt.xlabel("epochs")
             plt.ylabel(loss)
             plt.savefig(f"{self.output_path}/{loss}.png")
