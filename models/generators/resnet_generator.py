@@ -12,7 +12,7 @@ class ResnetGenerator(BaseGenerator):
     Basic Generator class
     """
 
-    def _set_custom_params(self, filters: int = 64, blocks: int = 9) -> None:
+    def _set_custom_params(self, filters: int = 64, blocks: int = 6) -> None:
         self.filters = filters
         self.blocks = blocks
 
