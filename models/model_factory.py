@@ -5,6 +5,7 @@ from .discriminators.basic_discriminator import BasicDiscriminator
 from .generators.base_generator import BaseGenerator
 from .generators.cyclegan_generator import CycleganGenerator
 from .generators.mixer_generator import MixerGenerator
+from .generators.resnet_generator import ResnetGenerator
 
 
 class ModelFactory:
@@ -27,6 +28,8 @@ class ModelFactory:
                 return MixerGenerator(**kwargs)
             elif model_name == "cyclegan":
                 return CycleganGenerator(**kwargs)
+            elif model_name == "resnet":
+                return ResnetGenerator(**kwargs)
             else:
                 return CycleganGenerator(**kwargs)
         elif model_type == "disc":
