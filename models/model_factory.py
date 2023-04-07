@@ -2,6 +2,7 @@ from typing import Any, Dict, Union
 
 from .discriminators.base_discriminator import BaseDiscriminator
 from .discriminators.basic_discriminator import BasicDiscriminator
+from .discriminators.nlayer_discriminator import NLayerDiscriminator
 from .generators.base_generator import BaseGenerator
 from .generators.cyclegan_generator import CycleganGenerator
 from .generators.mixer_generator import MixerGenerator
@@ -35,6 +36,8 @@ class ModelFactory:
         elif model_type == "disc":
             if model_name == "basic":
                 return BasicDiscriminator(**kwargs)
+            elif model_name == "nlayer":
+                return NLayerDiscriminator(**kwargs)
             else:
                 return BasicDiscriminator(**kwargs)
         else:
