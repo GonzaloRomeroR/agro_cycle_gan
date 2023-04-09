@@ -101,8 +101,11 @@ def upload_images(
         root=path,
         transform=transforms.Compose(
             [
-                transforms.Resize(im_size),
-                transforms.CenterCrop(im_size),
+                transforms.RandomResizedCrop(im_size, scale=(0.6, 1)),
+                transforms.RandomHorizontalFlip(),
+                transforms.RandomRotation(degrees=(-5, 5)),
+                transforms.RandomAdjustSharpness(sharpness_factor=2),
+                transforms.RandomAutocontrast(),
                 transforms.ToTensor(),
                 transforms.Normalize((0, 0, 0), (1, 1, 1)),
             ]
