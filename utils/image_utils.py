@@ -104,7 +104,7 @@ def upload_images(
                 [
                     transforms.RandomResizedCrop(im_size, scale=(0.6, 1)),
                     transforms.RandomHorizontalFlip(),
-                    transforms.RandomRotation(degrees=(-5, 5)),
+                    #transforms.RandomRotation(degrees=(-5, 5)),
                     transforms.RandomAdjustSharpness(sharpness_factor=2),
                     transforms.RandomAutocontrast(),
                     transforms.ToTensor(),
