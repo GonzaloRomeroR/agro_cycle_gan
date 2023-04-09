@@ -3,7 +3,7 @@ from abc import abstractmethod
 import torch
 
 from ..base_model import BaseModel
-from typing import Any
+from typing import Any, Dict
 
 
 class BaseDiscriminator(BaseModel):
@@ -12,7 +12,12 @@ class BaseDiscriminator(BaseModel):
     """
 
     def _set_params(
-        self, ndf: int = 64, nc: int = 3, lr: float = 0.0002, beta_1: float = 0.5
+        self,
+        ndf: int = 64,
+        nc: int = 3,
+        lr: float = 0.0002,
+        beta_1: float = 0.5,
+        **kwargs: Dict[str, Any]
     ) -> None:
         """Set discriminator parameters
 

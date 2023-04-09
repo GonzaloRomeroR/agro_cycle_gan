@@ -12,7 +12,7 @@ from utils.plot_utils import plot_generator_images, plot_metrics
 from utils.report_utils import ParamsLogger
 from utils.sys_utils import get_gpu_usage
 from utils.tensorboard_utils import TensorboardHandler
-from utils.report_utils import generate_report
+from utils.report_utils import ResultsReporter
 from utils.image_utils import DatasetDataloaders
 
 
@@ -226,7 +226,7 @@ class BaseTrainer(ABC):
                 plot_metrics(self.metrics_per_epoch)
 
         if epoch != 0 and epoch % 10 == 0:
-            generate_report(
+            ResultsReporter.generate_report(
                 self.params_logger.params, self.losses_total, self.metrics_per_epoch
             )
 

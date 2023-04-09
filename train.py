@@ -9,7 +9,7 @@ from utils.file_utils import download_images, get_models
 from utils.image_utils import datasets_get
 from utils.metrics_utils import create_metrics
 from utils.parser_utils import parse_arguments
-from utils.report_utils import ParamsLogger, generate_model_file, generate_report
+from utils.report_utils import ParamsLogger, ResultsReporter
 from utils.sys_utils import get_device, system_configuration
 from utils.tensorboard_utils import create_models_tb
 from utils.train_utils import Config
@@ -60,7 +60,7 @@ def setup(config: Config) -> BaseTrainer:
     metrics = create_metrics(config.metrics)
 
     # Generate file with the model information
-    generate_model_file(G_A2B, G_B2A, D_A, D_B, size=im_size)
+    ResultsReporter.generate_model_file(G_A2B, G_B2A, D_A, D_B, size=im_size)
 
     # Define params for report
     params_logger = ParamsLogger()
@@ -117,7 +117,9 @@ def train(config: Config) -> None:
             f"./results/{dataset_name}/models_{str(strftime('%Y-%m-%d-%H:%M:%S', gmtime()))}",
         )
     # Generate report
-    generate_report(ParamsLogger().params, losses, trainer.metrics_per_epoch)
+    ResultsReporter.generate_report(
+        ParamsLogger().params, losses, trainer.metrics_per_epoch
+    )
 
 
 if __name__ == "__main__":
