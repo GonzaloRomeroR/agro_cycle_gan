@@ -88,6 +88,19 @@ def generate_report_json(
     losses: Dict[str, Any],
     models_path="./results/models.txt",
 ):
+
+    """Create json with all the useful information obtained during the training
+
+    :param params: dictionary with the values stored in the parameter logger
+    :type params: dict
+    :param metrics: dictionary with the different metrics
+    :type metrics: dict
+    :param losses: dictionary with the different losses
+    :type losses: dict
+    :param models_path: path to store the generated json
+    :type models_path: str
+
+    """
     results = {}
     results.update(params)
 
@@ -112,10 +125,6 @@ def generate_report_json(
         "./results/" + re.sub(r"[^\w\-_\. ]", "_", f"{output_name}.json"), "w"
     ) as fp:
         json.dump(results, fp)
-
-
-def generate_model_plots() -> None:
-    pass
 
 
 def generate_model_file(
@@ -193,6 +202,7 @@ def create_pdf() -> None:
 
 def clear_folder(folder: str) -> None:
 
+    """Clear results folder"""
     if not os.path.isdir(folder):
         return
 
@@ -208,6 +218,7 @@ def clear_folder(folder: str) -> None:
 
 
 def clear_reports() -> None:
+    """Clear old reports"""
     file_path = Path(__file__).parent.resolve()
 
     if os.path.isfile(f"{file_path}/../results/report.pdf"):
@@ -221,6 +232,7 @@ def generate_report(
     train_params: Dict[str, Any], losses: Dict[str, Any], metrics: Dict[str, Any]
 ) -> None:
 
+    """Generate training report"""
     clear_reports()
     generate_loss_plot(losses)
 
@@ -228,5 +240,4 @@ def generate_report(
         generate_metrics_plot(metrics)
 
     generate_report_json(train_params, metrics, losses)
-    generate_model_plots()
     create_pdf()

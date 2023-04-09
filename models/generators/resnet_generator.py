@@ -12,9 +12,12 @@ class ResnetGenerator(BaseGenerator):
     Basic Generator class
     """
 
-    def _set_custom_params(self, filters: int = 64, blocks: int = 6) -> None:
+    def _set_custom_params(
+        self, filters: int = 64, blocks: int = 6, padding_type: str = "reflect"
+    ) -> None:
         self.filters = filters
         self.blocks = blocks
+        self.padding_type = padding_type
 
     def _create_model(self) -> None:
 
@@ -22,7 +25,6 @@ class ResnetGenerator(BaseGenerator):
         norm_layer = functools.partial(
             nn.InstanceNorm2d, affine=False, track_running_stats=False
         )
-        padding_type = "reflect"
 
         assert self.blocks >= 0
 
@@ -62,7 +64,7 @@ class ResnetGenerator(BaseGenerator):
             model += [
                 ResnetBlock(
                     self.filters * mult,
-                    padding_type=padding_type,
+                    padding_type=self.padding_type,
                     norm_layer=norm_layer,
                     use_dropout=use_dropout,
                     use_bias=use_bias,
