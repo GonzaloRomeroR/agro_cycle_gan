@@ -82,7 +82,7 @@ def get_datasets(
 
 
 def upload_images(
-    path: str, im_size: Tuple[int, ...], batch_size: int = 5, num_workers: int = 2
+    path: str, im_size: Tuple[int, ...], batch_size: int = 5, num_workers: int = 2, data_augmentation: bool = True
 ) -> torch.utils.data.DataLoader[Any]:
     """Upload images from folder
 
@@ -97,17 +97,34 @@ def upload_images(
     :return: image dataset
     :rtype: `DataLoader`
     """
-    image_dataset = dset.ImageFolder(
-        root=path,
-        transform=transforms.Compose(
-            [
-                transforms.Resize(im_size),
-                transforms.CenterCrop(im_size),
-                transforms.ToTensor(),
-                transforms.Normalize((0, 0, 0), (1, 1, 1)),
-            ]
-        ),
-    )
+    if data_augmentation:
+        image_dataset = dset.ImageFolder(
+            root=path,
+            transform=transforms.Compose(
+                [
+                    transforms.RandomResizedCrop(im_size, scale=(0.6, 1)),
+                    transforms.RandomHorizontalFlip(),
+                    #transforms.RandomRotation(degrees=(-5, 5)),
+                    transforms.RandomAdjustSharpness(sharpness_factor=2),
+                    transforms.RandomAutocontrast(),
+                    transforms.ToTensor(),
+                    transforms.Normalize((0, 0, 0), (1, 1, 1)),
+                ]
+            ),
+        )
+
+    else:
+        image_dataset = dset.ImageFolder(
+            root=path,
+            transform=transforms.Compose(
+                [
+                    transforms.Resize(im_size),
+                    transforms.CenterCrop(im_size),
+                    transforms.ToTensor(),
+                    transforms.Normalize((0, 0, 0), (1, 1, 1)),
+                ]
+            ),
+        )
 
     images = torch.utils.data.DataLoader(
         dataset=image_dataset,

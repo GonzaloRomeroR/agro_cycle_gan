@@ -105,7 +105,10 @@ class FID_Pytorch_TorchMetrics(Metrics):
         image_transformer = ImageTransformer(name)
 
         test_images = upload_images(
-            f"./images/{name}/test_{in_domain}/", im_size=im_size, batch_size=1
+            f"./images/{name}/test_{in_domain}/",
+            im_size=im_size,
+            batch_size=1,
+            data_augmentation=False,
         )
 
         for i, image in enumerate(test_images):
@@ -185,11 +188,16 @@ class FID_TensorFlow_DataLoader(Metrics):
         image_transformer = ImageTransformer(name)
 
         test_images = upload_images(
-            f"./images/{name}/test_{in_domain}/", im_size=im_size, batch_size=1
+            f"./images/{name}/test_{in_domain}/",
+            im_size=im_size,
+            batch_size=1,
+            data_augmentation=False,
         )
 
         real_images = upload_images(
-            f"./images/{name}/test_{out_domain}/", im_size=im_size
+            f"./images/{name}/test_{out_domain}/",
+            im_size=im_size,
+            data_augmentation=False,
         )
 
         for image in test_images:
