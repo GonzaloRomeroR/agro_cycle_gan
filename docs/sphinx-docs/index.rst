@@ -8,6 +8,18 @@ Agro Cycle Gan
 
 Agro Cycle Gan is a platform to create syntetic image datasets using CycleGAN. It transforms images from a domain A with some features to a domain B with different features (for example horses to horses, day to night, etc). It uses CycleGAN, which allows to use unsupervised learning to transform images between two domains. 
 
+
+Installation
+------------
+
+Trainer
+-------
+
+Generation
+----------
+
+
+
 Example:
 
 .. autofunction:: generate.ImageTransformer
