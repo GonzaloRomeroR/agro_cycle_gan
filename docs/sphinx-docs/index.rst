@@ -52,29 +52,29 @@ To train the models use:
 Where horse2zebra should be replaced by the name of your dataset. Several options can be used to train the generator:
 
 
-*--download_dataset* (boolean): in case that the dataset is not found in the images/ folder then the platform will try to download it (only for predefined dataset in the platform)
-*--image_resize* (list of ints): resizing of the images been used (e.g --image_resize 256 256)
-*--tensorboard* (boolean): generate tensorboard files
-*--store_modes* (boolean): this will store the generator and discriminator in a folder with the datetime once the training is finished.
-*--load_models* (boolean): load models trained in previous training processes
-*--batch_size* (int): batch size to use during training (default to 5)
-*--num_epochs* (int): number of epochs to use during training (default to 1)
-*--metrics* (boolean): if true, the platform will calculate the training metrics every epochs
-*--plot_image_epoch* (boolean): if true, the platform will display an example of generated image every epochs
-*--generator* (string): name of the generator to use
-*--discriminator* (string): name of the disciriminator to use
-*--comments* (string): comments to add in results artifacts
+* *--download_dataset* (boolean): in case that the dataset is not found in the images/ folder then the platform will try to download it (only for predefined dataset in the platform)
+* *--image_resize* (list of ints): resizing of the images been used (e.g --image_resize 256 256)
+* *--tensorboard* (boolean): generate tensorboard files
+* *--store_modes* (boolean): this will store the generator and discriminator in a folder with the datetime once the training is finished.
+* *--load_models* (boolean): load models trained in previous training processes
+* *--batch_size* (int): batch size to use during training (default to 5)
+* *--num_epochs* (int): number of epochs to use during training (default to 1)
+* *--metrics* (boolean): if true, the platform will calculate the training metrics every epochs
+* *--plot_image_epoch* (boolean): if true, the platform will display an example of generated image every epochs
+* *--generator* (string): name of the generator to use
+* *--discriminator* (string): name of the disciriminator to use
+* *--comments* (string): comments to add in results artifacts
 
 Right now the following generators are available:
 
-*cyclegan*: base cyclegan generator
-*mixer*: mixer gan generator
-*resnet*: cyclegan with different architecture
+* *cyclegan*: base cyclegan generator
+* *mixer*: mixer gan generator
+* *resnet*: cyclegan with different architecture
 
 Right now the following disciriminators are available:
 
-*basic*: basic cyclegan discriminator
-*nlayer*: cyclegan discriminator with different architecture
+* *basic*: basic cyclegan discriminator
+* *nlayer*: cyclegan discriminator with different architecture
 
 
 Generation
@@ -91,6 +91,10 @@ Examples:
 --------
 
 ``python -u train.py horse2zebra --batch_size 10 --image_resize 64 64 --tensorboard --store_modes --batch_size 10 --num_epochs 20 --metrics --plot_image_epoch --generator cyclegan --discriminator basic --comments "Example run"``
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Contents:
 
 Indices and tables
 ==================
