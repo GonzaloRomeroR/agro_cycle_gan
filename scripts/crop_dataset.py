@@ -1,7 +1,7 @@
 import argparse
 import os
 from pathlib import Path
-from typing import Tuple
+from typing import Tuple, Optional
 
 import numpy as np
 import torch
@@ -40,7 +40,8 @@ class ImageCropper:
         self,
         data_folder: str,
         dest_folder: str,
-        size: Tuple[int, ...] = (256, 256),
+        crop_size: Tuple[int, ...] = (256, 256),
+        resize: Optional[Tuple[int, ...]] = None,
         samples: int = 1,
     ) -> None:
         """Crop image dataset
@@ -49,8 +50,10 @@ class ImageCropper:
         :type data_folder: str
         :param dest_folder: path of the destination folder
         :type dest_folder: str
-        :param size: cropping size, defaults to (256, 256)
-        :type size: tuple, optional
+        :param crop_size: cropping size, defaults to (256, 256)
+        :type crop_size: tuple, optional
+        :param resize: resizing after cropping, defaults to None
+        :type resize: tuple, optional
         :param samples: number of samples per images, defaults to 1
         :type samples: int, optional
         """
@@ -59,7 +62,9 @@ class ImageCropper:
             image = Image.open(f"{data_folder}/{img_name}").convert("RGB")
             image = transforms.ToTensor()(image)
             for num in range(samples):
-                image_cropped = self.get_random_crop(image, size[0], size[1])
+                image_cropped = self.get_random_crop(image, crop_size[0], crop_size[1])
+                if resize:
+                    image_cropped = transforms.Resize(resize)(image_cropped)
                 save_image(image_cropped, f"{dest_folder}/{num}_{img_name}")
 
 
@@ -79,10 +84,24 @@ def parse_arguments() -> argparse.Namespace:
         default=None,
     )
     parser.add_argument(
-        "--size", help="size of the image cropping", default=None, nargs="+", type=int,
+        "--crop_size",
+        help="size of the image cropping",
+        default=None,
+        nargs="+",
+        type=int,
     )
     parser.add_argument(
-        "--samples", help="number of random samples per image", default=1, type=int,
+        "--resize",
+        help="final resizing after cropping",
+        default=None,
+        nargs="+",
+        type=int,
+    )
+    parser.add_argument(
+        "--samples",
+        help="number of random samples per image",
+        default=1,
+        type=int,
     )
     return parser.parse_args()
 
@@ -91,5 +110,9 @@ if __name__ == "__main__":
     cmd_args = parse_arguments()
     image_cropper = ImageCropper()
     image_cropper.create_cropped_dataset(
-        cmd_args.data_folder, cmd_args.dest_folder, cmd_args.size, cmd_args.samples,
+        cmd_args.data_folder,
+        cmd_args.dest_folder,
+        cmd_args.crop_size,
+        cmd_args.resize,
+        cmd_args.samples,
     )
