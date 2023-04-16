@@ -19,6 +19,7 @@ class Config:
     generator: str = ""
     discriminator: str = ""
     metrics: str = ""
+    crop_size: list = field(default_factory=list)
     plot_image_epoch: bool = False
     comments: str = ""
 

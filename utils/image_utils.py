@@ -1,5 +1,5 @@
 import os
-from typing import Any, Tuple
+from typing import Any, Tuple, Optional
 
 import numpy as np
 import torch
@@ -57,6 +57,7 @@ def get_datasets(
     dataset: str = "train",
     im_size: Tuple[int, ...] = (64, 64),
     batch_size: int = 5,
+    crop_size: Optional[Tuple[int, ...]] = None,
 ) -> Tuple[torch.utils.data.DataLoader[Any], ...]:
     """Upload and get the datasets
 
@@ -72,11 +73,13 @@ def get_datasets(
         path=f"{file_path}/../images/{dataset_name}/{dataset}_A/",
         im_size=im_size,
         batch_size=batch_size,
+        crop_size=crop_size,
     )
     images_B = upload_images(
         path=f"{file_path}/../images/{dataset_name}/{dataset}_B/",
         im_size=im_size,
         batch_size=batch_size,
+        crop_size=crop_size,
     )
     return images_A, images_B
 
@@ -115,13 +118,16 @@ def get_image_folder(
     return image_dataset
 
 
-def get_image_folder_only_crop(path: str, im_size: Tuple[int, ...]) -> dset.ImageFolder:
+def get_image_folder_only_crop(
+    path: str, im_size: Tuple[int, ...], crop_size: Tuple[int, ...]
+) -> dset.ImageFolder:
 
     image_dataset = dset.ImageFolder(
         root=path,
         transform=transforms.Compose(
             [
-                transforms.RandomCrop(im_size),
+                transforms.RandomCrop(crop_size),
+                transforms.Resize(im_size),
                 transforms.RandomHorizontalFlip(),
                 transforms.RandomAdjustSharpness(sharpness_factor=2),
                 transforms.RandomAutocontrast(),
@@ -139,7 +145,7 @@ def upload_images(
     batch_size: int = 5,
     num_workers: int = 2,
     data_augmentation: bool = True,
-    only_crop: bool = True,
+    crop_size: Optional[Tuple[int, ...]] = None,
 ) -> torch.utils.data.DataLoader[Any]:
     """Upload images from folder
 
@@ -155,8 +161,8 @@ def upload_images(
     :rtype: `DataLoader`
     """
 
-    if only_crop:
-        image_dataset = get_image_folder_only_crop(path, im_size)
+    if crop_size is not None:
+        image_dataset = get_image_folder_only_crop(path, im_size, crop_size)
     else:
         image_dataset = get_image_folder(path, im_size, data_augmentation)
 

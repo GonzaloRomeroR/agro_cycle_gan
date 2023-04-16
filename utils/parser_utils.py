@@ -72,6 +72,13 @@ def parse_arguments() -> argparse.Namespace:
         default="",
     )
     parser.add_argument(
+        "--crop_size",
+        help="cropping size, if a value is set, the platform will take portions of the images to train the models",
+        default=None,
+        nargs=2,
+        type=int,
+    )
+    parser.add_argument(
         "--comments",
         type=str,
         help="comments to add in results artifacts",
