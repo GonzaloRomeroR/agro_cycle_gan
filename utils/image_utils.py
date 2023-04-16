@@ -81,22 +81,10 @@ def get_datasets(
     return images_A, images_B
 
 
-def upload_images(
-    path: str, im_size: Tuple[int, ...], batch_size: int = 5, num_workers: int = 2, data_augmentation: bool = True
-) -> torch.utils.data.DataLoader[Any]:
-    """Upload images from folder
+def get_image_folder(
+    path: str, im_size: Tuple[int, ...], data_augmentation: bool
+) -> dset.ImageFolder:
 
-    :param path: path to the folder with images
-    :type path: str
-    :param im_size: size of the image
-    :type im_size: tuple
-    :param batch_size: batch size, defaults to 5
-    :type batch_size: int, optional
-    :param num_workers: number of workers processes, defaults to 2
-    :type num_workers: int, optional
-    :return: image dataset
-    :rtype: `DataLoader`
-    """
     if data_augmentation:
         image_dataset = dset.ImageFolder(
             root=path,
@@ -104,7 +92,6 @@ def upload_images(
                 [
                     transforms.RandomResizedCrop(im_size, scale=(0.6, 1)),
                     transforms.RandomHorizontalFlip(),
-                    #transforms.RandomRotation(degrees=(-5, 5)),
                     transforms.RandomAdjustSharpness(sharpness_factor=2),
                     transforms.RandomAutocontrast(),
                     transforms.ToTensor(),
@@ -125,6 +112,53 @@ def upload_images(
                 ]
             ),
         )
+    return image_dataset
+
+
+def get_image_folder_only_crop(path: str, im_size: Tuple[int, ...]) -> dset.ImageFolder:
+
+    image_dataset = dset.ImageFolder(
+        root=path,
+        transform=transforms.Compose(
+            [
+                transforms.RandomCrop(im_size),
+                transforms.RandomHorizontalFlip(),
+                transforms.RandomAdjustSharpness(sharpness_factor=2),
+                transforms.RandomAutocontrast(),
+                transforms.ToTensor(),
+                transforms.Normalize((0, 0, 0), (1, 1, 1)),
+            ]
+        ),
+    )
+    return image_dataset
+
+
+def upload_images(
+    path: str,
+    im_size: Tuple[int, ...],
+    batch_size: int = 5,
+    num_workers: int = 2,
+    data_augmentation: bool = True,
+    only_crop: bool = True,
+) -> torch.utils.data.DataLoader[Any]:
+    """Upload images from folder
+
+    :param path: path to the folder with images
+    :type path: str
+    :param im_size: size of the image
+    :type im_size: tuple
+    :param batch_size: batch size, defaults to 5
+    :type batch_size: int, optional
+    :param num_workers: number of workers processes, defaults to 2
+    :type num_workers: int, optional
+    :return: image dataset
+    :rtype: `DataLoader`
+    """
+
+    if only_crop:
+        image_dataset = get_image_folder_only_crop(path, im_size)
+    else:
+        image_dataset = get_image_folder(path, im_size, data_augmentation)
 
     images = torch.utils.data.DataLoader(
         dataset=image_dataset,
