@@ -171,6 +171,10 @@ def download_images(image_type: str, path: str = "images/") -> None:
         download_kaggle_dataset(
             path, image_type, "gonzaromeror/soy-small-crop2soy-big-crop"
         )
+    elif image_type == "soy_small_crop_bigger2soy_big_crop_bigger":
+        download_kaggle_dataset(
+            path, image_type, "gonzaromeror/soy_small_crop_bigger2soy_big_crop_bigger"
+        )
     else:
         raise RuntimeError("Dataset not found")
 
