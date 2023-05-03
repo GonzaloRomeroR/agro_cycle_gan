@@ -162,52 +162,40 @@ def download_images(image_type: str, path: str = "images/") -> None:
     if image_type == "horse2zebra":
         download_horse2zebras(path)
     elif image_type == "soy_small2soy_big":
-        download_soy_small2soy_big(path)
+        download_kaggle_dataset(path, image_type, "gonzaromeror/soysmallbig")
     elif image_type == "soy2corn":
-        download_soy2corn(path)
+        download_kaggle_dataset(path, image_type, "gonzaromeror/soycorn")
     elif image_type == "over_corn2over_wheat":
-        download_over_corn2over_wheat(path)
+        download_kaggle_dataset(path, image_type, "gonzaromeror/overcornoverwheat")
+    elif image_type == "soy_small_crop2soy_big_crop":
+        download_kaggle_dataset(
+            path, image_type, "gonzaromeror/soy-small-crop2soy-big-crop"
+        )
+    elif image_type == "soy_small_crop_bigger2soy_big_crop_bigger":
+        download_kaggle_dataset(
+            path, image_type, "gonzaromeror/soy_small_crop_bigger2soy_big_crop_bigger"
+        )
     else:
         raise RuntimeError("Dataset not found")
 
 
-def download_soy2corn(path: str) -> None:
-    breakpoint()
-    if not os.path.exists(path + "/soy2corn"):
+def download_kaggle_dataset(path: str, dataset_name: str, kaggle_path: str):
+    """Download data from kaggle
+
+    :param path: path to store the images
+    :type path: str
+    :param dataset_name: name of the dataset
+    :type dataset_name: str
+    :param kaggle_path: name of the dataset in kaggle (user_name/name_of_dataset)
+    :type kaggle_path: str
+    """
+    if not os.path.exists(f"{path}/{dataset_name}"):
         if "kaggle" not in sys.modules:
             raise RuntimeError(
                 "Cannot download dataset since kaggle could not be imported"
             )
         kaggle.api.authenticate()
-        kaggle.api.dataset_download_files("gonzaromeror/soycorn", path=path, unzip=True)
-    else:
-        print("Dataset is already downloaded")
-
-
-def download_soy_small2soy_big(path: str) -> None:
-    if not os.path.exists(path + "/soy_small2soy_big"):
-        if "kaggle" not in sys.modules:
-            raise RuntimeError(
-                "Cannot download dataset since kaggle could not be imported"
-            )
-        kaggle.api.authenticate()
-        kaggle.api.dataset_download_files(
-            "gonzaromeror/soysmallbig", path=path, unzip=True
-        )
-    else:
-        print("Dataset is already downloaded")
-
-
-def download_over_corn2over_wheat(path: str) -> None:
-    if not os.path.exists(path + "/over_corn2over_wheat"):
-        if "kaggle" not in sys.modules:
-            raise RuntimeError(
-                "Cannot download dataset since kaggle could not be imported"
-            )
-        kaggle.api.authenticate()
-        kaggle.api.dataset_download_files(
-            "gonzaromeror/overcornoverwheat", path=path, unzip=True
-        )
+        kaggle.api.dataset_download_files(kaggle_path, path=path, unzip=True)
     else:
         print("Dataset is already downloaded")
 

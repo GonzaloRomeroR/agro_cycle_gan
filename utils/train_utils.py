@@ -1,4 +1,4 @@
-from typing import Tuple
+from typing import Tuple, Optional
 from dataclasses import dataclass, field
 
 import torch
@@ -9,7 +9,7 @@ from models.generators.base_generator import BaseGenerator
 class Config:
     use_dataset: str = None
     download_dataset: bool = False
-    image_resize: list = field(default_factory=list)
+    image_resize: Optional[list] = field(default_factory=list)
     tensorboard: bool = False
     store_models: bool = False
     load_models: bool = False
@@ -19,6 +19,7 @@ class Config:
     generator: str = ""
     discriminator: str = ""
     metrics: str = ""
+    crop_size: Optional[list] = field(default_factory=list)
     plot_image_epoch: bool = False
     comments: str = ""
 
