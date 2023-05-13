@@ -42,6 +42,7 @@ class ImageCropper:
         dest_folder: str,
         crop_size: Tuple[int, ...] = (256, 256),
         resize: Optional[Tuple[int, ...]] = None,
+        initial_resize: Optional[Tuple[int, ...]] = None,
         samples: int = 1,
     ) -> None:
         """Crop image dataset
@@ -54,6 +55,8 @@ class ImageCropper:
         :type crop_size: tuple, optional
         :param resize: resizing after cropping, defaults to None
         :type resize: tuple, optional
+        :param initial_resize: resize of the image before cropping, defaults to None
+        :type resize: tuple, optional
         :param samples: number of samples per images, defaults to 1
         :type samples: int, optional
         """
@@ -61,6 +64,8 @@ class ImageCropper:
         for img_name in os.listdir(data_folder):
             image = Image.open(f"{data_folder}/{img_name}").convert("RGB")
             image = transforms.ToTensor()(image)
+            if initial_resize:
+                image = transforms.Resize(initial_resize)(image)
             for num in range(samples):
                 image_cropped = self.get_random_crop(image, crop_size[0], crop_size[1])
                 if resize:
@@ -98,6 +103,13 @@ def parse_arguments() -> argparse.Namespace:
         type=int,
     )
     parser.add_argument(
+        "--initial_resize",
+        help="resize of image before cropping",
+        default=None,
+        nargs="+",
+        type=int,
+    )
+    parser.add_argument(
         "--samples",
         help="number of random samples per image",
         default=1,
@@ -114,5 +126,6 @@ if __name__ == "__main__":
         cmd_args.dest_folder,
         cmd_args.crop_size,
         cmd_args.resize,
+        cmd_args.initial_resize,
         cmd_args.samples,
     )
