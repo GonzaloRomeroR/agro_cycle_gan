@@ -152,6 +152,9 @@ class BaseTrainer(ABC):
         gen_losses: Dict[str, Any],
         disc_losses: Dict[str, Any],
     ) -> None:
+        """
+        Print information about the current iteration
+        """
         info = f"Epoch [{epoch}/{self.num_epochs}] batch [{iteration}]"
         for name, loss in {**gen_losses, **disc_losses}.items():
             info += f" {name}: {loss:.3f}"
@@ -168,7 +171,9 @@ class BaseTrainer(ABC):
         return f"{hours} h {minutes} m {seconds} s"
 
     def _save_epoch_information(self, epoch: int) -> None:
-        # Generate epoch information
+        """
+        Store information about the current epoch and regenerate parameter file
+        """
         self.params_logger.params["final_epoch"] = epoch
         total_time = round(time.perf_counter() - self.start_time)
         self.params_logger.params["time"] = str(
@@ -177,7 +182,9 @@ class BaseTrainer(ABC):
         self.params_logger.generate_params_file()
 
     def _obtain_total_losses(self, epoch: int) -> None:
-        # Obtain total losses
+        """
+        Obtain total losses of the epoch based on all the losses of the training
+        """
         for key in self.losses_epoch.keys():
             loss_key = sum(self.losses_epoch[key]) / len(self.losses_epoch[key])
             self.losses_total[key].append(loss_key)
@@ -189,6 +196,9 @@ class BaseTrainer(ABC):
 
     def _run_post_epoch(self, epoch: int) -> None:
 
+        """
+        Run tasks needed after eposh is finished
+        """
         self._obtain_total_losses(epoch)
         self._save_epoch_information(epoch)
 

@@ -1,5 +1,5 @@
 import os
-from typing import Any, Tuple, Optional
+from typing import Any, Tuple, Optional, List
 
 import numpy as np
 import torch
@@ -84,57 +84,78 @@ def get_datasets(
     return images_A, images_B
 
 
-def get_image_folder(
-    path: str, im_size: Tuple[int, ...], data_augmentation: bool
-) -> dset.ImageFolder:
+def get_transformations(
+    im_size: Tuple[int, ...],
+    data_augmentation: bool,
+    crop_size: Optional[Tuple[int, ...]] = None,
+) -> List[Any]:
 
-    if data_augmentation:
-        image_dataset = dset.ImageFolder(
-            root=path,
-            transform=transforms.Compose(
-                [
-                    transforms.RandomResizedCrop(im_size, scale=(0.6, 1)),
-                    transforms.RandomHorizontalFlip(),
-                    transforms.RandomAdjustSharpness(sharpness_factor=2),
-                    transforms.RandomAutocontrast(),
-                    transforms.ToTensor(),
-                    transforms.Normalize((0, 0, 0), (1, 1, 1)),
-                ]
-            ),
-        )
+    """Get transformations for the dataloader
 
+    :param im_size: size of the image
+    :type im_size: tuple
+    :param data_augmentation: if true, data augmentation will be used
+    :type data_augmentation: bool
+    :param crop_size: dimensions of the cropping
+    :type crop_size: Tuple, optional
+    :return: list of transformations
+    :rtype: list
+    """
+
+    if crop_size is not None:
+        transformations = [
+            transforms.RandomCrop(crop_size),
+            transforms.Resize(im_size),
+            transforms.RandomHorizontalFlip(),
+            transforms.RandomAdjustSharpness(sharpness_factor=2),
+            transforms.RandomAutocontrast(),
+            transforms.ToTensor(),
+            transforms.Normalize((0, 0, 0), (1, 1, 1)),
+        ]
+
+    elif data_augmentation:
+        transformations = [
+            transforms.RandomResizedCrop(im_size, scale=(0.6, 1)),
+            transforms.RandomHorizontalFlip(),
+            transforms.RandomAdjustSharpness(sharpness_factor=2),
+            transforms.RandomAutocontrast(),
+            transforms.ToTensor(),
+            transforms.Normalize((0, 0, 0), (1, 1, 1)),
+        ]
     else:
-        image_dataset = dset.ImageFolder(
-            root=path,
-            transform=transforms.Compose(
-                [
-                    transforms.Resize(im_size),
-                    transforms.CenterCrop(im_size),
-                    transforms.ToTensor(),
-                    transforms.Normalize((0, 0, 0), (1, 1, 1)),
-                ]
-            ),
-        )
-    return image_dataset
+        transformations = [
+            transforms.Resize(im_size),
+            transforms.CenterCrop(im_size),
+            transforms.ToTensor(),
+            transforms.Normalize((0, 0, 0), (1, 1, 1)),
+        ]
+    return transformations
 
 
-def get_image_folder_only_crop(
-    path: str, im_size: Tuple[int, ...], crop_size: Tuple[int, ...]
+def get_image_folder(
+    path: str,
+    im_size: Tuple[int, ...],
+    data_augmentation: bool,
+    crop_size: Optional[Tuple[int, ...]] = None,
 ) -> dset.ImageFolder:
+    """Get transformations for the dataloader
+
+    :param path: path to the folder with images
+    :type path: str
+    :param im_size: size of the image
+    :type im_size: tuple
+    :param data_augmentation: if true, data augmentation will be used
+    :type data_augmentation: bool
+    :param crop_size: dimensions of the cropping
+    :type crop_size: Tuple, optional
+    :return: image folder
+    :rtype: `ImageFolder`
+    """
+    transformations = get_transformations(im_size, data_augmentation, crop_size)
 
     image_dataset = dset.ImageFolder(
         root=path,
-        transform=transforms.Compose(
-            [
-                transforms.RandomCrop(crop_size),
-                transforms.Resize(im_size),
-                transforms.RandomHorizontalFlip(),
-                transforms.RandomAdjustSharpness(sharpness_factor=2),
-                transforms.RandomAutocontrast(),
-                transforms.ToTensor(),
-                transforms.Normalize((0, 0, 0), (1, 1, 1)),
-            ]
-        ),
+        transform=transforms.Compose(transformations),
     )
     return image_dataset
 
@@ -160,11 +181,7 @@ def upload_images(
     :return: image dataset
     :rtype: `DataLoader`
     """
-
-    if crop_size is not None:
-        image_dataset = get_image_folder_only_crop(path, im_size, crop_size)
-    else:
-        image_dataset = get_image_folder(path, im_size, data_augmentation)
+    image_dataset = get_image_folder(path, im_size, data_augmentation, crop_size)
 
     images = torch.utils.data.DataLoader(
         dataset=image_dataset,
