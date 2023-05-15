@@ -77,4 +77,10 @@ def parse_arguments() -> argparse.Namespace:
         help="comments to add in results artifacts",
         default="",
     )
+    parser.add_argument(
+        "--db_connection_str",
+        type=str,
+        help="connection string to store results in a database",
+        default="",
+    )
     return parser.parse_args()
