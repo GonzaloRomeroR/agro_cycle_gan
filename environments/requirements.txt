@@ -72,6 +72,7 @@ pydot==1.4.2
 pydotplus==2.0.2
 pyenv-win==2.64.11
 Pygments==2.12.0
+pymongo==4.3.3
 pyparsing==3.0.8
 PySocks==1.7.1
 pytest==7.1.2

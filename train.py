@@ -116,9 +116,13 @@ def train(config: Config) -> None:
             f"./results/{dataset_name}",
             f"./results/{dataset_name}/models_{str(strftime('%Y-%m-%d-%H:%M:%S', gmtime()))}",
         )
+
     # Generate report
     ResultsReporter.generate_report(
-        ParamsLogger().params, losses, trainer.metrics_per_epoch
+        ParamsLogger().params,
+        losses,
+        trainer.metrics_per_epoch,
+        config.db_connection_str,
     )
 
 

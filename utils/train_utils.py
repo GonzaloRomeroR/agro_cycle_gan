@@ -22,6 +22,7 @@ class Config:
     crop_size: Optional[list] = field(default_factory=list)
     plot_image_epoch: bool = False
     comments: str = ""
+    db_connection_str: str = ""
 
 
 def generate_images_cycle(

@@ -4,7 +4,8 @@ import json
 import re
 from contextlib import redirect_stdout
 from pathlib import Path
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Tuple, Optional
+from databases.db_handler import DBHandler
 
 import matplotlib.pyplot as plt
 from fpdf import FPDF
@@ -87,12 +88,14 @@ class ResultsReporter:
             plt.savefig(f"{file_path}/../results/metrics_plots/{metrics_name}.png")
             plt.close()
 
-    @staticmethod
+    @classmethod
     def generate_report_json(
+        cls,
         params: Dict[str, Any],
         metrics: Dict[str, Any],
         losses: Dict[str, Any],
-        models_path="./results/models.txt",
+        models_path: str = "./results/models.txt",
+        db_connection_str: str = "",
     ):
 
         """Create json with all the useful information obtained during the training
@@ -131,6 +134,10 @@ class ResultsReporter:
             "./results/" + re.sub(r"[^\w\-_\. ]", "_", f"{output_name}.json"), "w"
         ) as fp:
             json.dump(results, fp)
+
+        # Store in database too
+        if db_connection_str:
+            cls.store_database(db_connection_str, results)
 
     @staticmethod
     def generate_model_file(
@@ -239,6 +246,7 @@ class ResultsReporter:
         train_params: Dict[str, Any],
         losses: Dict[str, Any],
         metrics: Dict[str, Any],
+        db_connection_str: str = "",
     ) -> None:
 
         """Generate training report"""
@@ -248,5 +256,23 @@ class ResultsReporter:
         if bool(metrics):
             cls.generate_metrics_plot(metrics)
 
-        cls.generate_report_json(train_params, metrics, losses)
+        cls.generate_report_json(
+            train_params, metrics, losses, db_connection_str=db_connection_str
+        )
+
         cls.create_pdf()
+
+    @staticmethod
+    def store_database(
+        connection_str,
+        results: Dict[str, Any],
+        db_name: str = "agro_cycle_gan",
+        collection: str = "results",
+    ):
+        CONNECTION_STR = "mongodb://localhost:27017"
+        connection_str = connection_str if connection_str else CONNECTION_STR
+        try:
+            db_handler = DBHandler(connection_str)
+            db_handler.add_to_database(db_name, collection, results)
+        except Exception as e:
+            print(e)
