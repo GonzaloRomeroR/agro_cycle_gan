@@ -126,7 +126,8 @@ class BaseTrainer(ABC):
         self.losses_total: Dict[str, Any] = {key: [] for key in self.losses_names}
 
     def _set_tensorboard(self) -> None:
-        self.writer = TensorboardHandler("./runs/Losses")
+        self.losses_writer = TensorboardHandler("./runs/Losses")
+        self.metrics_writer = TensorboardHandler("./runs/Metrics")
 
     def generate_images_cycle(
         self,
@@ -186,10 +187,10 @@ class BaseTrainer(ABC):
         Obtain total losses of the epoch based on all the losses of the training
         """
         for key in self.losses_epoch.keys():
-            loss_key = sum(self.losses_epoch[key]) / len(self.losses_epoch[key])
-            self.losses_total[key].append(loss_key)
+            loss = sum(self.losses_epoch[key]) / len(self.losses_epoch[key])
+            self.losses_total[key].append(loss)
             if self.tensorboard:
-                self.writer.add_scalar(key, loss_key, epoch)
+                self.losses_writer.add_scalar(key, loss, epoch)
 
         # Clear epoch list
         self.losses_epoch = {key: [] for key in self.losses_names}
@@ -224,21 +225,30 @@ class BaseTrainer(ABC):
 
         # Obtain metrics
         if self.metrics:
-            score = self.metrics.calculate_metrics(self.dataset_name, self.im_size[1:])
-            print(f"{self.metrics.name} score: {score}")
-
-            if self.metrics.name not in self.metrics_per_epoch:
-                self.metrics_per_epoch[self.metrics.name] = []
-
-            self.metrics_per_epoch[self.metrics.name].append(score)
-
-            if epoch % self.plot_epochs == 0 and self.plot_image_epoch:
-                plot_metrics(self.metrics_per_epoch)
+            self._obtain_metrics(epoch)
 
         if epoch != 0 and epoch % 10 == 0:
             ResultsReporter.generate_report(
                 self.params_logger.params, self.losses_total, self.metrics_per_epoch
             )
+
+    def _obtain_metrics(self, epoch: int):
+        """
+        Obtain and store metrics
+        """
+        score = self.metrics.calculate_metrics(self.dataset_name, self.im_size[1:])
+        print(f"{self.metrics.name} score: {score}")
+
+        if self.metrics.name not in self.metrics_per_epoch:
+            self.metrics_per_epoch[self.metrics.name] = []
+
+        self.metrics_per_epoch[self.metrics.name].append(score)
+
+        if self.tensorboard:
+            self.metrics_writer.add_scalar(self.metrics.name, score, epoch)
+
+        if epoch % self.plot_epochs == 0 and self.plot_image_epoch:
+            plot_metrics(self.metrics_per_epoch)
 
     def train(self) -> Dict[str, Any]:
         """

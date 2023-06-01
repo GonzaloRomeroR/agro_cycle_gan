@@ -34,6 +34,7 @@ runs/D_A/*
 runs/G_B2A/*
 runs/G_A2B/*
 runs/Losses/*
+runs/Metrics/*
 !runs/__init__.py
 !runs/D_B/__init__.py
 !runs/D_A/__init__.py
