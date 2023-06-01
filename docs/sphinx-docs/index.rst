@@ -92,6 +92,15 @@ Examples:
 
 ``python -u train.py horse2zebra --batch_size 10 --image_resize 64 64 --tensorboard --store_modes --batch_size 10 --num_epochs 20 --metrics --plot_image_epoch --generator cyclegan --discriminator basic --comments "Example run"``
 
+
+Tensorboard
+----------
+
+If the training is set to use tensorboard (*--tensorboard*), then the training information is stored in the run folder. In order to show that information in tensorboard, run in the main folder:
+
+``tensorboard --logdir .``
+
+
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
