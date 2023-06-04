@@ -65,11 +65,11 @@ class ImageCropper:
             image = Image.open(f"{data_folder}/{img_name}").convert("RGB")
             image = transforms.ToTensor()(image)
             if initial_resize:
-                image = transforms.Resize(initial_resize)(image)
+                image = transforms.Resize(initial_resize[::-1])(image)
             for num in range(samples):
                 image_cropped = self.get_random_crop(image, crop_size[0], crop_size[1])
                 if resize:
-                    image_cropped = transforms.Resize(resize)(image_cropped)
+                    image_cropped = transforms.Resize(resize[::-1])(image_cropped)
                 save_image(image_cropped, f"{dest_folder}/{num}_{img_name}")
 
 

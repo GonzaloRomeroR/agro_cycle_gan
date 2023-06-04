@@ -104,8 +104,8 @@ def get_transformations(
 
     if crop_size is not None:
         transformations = [
-            transforms.RandomCrop(crop_size),
-            transforms.Resize(im_size),
+            transforms.RandomCrop(crop_size[::-1])),
+            transforms.Resize(im_size[::-1]),
             transforms.RandomHorizontalFlip(),
             transforms.RandomAdjustSharpness(sharpness_factor=2),
             transforms.RandomAutocontrast(),
@@ -115,7 +115,7 @@ def get_transformations(
 
     elif data_augmentation:
         transformations = [
-            transforms.RandomResizedCrop(im_size, scale=(0.6, 1)),
+            transforms.RandomResizedCrop(im_size[::-1], scale=(0.6, 1)),
             transforms.RandomHorizontalFlip(),
             transforms.RandomAdjustSharpness(sharpness_factor=2),
             transforms.RandomAutocontrast(),
@@ -124,8 +124,7 @@ def get_transformations(
         ]
     else:
         transformations = [
-            transforms.Resize(im_size),
-            transforms.CenterCrop(im_size),
+            transforms.Resize(im_size[::-1]),
             transforms.ToTensor(),
             transforms.Normalize((0, 0, 0), (1, 1, 1)),
         ]
