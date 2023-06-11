@@ -98,6 +98,7 @@ def setup(config: Config) -> BaseTrainer:
         im_size=im_size,
         tensorboard=config.tensorboard,
         plot_image_epoch=config.plot_image_epoch,
+        store_models= config.store_models
     )
     return trainer
 

@@ -1,7 +1,8 @@
 import time
-import datetime
+import shutil
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional, Tuple
+from time import gmtime, strftime
 
 import torch
 from models.discriminators.base_discriminator import BaseDiscriminator
@@ -39,6 +40,7 @@ class BaseTrainer(ABC):
         im_size: Tuple[int, ...] = (64, 64),
         tensorboard: bool = False,
         plot_image_epoch=False,
+        store_models=None,
     ) -> None:
         """Train the generator and the discriminator
 
@@ -96,6 +98,7 @@ class BaseTrainer(ABC):
         self.tensorboard = tensorboard
         self.plot_image_epoch = plot_image_epoch
         self.metrics_per_epoch = {}
+        self.store_models = store_models
         if self.tensorboard:
             self._set_tensorboard()
 
@@ -218,6 +221,12 @@ class BaseTrainer(ABC):
                 self.test_images_A,
                 self.test_images_B,
                 self.device,
+            )
+
+        if self.store_models and epoch % self.store_models == 0:
+            shutil.copytree(
+                f"./results/{self.dataset_name}",
+                f"./results/{self.dataset_name}/models_{str(strftime('%Y-%m-%d--%H-%M-%S', gmtime()))}",
             )
 
         # Get gpu usage

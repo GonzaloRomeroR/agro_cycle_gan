@@ -11,7 +11,7 @@ class Config:
     download_dataset: bool = False
     image_resize: Optional[list] = field(default_factory=list)
     tensorboard: bool = False
-    store_models: bool = False
+    store_models: Optional[int] = None
     load_models: bool = False
     batch_size: int = 5
     num_epochs: int = 1

@@ -28,8 +28,9 @@ def parse_arguments() -> argparse.Namespace:
     )
     parser.add_argument(
         "--store_models",
-        action="store_true",
-        help="store models in specific folder with datetime",
+        type=int,
+        default=None,
+        help="store models in specific folder with datetime in the specified number of epochs",
     )
     parser.add_argument(
         "--load_models",
