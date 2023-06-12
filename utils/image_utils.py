@@ -104,7 +104,7 @@ def get_transformations(
 
     if crop_size is not None:
         transformations = [
-            transforms.RandomCrop(crop_size[::-1]),
+            transforms.RandomResizedCrop(crop_size[::-1], scale=(0.6, 1)),
             transforms.Resize(im_size[::-1]),
             transforms.RandomHorizontalFlip(),
             transforms.RandomAdjustSharpness(sharpness_factor=2),
