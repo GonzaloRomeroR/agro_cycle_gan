@@ -15,7 +15,7 @@ from utils.tensorboard_utils import create_models_tb
 from utils.train_utils import Config
 
 
-def setup(config: Config) -> BaseTrainer:
+def setup_trainer(config: Config) -> BaseTrainer:
     """
     Setup initial configuration and return trainer
     """
@@ -98,7 +98,7 @@ def setup(config: Config) -> BaseTrainer:
         im_size=im_size,
         tensorboard=config.tensorboard,
         plot_image_epoch=config.plot_image_epoch,
-        store_models= config.store_models
+        store_models=config.store_models,
     )
     return trainer
 
@@ -109,7 +109,7 @@ def train(config: Config) -> None:
     """
     dataset_name = config.use_dataset
 
-    trainer = setup(config)
+    trainer = setup_trainer(config)
     losses = trainer.train()
 
     if config.store_models:
