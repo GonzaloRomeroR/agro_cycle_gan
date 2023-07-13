@@ -6,6 +6,7 @@ from contextlib import redirect_stdout
 from pathlib import Path
 from typing import Any, Dict, List, Tuple, Optional
 from databases.db_handler import DBHandler
+from generate import ImageTransformer
 
 import matplotlib.pyplot as plt
 from fpdf import FPDF
@@ -87,6 +88,49 @@ class ResultsReporter:
             plt.ylabel(metrics_name)
             plt.savefig(f"{file_path}/../results/metrics_plots/{metrics_name}.png")
             plt.close()
+
+    @staticmethod
+    def copy_n_first_files(
+        dest_folder, init_folder, number: Optional[int] = None
+    ) -> None:
+        """Copy n first files into destination folder"""
+        Path(dest_folder).mkdir(parents=True, exist_ok=True)
+        if number is None:
+            number = len(os.listdir(init_folder))
+        for i, file_name in enumerate(os.listdir(init_folder)):
+            if i == number:
+                break
+            shutil.copyfile(
+                f"{init_folder}/{file_name}",
+                f"{dest_folder}/{file_name}",
+            )
+
+    @classmethod
+    def generate_example_images(cls, dataset_name: str, image_num: int = 5) -> None:
+        """Generate examples for the training
+
+        :param dataset_name: name of the dataset to generate images from
+        :type dataset_name: str
+        """
+        image_transformer = ImageTransformer(dataset_name)
+
+        cls.copy_n_first_files("results/real_A", f"images/{dataset_name}/test_A/A")
+
+        image_transformer.transform_dataset(
+            f"images/{dataset_name}/test_A/A",
+            "results/generate_B",
+            "B",
+            image_num=image_num,
+        )
+
+        cls.copy_n_first_files("results/real_B", f"images/{dataset_name}/test_B/B")
+
+        image_transformer.transform_dataset(
+            f"images/{dataset_name}/test_B/B",
+            "results/generate_A",
+            "A",
+            image_num=image_num,
+        )
 
     @classmethod
     def generate_report_json(
@@ -243,6 +287,7 @@ class ResultsReporter:
     @classmethod
     def generate_report(
         cls,
+        dataset_name,
         train_params: Dict[str, Any],
         losses: Dict[str, Any],
         metrics: Dict[str, Any],
@@ -259,6 +304,8 @@ class ResultsReporter:
         cls.generate_report_json(
             train_params, metrics, losses, db_connection_str=db_connection_str
         )
+
+        cls.generate_example_images(dataset_name)
 
         cls.create_pdf()
 

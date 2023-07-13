@@ -238,7 +238,10 @@ class BaseTrainer(ABC):
 
         if epoch != 0 and epoch % 10 == 0:
             ResultsReporter.generate_report(
-                self.params_logger.params, self.losses_total, self.metrics_per_epoch
+                self.dataset_name,
+                self.params_logger.params,
+                self.losses_total,
+                self.metrics_per_epoch,
             )
 
     def _obtain_metrics(self, epoch: int):

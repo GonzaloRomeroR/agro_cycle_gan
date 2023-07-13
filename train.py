@@ -120,11 +120,15 @@ def train(config: Config) -> None:
 
     # Generate report
     ResultsReporter.generate_report(
+        dataset_name,
         ParamsLogger().params,
         losses,
         trainer.metrics_per_epoch,
         config.db_connection_str,
     )
+
+    ResultsReporter.generate_example_images(dataset_name)
+
 
 
 if __name__ == "__main__":
