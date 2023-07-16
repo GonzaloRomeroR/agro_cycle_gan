@@ -106,7 +106,7 @@ class ResultsReporter:
             )
 
     @classmethod
-    def generate_example_images(cls, dataset_name: str, image_num: int = 5) -> None:
+    def generate_example_images(cls, dataset_name: str, image_num: int = 10) -> None:
         """Generate examples for the training
 
         :param dataset_name: name of the dataset to generate images from
@@ -114,7 +114,9 @@ class ResultsReporter:
         """
         image_transformer = ImageTransformer(dataset_name)
 
-        cls.copy_n_first_files("results/real_A", f"images/{dataset_name}/test_A/A")
+        cls.copy_n_first_files(
+            "results/real_A", f"images/{dataset_name}/test_A/A", image_num
+        )
 
         image_transformer.transform_dataset(
             f"images/{dataset_name}/test_A/A",
@@ -123,7 +125,9 @@ class ResultsReporter:
             image_num=image_num,
         )
 
-        cls.copy_n_first_files("results/real_B", f"images/{dataset_name}/test_B/B")
+        cls.copy_n_first_files(
+            "results/real_B", f"images/{dataset_name}/test_B/B", image_num
+        )
 
         image_transformer.transform_dataset(
             f"images/{dataset_name}/test_B/B",
