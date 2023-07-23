@@ -160,29 +160,26 @@ def download_images(image_type: str, path: str = "images/") -> None:
     """
     print(f"Downloading dataset {image_type}")
 
-    match image_type:
-        case "horse2zebra":
-            download_horse2zebras(path)
-        case "soy_small2soy_big":
-            download_kaggle_dataset(path, image_type, "gonzaromeror/soysmallbig")
-        case "soy2corn":
-            download_kaggle_dataset(path, image_type, "gonzaromeror/soycorn")
-        case "day2night":
-            download_kaggle_dataset(path, image_type, "gonzaromeror/day2night")
-        case "over_corn2over_wheat":
-            download_kaggle_dataset(path, image_type, "gonzaromeror/overcornoverwheat")
-        case "soy_small_crop2soy_big_crop":
-            download_kaggle_dataset(
-                path, image_type, "gonzaromeror/soy-small-crop2soy-big-crop"
-            )
-        case "soy_small_crop_bigger2soy_big_crop_bigger":
-            download_kaggle_dataset(
-                path,
-                image_type,
-                "gonzaromeror/soy_small_crop_bigger2soy_big_crop_bigger",
-            )
-        case _:
-            raise RuntimeError("Dataset not found")
+    if image_type == "horse2zebra":
+        download_horse2zebras(path)
+    elif image_type == "soy_small2soy_big":
+        download_kaggle_dataset(path, image_type, "gonzaromeror/soysmallbig")
+    elif image_type == "soy2corn":
+        download_kaggle_dataset(path, image_type, "gonzaromeror/soycorn")
+    elif image_type == "over_corn2over_wheat":
+        download_kaggle_dataset(path, image_type, "gonzaromeror/overcornoverwheat")
+    elif image_type == "day2night":
+        download_kaggle_dataset(path, image_type, "gonzaromeror/day2night")
+    elif image_type == "soy_small_crop2soy_big_crop":
+        download_kaggle_dataset(
+            path, image_type, "gonzaromeror/soy-small-crop2soy-big-crop"
+        )
+    elif image_type == "soy_small_crop_bigger2soy_big_crop_bigger":
+        download_kaggle_dataset(
+            path, image_type, "gonzaromeror/soy_small_crop_bigger2soy_big_crop_bigger"
+        )
+    else:
+        raise RuntimeError("Dataset not found")
 
 
 def download_kaggle_dataset(path: str, dataset_name: str, kaggle_path: str):
