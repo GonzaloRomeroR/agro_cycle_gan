@@ -70,7 +70,7 @@ class Metrics(ABC):
         pass
 
 
-class FID_Pytorch_TorchMetrics(Metrics):
+class FrechetInceptionDistanceMetric(Metrics):
     """
     Class to calculate the frechnet inception score
     """
@@ -88,13 +88,37 @@ class FID_Pytorch_TorchMetrics(Metrics):
         self.fid.update(images_gen, real=False)
         return self.fid.compute()
 
+    def _generate_images(images: torch.utils.data.DataLoader[Any], name: str) -> None:
+        """
+        Generate fake images
+        """
+        image_transformer = ImageTransformer(name)
+        for i, image in enumerate(images):
+            print(f"Generated image {i}")
+            image = image[0].to(get_device())
+            images_gen = image_transformer.transform_image(image)
+            save_image(images_gen, f"./images_gen/{name}/{i}.jpg")
+
+    def _upload_images_to_compare(
+        name: str, domain: str, im_size: Tuple[int, ...]
+    ) -> Tuple[NDArray[Any], ...]:
+        """
+        Upload both generated and real images of certain domain to compare
+        """
+        fake = upload_images_numpy(f"./images_gen/{name}/", im_size=im_size)
+        test = upload_images_numpy(
+            f"./images/{name}/test_{domain}/{domain}/", im_size=im_size
+        )
+
+        fake = torch.from_numpy(fake).permute(0, 3, 1, 2)
+        test = torch.from_numpy(test).permute(0, 3, 1, 2)
+        return fake, test
+
     def calculate_metrics(
         self, name: str, im_size: Tuple[int, ...], out_domain: str = "B"
     ) -> float:
 
         in_domain = "A" if out_domain == "B" else "B"
-        # Generate images
-        image_transformer = ImageTransformer(name)
 
         test_images = upload_images(
             f"./images/{name}/test_{in_domain}/",
@@ -103,27 +127,18 @@ class FID_Pytorch_TorchMetrics(Metrics):
             data_augmentation=False,
         )
 
-        for i, image in enumerate(test_images):
-            print(f"Generated image {i}")
-            image = image[0].to(get_device())
-            images_gen = image_transformer.transform_image(image)
-            save_image(images_gen, f"./images_gen/{name}/{i}.jpg")
+        self._generate_images(test_images, name)
 
-        # Uploading images
-        fake_B = upload_images_numpy(f"./images_gen/{name}/", im_size=im_size)
-        test_B = upload_images_numpy(
-            f"./images/{name}/test_{out_domain}/{out_domain}/", im_size=im_size
-        )
+        fake_B, test_B = self._upload_images_to_compare(name, out_domain, im_size)
 
-        fake_B = torch.from_numpy(fake_B).permute(0, 3, 1, 2)
-        test_B = torch.from_numpy(test_B).permute(0, 3, 1, 2)
-        # Get score
         score = self._get_score(test_B, fake_B)
         return score
 
 
 def create_metrics(name: str) -> Metrics:
-    if name == "FID_TensorFlow_DataLoader":
-        return FID_Pytorch_TorchMetrics()
+    if name == "FID":
+        return FrechetInceptionDistanceMetric()
     else:
-        return FID_Pytorch_TorchMetrics()  # Right now only this metric is available
+        return (
+            FrechetInceptionDistanceMetric()
+        )  # Right now only this metric is available
