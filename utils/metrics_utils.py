@@ -88,7 +88,9 @@ class FrechetInceptionDistanceMetric(Metrics):
         self.fid.update(images_gen, real=False)
         return self.fid.compute()
 
-    def _generate_images(images: torch.utils.data.DataLoader[Any], name: str) -> None:
+    def _generate_images(
+        self, images: torch.utils.data.DataLoader[Any], name: str
+    ) -> None:
         """
         Generate fake images
         """
@@ -100,7 +102,7 @@ class FrechetInceptionDistanceMetric(Metrics):
             save_image(images_gen, f"./images_gen/{name}/{i}.jpg")
 
     def _upload_images_to_compare(
-        name: str, domain: str, im_size: Tuple[int, ...]
+        self, name: str, domain: str, im_size: Tuple[int, ...]
     ) -> Tuple[NDArray[Any], ...]:
         """
         Upload both generated and real images of certain domain to compare
