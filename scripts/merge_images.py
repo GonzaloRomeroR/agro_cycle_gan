@@ -11,7 +11,7 @@ def merge_images(
     comparation between images
     """
     Path(output_folder).mkdir(parents=True, exist_ok=True)
-
+    separation = 20
     dirs = () if not os.path.isdir(data_folder_A) else os.listdir(data_folder_A)
 
     for item in dirs:
@@ -31,9 +31,9 @@ def merge_images(
         imageA = imageA.resize(img_resize)
         imageB = imageB.resize(img_resize)
 
-        new_image = Image.new("RGB", (2 * img_resize[0], img_resize[1]))
+        new_image = Image.new("RGB", (2 * img_resize[0] + separation, img_resize[1]))
         new_image.paste(imageA, (0, 0))
-        new_image.paste(imageB, (img_resize[0], 0))
+        new_image.paste(imageB, (img_resize[0] + separation, 0))
 
         new_image.save(f"{output_folder}/merged_{item}", "JPEG")
 

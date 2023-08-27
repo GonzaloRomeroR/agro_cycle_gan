@@ -7,7 +7,6 @@ from dacite import from_dict
 from trainers.basic_trainer import BasicTrainer, BaseTrainer
 from utils.file_utils import download_images, get_models
 from utils.image_utils import datasets_get
-from utils.metrics_utils import create_metrics
 from utils.parser_utils import parse_arguments
 from utils.report_utils import ParamsLogger, ResultsReporter
 from utils.sys_utils import get_device, system_configuration
@@ -56,9 +55,6 @@ def setup_trainer(config: Config) -> BaseTrainer:
         images, _ = next(iter(datasets.train_A))
         create_models_tb(G_A2B, G_B2A, D_A, D_B, images.to(device))
 
-    # Create metrics object
-    metrics = create_metrics(config.metrics)
-
     # Generate file with the model information
     ResultsReporter.generate_model_file(G_A2B, G_B2A, D_A, D_B, size=im_size)
 
@@ -90,15 +86,10 @@ def setup_trainer(config: Config) -> BaseTrainer:
         D_B,
         f"./results/{dataset_name}",
         datasets,
-        num_epochs=config.num_epochs,
+        config=config,
         device=device,
-        bs=config.batch_size,
         params_logger=params_logger,
-        metrics=metrics,
         im_size=im_size,
-        tensorboard=config.tensorboard,
-        plot_image_epoch=config.plot_image_epoch,
-        store_models=config.store_models,
     )
     return trainer
 
@@ -128,7 +119,6 @@ def train(config: Config) -> None:
     )
 
     ResultsReporter.generate_example_images(dataset_name)
-
 
 
 if __name__ == "__main__":

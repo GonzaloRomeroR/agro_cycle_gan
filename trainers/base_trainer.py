@@ -15,6 +15,8 @@ from utils.sys_utils import get_gpu_usage
 from utils.tensorboard_utils import TensorboardHandler
 from utils.report_utils import ResultsReporter
 from utils.image_utils import DatasetDataloaders
+from utils.train_utils import Config
+from utils.metrics_utils import create_metrics
 
 
 class BaseTrainer(ABC):
@@ -30,17 +32,13 @@ class BaseTrainer(ABC):
         D_B: BaseDiscriminator,
         models_path: str,
         datasets: DatasetDataloaders,
+        config: Config,
         device: torch.device,
         params_logger: ParamsLogger,
-        bs: int = 5,
-        num_epochs: int = 20,
         plot_epochs: int = 1,
         print_info: int = 3,
         metrics: Optional[Metrics] = None,
         im_size: Tuple[int, ...] = (64, 64),
-        tensorboard: bool = False,
-        plot_image_epoch=False,
-        store_models=None,
     ) -> None:
         """Train the generator and the discriminator
 
@@ -86,19 +84,20 @@ class BaseTrainer(ABC):
         self.device = device
         self.test_images_A = datasets.test_A
         self.test_images_B = datasets.test_B
-        self.bs = bs
-        self.num_epochs = num_epochs
+        self.bs = config.batch_size
+        self.num_epochs = config.num_epochs
         self.plot_epochs = plot_epochs
         self.print_info = print_info
         self.params_logger = params_logger
-        self.metrics = metrics
+        self.metrics = create_metrics(config.metrics)
         self.im_size = im_size
         self._set_training_params()
         self._define_storing()
-        self.tensorboard = tensorboard
-        self.plot_image_epoch = plot_image_epoch
+        self.tensorboard = config.tensorboard
+        self.plot_image_epoch = config.plot_image_epoch
         self.metrics_per_epoch = {}
-        self.store_models = store_models
+        self.store_models = config.store_models
+
         if self.tensorboard:
             self._set_tensorboard()
 
