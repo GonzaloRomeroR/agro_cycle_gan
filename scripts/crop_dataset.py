@@ -36,7 +36,7 @@ class ImageCropper:
         crop = image[:, y : y + crop_height, x : x + crop_width]
         return crop
 
-    def create_cropped_dataset(
+    def create_random_cropped_dataset(
         self,
         data_folder: str,
         dest_folder: str,
@@ -71,6 +71,50 @@ class ImageCropper:
                 if resize:
                     image_cropped = transforms.Resize(resize[::-1])(image_cropped)
                 save_image(image_cropped, f"{dest_folder}/{num}_{img_name}")
+
+    def create_window_cropped_dataset(
+        self,
+        data_folder: str,
+        dest_folder: str,
+        crops_per_image: Tuple[int, ...] = (5, 5),
+        crop_size: Tuple[int, ...] = (256, 256),
+        resize: Optional[Tuple[int, ...]] = None,
+        initial_resize: Optional[Tuple[int, ...]] = None,
+        samples: int = 1,
+    ) -> None:
+        """Crop image dataset
+
+        :param data_folder: path of the folder with images
+        :type data_folder: str
+        :param dest_folder: path of the destination folder
+        :type dest_folder: str
+        :param crops_per_image: number of samples per images in x and y
+        :type crops_per_image: tuple, optional
+        :param crop_size: cropping size, defaults to (256, 256)
+        :type crop_size: tuple, optional
+        :param resize: resizing after cropping, defaults to None
+        :type resize: tuple, optional
+        :param initial_resize: resize of the image before cropping, defaults to None
+        :type resize: tuple, optional
+
+        """
+        Path(dest_folder).mkdir(parents=True, exist_ok=True)
+        for img_name in os.listdir(data_folder):
+            image = Image.open(f"{data_folder}/{img_name}").convert("RGB")
+            image = transforms.ToTensor()(image)
+            if initial_resize:
+                image = transforms.Resize(initial_resize[::-1])(image)
+            for row in range(crops_per_image[0]):
+                for col in range(crops_per_image[1]):
+                    image_cropped = self.get_random_crop(
+                        image, crop_size[0], crop_size[1]
+                    )
+                    x = row * crop_size[0]
+                    y = col * crop_size[1]
+                    image_cropped = image[:, y : y + crop_size[1], x : x + crop_size[0]]
+                    if resize:
+                        image_cropped = transforms.Resize(resize[::-1])(image_cropped)
+                    save_image(image_cropped, f"{dest_folder}/{row}x{col}_{img_name}")
 
 
 def parse_arguments() -> argparse.Namespace:
@@ -121,7 +165,7 @@ def parse_arguments() -> argparse.Namespace:
 if __name__ == "__main__":
     cmd_args = parse_arguments()
     image_cropper = ImageCropper()
-    image_cropper.create_cropped_dataset(
+    image_cropper.create_random_cropped_dataset(
         cmd_args.data_folder,
         cmd_args.dest_folder,
         cmd_args.crop_size,
