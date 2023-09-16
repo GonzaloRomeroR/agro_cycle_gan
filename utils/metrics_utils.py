@@ -89,7 +89,7 @@ class FrechetInceptionDistanceMetric(Metrics):
         return self.fid.compute()
 
     def _generate_images(
-        self, images: torch.utils.data.DataLoader[Any], name: str
+        self, images: torch.utils.data.DataLoader[Any], name: str, output_domain: str
     ) -> None:
         """
         Generate fake images
@@ -98,7 +98,7 @@ class FrechetInceptionDistanceMetric(Metrics):
         for i, image in enumerate(images):
             print(f"Generated image {i}")
             image = image[0].to(get_device())
-            images_gen = image_transformer.transform_image(image)
+            images_gen = image_transformer.transform_image(image, output_domain)
             save_image(images_gen, f"./images_gen/{name}/{i}.jpg")
 
     def _upload_images_to_compare(
@@ -129,7 +129,7 @@ class FrechetInceptionDistanceMetric(Metrics):
             data_augmentation=False,
         )
 
-        self._generate_images(test_images, name)
+        self._generate_images(test_images, name, out_domain)
 
         fake_B, test_B = self._upload_images_to_compare(name, out_domain, im_size)
 

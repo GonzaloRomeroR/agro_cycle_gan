@@ -37,7 +37,6 @@ class BaseTrainer(ABC):
         params_logger: ParamsLogger,
         plot_epochs: int = 1,
         print_info: int = 3,
-        metrics: Optional[Metrics] = None,
         im_size: Tuple[int, ...] = (64, 64),
     ) -> None:
         """Train the generator and the discriminator
@@ -56,20 +55,12 @@ class BaseTrainer(ABC):
         :type models_path: str
         :param device: pytorch device
         :type device: ´Device´
-        :param bs: batch size, defaults to 5
-        :type bs: int, optional
-        :param num_epochs: number of epochs, defaults to 20
-        :type num_epochs: int, optional
         :param plot_epochs: epochs before printing images, defaults to 5
         :type plot_epochs: int, optional
         :param print_info: batchs processed before printing losses, defaults to 3
         :type print_info: int, optional
         :param params_logger: logger to store the training information, defaults to None
         :type params_logger: `ParamsLogger`, optional
-        :param metrics: logger to store the training information, defaults to None
-        :type metrics: `Metrics`, optional
-        :param tensorboad: flag to store in tensorboard, defaults to False
-        :type metrics: bool, optional
         :param plot_image_epoch: flag to plot image after epoch, defaults to False
         :type metrics: bool, optional
         """
@@ -243,20 +234,28 @@ class BaseTrainer(ABC):
                 self.metrics_per_epoch,
             )
 
+    def _calculate_metrics_for_epoch(self, name: str, epoch: int, out_domain: str):
+        score = self.metrics.calculate_metrics(
+            self.dataset_name, self.im_size[1:], out_domain
+        )
+        print(f"{name} score: {score}")
+
+        if name not in self.metrics_per_epoch:
+            self.metrics_per_epoch[name] = []
+
+        self.metrics_per_epoch[name].append(score)
+
+        if self.tensorboard:
+            self.metrics_writer.add_scalar(name, score, epoch)
+
     def _obtain_metrics(self, epoch: int):
         """
         Obtain and store metrics
         """
-        score = self.metrics.calculate_metrics(self.dataset_name, self.im_size[1:])
-        print(f"{self.metrics.name} score: {score}")
 
-        if self.metrics.name not in self.metrics_per_epoch:
-            self.metrics_per_epoch[self.metrics.name] = []
-
-        self.metrics_per_epoch[self.metrics.name].append(score)
-
-        if self.tensorboard:
-            self.metrics_writer.add_scalar(self.metrics.name, score, epoch)
+        # Calculate the metrics in both directions
+        self._calculate_metrics_for_epoch(self.metrics.name, epoch, "B")
+        self._calculate_metrics_for_epoch(f"{self.metrics.name}_INVERTED", epoch, "A")
 
         if epoch % self.plot_epochs == 0 and self.plot_image_epoch:
             plot_metrics(self.metrics_per_epoch)
