@@ -45,7 +45,7 @@ class ImageCropper:
         initial_resize: Optional[Tuple[int, ...]] = None,
         samples: int = 1,
     ) -> None:
-        """Crop image dataset
+        """Crop image dataset randomly
 
         :param data_folder: path of the folder with images
         :type data_folder: str
@@ -80,7 +80,6 @@ class ImageCropper:
         crop_size: Tuple[int, ...] = (256, 256),
         resize: Optional[Tuple[int, ...]] = None,
         initial_resize: Optional[Tuple[int, ...]] = None,
-        samples: int = 1,
     ) -> None:
         """Crop image dataset
 
@@ -104,13 +103,17 @@ class ImageCropper:
             image = transforms.ToTensor()(image)
             if initial_resize:
                 image = transforms.Resize(initial_resize[::-1])(image)
+
+            crop_distance_x = (int)(image.size()[2] / (2 * (crops_per_image[0]) - 1))
+            crop_distance_y = (int)(image.size()[1] / (2 * (crops_per_image[1]) - 1))
+
             for row in range(crops_per_image[0]):
                 for col in range(crops_per_image[1]):
                     image_cropped = self.get_random_crop(
                         image, crop_size[0], crop_size[1]
                     )
-                    x = row * crop_size[0]
-                    y = col * crop_size[1]
+                    x = row * crop_distance_y
+                    y = col * crop_distance_x
                     image_cropped = image[:, y : y + crop_size[1], x : x + crop_size[0]]
                     if resize:
                         image_cropped = transforms.Resize(resize[::-1])(image_cropped)
