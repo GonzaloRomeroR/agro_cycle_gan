@@ -170,6 +170,10 @@ def download_images(image_type: str, path: str = "images/") -> None:
         download_kaggle_dataset(path, image_type, "gonzaromeror/soy-crop2corn-crop")
     elif image_type == "over_corn2over_wheat":
         download_kaggle_dataset(path, image_type, "gonzaromeror/overcornoverwheat")
+    elif image_type == "over_corn_crop2over_wheat_crop":
+        download_kaggle_dataset(
+            path, image_type, "gonzaromeror/over-corn-crop2over-wheat-crop"
+        )
     elif image_type == "day2night":
         download_kaggle_dataset(path, image_type, "gonzaromeror/day2night")
     elif image_type == "soy_big_crop2soy_small_crop":
