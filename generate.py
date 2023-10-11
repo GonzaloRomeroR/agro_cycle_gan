@@ -85,13 +85,17 @@ class ImageTransformer:
                 # Not a valid image
                 continue
 
-            with Image.open(f"{origin_path}/{img_name}").convert("RGB") as image:
+            full_initial_path = f"{origin_path}/{img_name}"
+            full_dest_path = f"{dest_path}/{img_name}"
+
+            with Image.open(full_initial_path).convert("RGB") as image:
                 if resize:
                     image = transforms.Resize(resize)(image)
                 image = transforms.ToTensor()(image).to(device)
                 image = torch.unsqueeze(image, dim=0)
                 image_trans = self.transform_image(image, domain)
-                save_image(image_trans, f"{dest_path}/{img_name}")
+                print(f"Transforming {full_initial_path} -> {full_dest_path}")
+                save_image(image_trans, full_dest_path)
 
         print("Finished transforming dataset")
 
