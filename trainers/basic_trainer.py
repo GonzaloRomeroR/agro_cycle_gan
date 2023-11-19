@@ -1,8 +1,4 @@
-import random
 from typing import Any
-
-import torch
-
 from .base_trainer import BaseTrainer
 
 

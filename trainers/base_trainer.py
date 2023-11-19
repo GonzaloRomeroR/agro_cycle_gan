@@ -1,14 +1,13 @@
 import time
 import shutil
 from abc import ABC, abstractmethod
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Tuple
 from time import gmtime, strftime
 
 import torch
 from models.discriminators.base_discriminator import BaseDiscriminator
 from models.generators.base_generator import BaseGenerator
 from utils.file_utils import save_models
-from utils.metrics_utils import Metrics
 from utils.plot_utils import plot_generator_images, plot_metrics
 from utils.report_utils import ParamsLogger
 from utils.sys_utils import get_gpu_usage
@@ -61,36 +60,47 @@ class BaseTrainer(ABC):
         :type print_info: int, optional
         :param params_logger: logger to store the training information, defaults to None
         :type params_logger: `ParamsLogger`, optional
-        :param plot_image_epoch: flag to plot image after epoch, defaults to False
-        :type metrics: bool, optional
         """
         self.G_A2B = G_A2B
         self.G_B2A = G_B2A
         self.D_A = D_A
         self.D_B = D_B
         self.models_path = models_path
-        self.images_A = datasets.train_A
-        self.images_B = datasets.train_B
-        self.dataset_name = datasets.name
         self.device = device
-        self.test_images_A = datasets.test_A
-        self.test_images_B = datasets.test_B
-        self.bs = config.batch_size
-        self.num_epochs = config.num_epochs
         self.plot_epochs = plot_epochs
         self.print_info = print_info
         self.params_logger = params_logger
-        self.metrics = create_metrics(config.metrics)
         self.im_size = im_size
+        self._set_datasets_config(datasets)
+        self._set_config(config)
         self._set_training_params()
         self._define_storing()
-        self.tensorboard = config.tensorboard
-        self.plot_image_epoch = config.plot_image_epoch
         self.metrics_per_epoch = {}
-        self.store_models = config.store_models
+    
+    def _set_datasets_config(self, datasets: DatasetDataloaders):
+        """
+        Set datasets configuration
+        """
+        self.dataset_name = datasets.name
+        self.images_A = datasets.train_A
+        self.images_B = datasets.train_B
+        self.test_images_A = datasets.test_A
+        self.test_images_B = datasets.test_B
+        
 
+    def _set_config(self, config: Config):
+        """
+        Set trainer configuration
+        """
+        self.bs = config.batch_size
+        self.num_epochs = config.num_epochs
+        self.plot_image_epoch = config.plot_image_epoch
+        self.store_models = config.store_models
+        self.tensorboard = config.tensorboard
+        self.metrics = create_metrics(config.metrics)
         if self.tensorboard:
             self._set_tensorboard()
+
 
     @abstractmethod
     def _set_training_params(self) -> None:

@@ -39,7 +39,7 @@ Clone the repository:
 ``git clone https://github.com/GonzaloRomeroR/agro_cycle_gan.git``
 
 
-Install the required packages: ``pip install environments/requirements.txt``
+Install the required packages: ``pip install -r environments/requirements.txt``
 
 Trainer
 -------

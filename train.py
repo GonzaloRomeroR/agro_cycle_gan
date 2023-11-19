@@ -14,7 +14,35 @@ from utils.tensorboard_utils import create_models_tb
 from utils.train_utils import Config
 
 
-def setup_trainer(config: Config) -> BaseTrainer:
+def train(config: Config) -> None:
+    """
+    Train model saving information about the output
+    """
+    dataset_name = config.use_dataset
+
+    trainer = _setup_trainer(config)
+    losses = trainer.train()
+
+    if config.store_models:
+        shutil.copytree(
+            f"./results/{dataset_name}",
+            f"./results/{dataset_name}/models_{str(strftime('%Y-%m-%d-%H:%M:%S', gmtime()))}",
+        )
+
+    # Generate report
+    ResultsReporter.generate_report(
+        dataset_name,
+        ParamsLogger().params,
+        losses,
+        trainer.metrics_per_epoch,
+        config.db_connection_str,
+    )
+
+    ResultsReporter.generate_example_images(dataset_name)
+
+
+
+def _setup_trainer(config: Config) -> BaseTrainer:
     """
     Setup initial configuration and return trainer
     """
@@ -92,34 +120,6 @@ def setup_trainer(config: Config) -> BaseTrainer:
         im_size=im_size,
     )
     return trainer
-
-
-def train(config: Config) -> None:
-    """
-    Train model saving information about the output
-    """
-    dataset_name = config.use_dataset
-
-    trainer = setup_trainer(config)
-    losses = trainer.train()
-
-    if config.store_models:
-        shutil.copytree(
-            f"./results/{dataset_name}",
-            f"./results/{dataset_name}/models_{str(strftime('%Y-%m-%d-%H:%M:%S', gmtime()))}",
-        )
-
-    # Generate report
-    ResultsReporter.generate_report(
-        dataset_name,
-        ParamsLogger().params,
-        losses,
-        trainer.metrics_per_epoch,
-        config.db_connection_str,
-    )
-
-    ResultsReporter.generate_example_images(dataset_name)
-
 
 if __name__ == "__main__":
     config = from_dict(data_class=Config, data=vars(parse_arguments()))
