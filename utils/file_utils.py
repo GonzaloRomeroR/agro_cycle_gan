@@ -5,6 +5,7 @@ import zipfile
 
 from pathlib import Path
 from typing import Any, Dict, Tuple
+from .train_utils import Models
 
 
 try:
@@ -27,7 +28,7 @@ def get_models(
     load: bool = False,
     disc_name: str = "",
     gen_name: str = "",
-) -> Tuple[BaseGenerator, BaseGenerator, BaseDiscriminator, BaseDiscriminator]:
+) -> Models:
     """Obtain Generator and Discriminator models
 
     :param dataset_name: name of the dataset
@@ -40,12 +41,12 @@ def get_models(
     :rtype: tuple of `Models`
     """
     if load:
-        G_A2B, G_B2A, D_A, D_B = load_models(f"./results/{dataset_name}", dataset_name)
+        models = load_models(f"./results/{dataset_name}", dataset_name)
     else:
-        G_A2B, G_B2A, D_A, D_B = create_models(
+        models = create_models(
             device, disc_name=disc_name, gen_name=gen_name
         )
-    return G_A2B, G_B2A, D_A, D_B
+    return models
 
 
 def create_models(
@@ -53,7 +54,7 @@ def create_models(
     gen_name: str = "",
     disc_name: str = "",
     **kwargs: Dict[str, Any],
-) -> Tuple[BaseGenerator, BaseGenerator, BaseDiscriminator, BaseDiscriminator]:
+) -> Models:
     """Create discriminator and generator models
 
     :param device: pytorch device to be used
@@ -74,7 +75,7 @@ def create_models(
     G_B2A = model_creator.create(model_type="gen", model_name=gen_name, **kwargs).to(
         device
     )
-    return G_A2B, G_B2A, D_A, D_B
+    return Models(G_A2B, G_B2A, D_A, D_B)
 
 
 def save_models(
@@ -110,7 +111,7 @@ def save_models(
 
 def load_models(
     path: str, name: str
-) -> Tuple[BaseGenerator, BaseGenerator, BaseDiscriminator, BaseDiscriminator]:
+) -> Models:
     """Load trained models
 
     :return: tuple with the loaded models
@@ -123,7 +124,7 @@ def load_models(
         print(f"Failed loading models: Cannot find trained models in {path}")
         exit(0)
 
-    return G_A2B, G_B2A, D_A, D_B
+    return Models(G_A2B, G_B2A, D_A, D_B)
 
 
 def load_generators(path: str, name: str) -> Tuple[BaseGenerator, BaseGenerator]:

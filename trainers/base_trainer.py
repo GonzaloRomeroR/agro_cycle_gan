@@ -5,7 +5,6 @@ from typing import Any, Dict, List, Tuple
 from time import gmtime, strftime
 
 import torch
-from models.discriminators.base_discriminator import BaseDiscriminator
 from models.generators.base_generator import BaseGenerator
 from utils.file_utils import save_models
 from utils.plot_utils import plot_generator_images, plot_metrics
@@ -14,7 +13,7 @@ from utils.sys_utils import get_gpu_usage
 from utils.tensorboard_utils import TensorboardHandler
 from utils.report_utils import ResultsReporter
 from utils.image_utils import DatasetDataloaders
-from utils.train_utils import Config
+from utils.train_utils import Config, Models
 from utils.metrics_utils import create_metrics
 
 
@@ -25,10 +24,7 @@ class BaseTrainer(ABC):
 
     def __init__(
         self,
-        G_A2B: BaseGenerator,
-        G_B2A: BaseGenerator,
-        D_A: BaseDiscriminator,
-        D_B: BaseDiscriminator,
+        models: Models,
         models_path: str,
         datasets: DatasetDataloaders,
         config: Config,
@@ -40,14 +36,8 @@ class BaseTrainer(ABC):
     ) -> None:
         """Train the generator and the discriminator
 
-        :param G_A2B: generator to transform images from A to B
-        :type G_A2B: `Generator`
-        :param G_B2A: generator to transform images from B to A
-        :type G_B2A: `Generator`
-        :param D_A: discriminator for images in the domain A
-        :type D_A: `Discriminator`
-        :param D_B: discriminator for images in the domain A
-        :type D_B: `Discriminator`
+        :param models: models to use
+        :type models: `Models`
         :param datasets: object with dataloaders with images
         :type datasets: ´DatasetDataloaders´
         :param models_path: path to load and save the models
@@ -61,16 +51,13 @@ class BaseTrainer(ABC):
         :param params_logger: logger to store the training information, defaults to None
         :type params_logger: `ParamsLogger`, optional
         """
-        self.G_A2B = G_A2B
-        self.G_B2A = G_B2A
-        self.D_A = D_A
-        self.D_B = D_B
         self.models_path = models_path
         self.device = device
         self.plot_epochs = plot_epochs
         self.print_info = print_info
         self.params_logger = params_logger
         self.im_size = im_size
+        self._set_models(models)
         self._set_datasets_config(datasets)
         self._set_config(config)
         self._set_training_params()
@@ -100,6 +87,15 @@ class BaseTrainer(ABC):
         self.metrics = create_metrics(config.metrics)
         if self.tensorboard:
             self._set_tensorboard()
+    
+    def _set_models(self, models: Models):
+        """
+        Set models configuration
+        """
+        self.G_A2B = models.G_A2B
+        self.G_B2A = models.G_B2A
+        self.D_A = models.D_A
+        self.D_B = models.D_B
 
 
     @abstractmethod

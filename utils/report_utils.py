@@ -10,8 +10,7 @@ from generate import ImageTransformer
 
 import matplotlib.pyplot as plt
 from fpdf import FPDF
-from models.discriminators.base_discriminator import BaseDiscriminator
-from models.generators.base_generator import BaseGenerator
+from .train_utils import Models
 from torchsummary import summary
 
 
@@ -189,10 +188,7 @@ class ResultsReporter:
 
     @staticmethod
     def generate_model_file(
-        G_A2B: BaseGenerator,
-        G_B2A: BaseGenerator,
-        D_A: BaseDiscriminator,
-        D_B: BaseDiscriminator,
+        models: Models,
         size: Tuple[int, ...] = (3, 64, 64),
     ) -> None:
         """Creates a txt with the models used"""
@@ -200,13 +196,13 @@ class ResultsReporter:
         with open(f"{file_path}/../results/models.txt", "w") as f:
             with redirect_stdout(f):
                 print("Generator A TO B:")
-                summary(G_A2B, size)
+                summary(models.G_A2B, size)
                 print("\n\nGenerator B TO A:")
-                summary(G_B2A, size)
+                summary(models.G_B2A, size)
                 print("\n\nDiscriminator A:")
-                summary(D_A, size)
+                summary(models.D_A, size)
                 print("\n\nDiscriminator B:")
-                summary(D_B, size)
+                summary(models.D_B, size)
 
     @staticmethod
     def create_pdf() -> None:

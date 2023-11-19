@@ -1,4 +1,4 @@
-from train import train, setup_trainer, Config
+from train import train, _setup_trainer, Config
 from generate import ImageTransformer
 from pathlib import Path
 
@@ -45,7 +45,7 @@ def test_metrics_decreasing():
     config.batch_size = 10
     config.num_epochs = 4
 
-    trainer = setup_trainer(config)
+    trainer = _setup_trainer(config)
     trainer.train()
 
     metric_values = trainer.metrics_per_epoch[next(iter(trainer.metrics_per_epoch))]

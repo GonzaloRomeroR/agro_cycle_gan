@@ -5,6 +5,7 @@ from models.base_model import BaseModel
 from models.discriminators.base_discriminator import BaseDiscriminator
 from models.generators.base_generator import BaseGenerator
 from torch.utils.tensorboard import SummaryWriter
+from .train_utils import Models
 
 
 class TensorboardHandler:
@@ -42,26 +43,17 @@ class TensorboardHandler:
 
 
 def create_models_tb(
-    G_A2B: BaseGenerator,
-    G_B2A: BaseGenerator,
-    D_A: BaseDiscriminator,
-    D_B: BaseDiscriminator,
+    models: Models,
     images: torch.Tensor,
 ) -> None:
     """Create tensorboard runs to store models
 
-    :param G_A2B: Generator from A to B
-    :type G_A2B: `Generator`
-    :param G_B2A: Generator from B to A
-    :type G_B2A: `Generator`
-    :param D_A: Discriminator for A
-    :type D_A: `Discriminator`
-    :param D_B: Discriminator for B
-    :type D_B: `Discriminator`
+    :param models: used models
+    :type models: `Models`
     :param images: Image to get the size
     :type images: Tensor
     """
-    model_dict = {"G_A2B": G_A2B, "G_B2A": G_B2A, "D_A": D_A, "D_B": D_B}
+    model_dict = {"G_A2B": models.G_A2B, "G_B2A": models.G_B2A, "D_A": models.D_A, "D_B": models.D_B}
     for model_name in model_dict.keys():
         tb_model = TensorboardHandler(f"./runs/{model_name}")
         tb_model.add_graph(model_dict[model_name], images)

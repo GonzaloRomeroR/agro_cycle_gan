@@ -3,6 +3,7 @@ from dataclasses import dataclass, field
 
 import torch
 from models.generators.base_generator import BaseGenerator
+from models.discriminators.base_discriminator import BaseDiscriminator
 
 
 @dataclass
@@ -23,6 +24,13 @@ class Config:
     plot_image_epoch: bool = False
     comments: str = ""
     db_connection_str: str = ""
+
+@dataclass
+class Models:
+    G_A2B: BaseGenerator
+    G_B2A: BaseGenerator
+    D_A: BaseDiscriminator
+    D_B: BaseDiscriminator
 
 
 def generate_images_cycle(

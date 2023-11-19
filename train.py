@@ -11,7 +11,7 @@ from utils.parser_utils import parse_arguments
 from utils.report_utils import ParamsLogger, ResultsReporter
 from utils.sys_utils import get_device, system_configuration
 from utils.tensorboard_utils import create_models_tb
-from utils.train_utils import Config
+from utils.train_utils import Config, Models
 
 
 def train(config: Config) -> None:
@@ -70,7 +70,7 @@ def _setup_trainer(config: Config) -> BaseTrainer:
     datasets = datasets_get(dataset_name, im_size[1:], batch_size)
 
     # Create or load models for training
-    G_A2B, G_B2A, D_A, D_B = get_models(
+    models = get_models(
         dataset_name,
         device,
         config.load_models,
@@ -81,37 +81,16 @@ def _setup_trainer(config: Config) -> BaseTrainer:
     # Set tesorboard functions
     if config.tensorboard:
         images, _ = next(iter(datasets.train_A))
-        create_models_tb(G_A2B, G_B2A, D_A, D_B, images.to(device))
+        create_models_tb(models, images.to(device))
 
     # Generate file with the model information
-    ResultsReporter.generate_model_file(G_A2B, G_B2A, D_A, D_B, size=im_size)
+    ResultsReporter.generate_model_file(models, size=im_size)
 
     # Define params for report
-    params_logger = ParamsLogger()
-    domains = config.use_dataset.split("2")
-    log_params = {
-        "comments": config.comments,
-        "date": str(datetime.now()),
-        "dataset": config.use_dataset,
-        "image_size": im_size,
-        "batch_size": batch_size,
-        "configured_epochs": config.num_epochs,
-    }
-    if len(domains) == 2:
-        # The dataset name format is domainA2domainB
-        log_params["domain_A"] = domains[0]
-        log_params["domain_B"] = domains[1]
-
-    for name, model in {"G_A2B": G_A2B, "G_B2A": G_B2A, "D_A": D_A, "D_B": D_B}.items():
-        log_params[f"model_name_{name}"] = model.__class__.__name__
-        log_params[f"learning_rate_{name}"] = model.lr
-    params_logger.set_params(log_params)
+    params_logger = _create_param_logger(config, models, im_size)
 
     trainer = BasicTrainer(
-        G_A2B,
-        G_B2A,
-        D_A,
-        D_B,
+        models,
         f"./results/{dataset_name}",
         datasets,
         config=config,
@@ -120,6 +99,28 @@ def _setup_trainer(config: Config) -> BaseTrainer:
         im_size=im_size,
     )
     return trainer
+
+def _create_param_logger(config: Config, models: Models, im_size):
+    params_logger = ParamsLogger()
+    domains = config.use_dataset.split("2")
+    log_params = {
+        "comments": config.comments,
+        "date": str(datetime.now()),
+        "dataset": config.use_dataset,
+        "image_size": im_size,
+        "batch_size": config.batch_size,
+        "configured_epochs": config.num_epochs,
+    }
+    if len(domains) == 2:
+        # The dataset name format is domainA2domainB
+        log_params["domain_A"] = domains[0]
+        log_params["domain_B"] = domains[1]
+
+    for name, model in {"G_A2B": models.G_A2B, "G_B2A": models.G_B2A, "D_A": models.D_A, "D_B": models.D_B}.items():
+        log_params[f"model_name_{name}"] = model.__class__.__name__
+        log_params[f"learning_rate_{name}"] = model.lr
+    params_logger.set_params(log_params)
+    return params_logger
 
 if __name__ == "__main__":
     config = from_dict(data_class=Config, data=vars(parse_arguments()))
